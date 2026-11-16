@@ -156,4 +156,23 @@ Wren also holds the storeroom key: `Shelter` asks `NightState.wrenGivesKey()`, a
 | `src/audio/` | Web Audio ambience, stings, radio song |
 | `src/scenes/` | title screen, night, end card |
 | `content/` | story data as JSON |
-| `tests/` | unit tests for `systems/` |
+| `tests/` | unit tests for `systems/`, content checks, and a screenless playthrough of Night 1 |
+| `scripts/` | `playtest.cjs`: an optional browser playthrough (needs Playwright) |
+
+## Testing
+
+- `npm test` runs Vitest. `tests/night.test.ts` and friends test the rules with tiny made-up content; `tests/content.test.ts` checks the real story JSON (every outcome has lines, every mimic is catchable, references resolve) and plays the real Night 1 through `NightState` with no screen.
+- `npm run playtest` drives the actual game in a headless browser from the title screen to the end card and fails on any page error. It needs Playwright installed separately, so it is not part of CI.
+- `?debug` exposes `window.__ls` (the `Game` and the current `NightScene`) for poking at state from the browser console.
+
+## Where to go next
+
+Things the design asks for that Night 1 does not have yet, and where they would go:
+
+| Feature | Where |
+| --- | --- |
+| Nights 2 to 5 | new files in `content/nights/`; `main.ts` picks the night |
+| Mimics that learn which check you rely on | `NightState.uses` already counts checks per night; a mimic's `tells` could be chosen from it in `beginVisit` |
+| Inspecting Wren, and yourself | new `Subject`s for the existing close-ups |
+| Endings | conditions on the three stats, like `summary` in the night file |
+| Saving | serialise `NightState` (it is plain data) to `localStorage` |

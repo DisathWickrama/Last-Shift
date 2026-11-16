@@ -34,6 +34,7 @@ npm run dev        # local dev server with hot reload
 npm test           # unit tests (Vitest)
 npm run build      # strict type-check, then production build into dist/
 npm run preview    # serve the production build locally
+npm run playtest   # optional: headless browser playthrough (needs Playwright; dev server must be running)
 ```
 
 Add `?debug` to the URL to show the hidden stats, drift and patience.
@@ -55,6 +56,7 @@ content/
   visitors/      one JSON file per visitor
   wren.json      Wren's face and reactive lines
 tests/           Vitest unit tests for systems/ and content validation
+scripts/         playtest.cjs (browser smoke test)
 docs/            ARCHITECTURE.md
 ```
 
