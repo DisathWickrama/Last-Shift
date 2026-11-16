@@ -1,12 +1,198 @@
 {
   "face": {
-    "seed": "wren", "hair": "bob", "hairColor": "#2a2622", "skin": "#e6c7a6", "iris": "#3c4a3a",
-    "headW": 29, "headH": 38, "jaw": 0.35, "chin": 1.5,
-    "eyeGap": 13, "eyeY": -5, "eyeDropL": 0, "eyeDropR": 0, "eyeW": 6.2, "eyeH": 3.5, "lid": 0.18, "pupil": 1.05,
-    "browY": 5.5, "browTilt": -0.05, "browThick": 2, "browSkew": 0,
-    "noseLen": 11, "noseW": 4.2, "mouthY": 20, "mouthW": 9.5, "smile": 0.3, "mouthSkew": 0, "lip": 1.6,
-    "hairPart": 0.7, "beard": 0, "wrinkles": 0, "glasses": false,
-    "shoulders": 46, "shirt": "#48584a", "blinkEvery": 7
+    "seed": "wren",
+    "hair": "bob",
+    "hairColor": "#2a2622",
+    "skin": "#e6c7a6",
+    "iris": "#3c4a3a",
+    "headW": 29,
+    "headH": 38,
+    "jaw": 0.35,
+    "chin": 1.5,
+    "eyeGap": 13,
+    "eyeY": -5,
+    "eyeDropL": 0,
+    "eyeDropR": 0,
+    "eyeW": 6.2,
+    "eyeH": 3.5,
+    "lid": 0.18,
+    "pupil": 1.05,
+    "browY": 5.5,
+    "browTilt": -0.05,
+    "browThick": 2,
+    "browSkew": 0,
+    "noseLen": 11,
+    "noseW": 4.2,
+    "mouthY": 20,
+    "mouthW": 9.5,
+    "smile": 0.3,
+    "mouthSkew": 0,
+    "lip": 1.6,
+    "hairPart": 0.7,
+    "beard": 0,
+    "wrinkles": 0,
+    "glasses": false,
+    "shoulders": 46,
+    "shirt": "#48584a",
+    "blinkEvery": 7
   },
-  "lines": {}
+  "lines": {
+    "serve.human": [
+      {
+        "text": "There. One fed and watered. Now it's just us again."
+      },
+      {
+        "text": "Gone. Good. I was starting to think that one would move in."
+      },
+      {
+        "text": "You're getting so good at this. At being you.",
+        "minBond": 2
+      }
+    ],
+    "serve.mimic": [
+      {
+        "text": "And off it goes, wearing them like a Sunday shirt. ...What? I'm only saying."
+      },
+      {
+        "text": "Did you see it hold the door for itself? Lovely manners. Somebody raised that."
+      },
+      {
+        "text": "You let that one walk. Funny. I'd have thought you of all people would spot it.",
+        "maxBond": -1
+      }
+    ],
+    "turnAway.human": [
+      {
+        "text": "Cold. I didn't know you had that in you. ...I like knowing."
+      },
+      {
+        "text": "They'll be right. The fog's only weather. Mostly."
+      }
+    ],
+    "turnAway.mimic": [
+      {
+        "text": "Good eye. You always could pick them. Takes one to... takes a good one."
+      },
+      {
+        "text": "It'll stand out there a while. They do. Don't wave."
+      }
+    ],
+    "shelter.human": [
+      {
+        "text": "They're settled. Don't go back there. I mean it. I'll check on them. Only me."
+      },
+      {
+        "text": "They can have the cot. But the door stays locked, and the key stays with me."
+      }
+    ],
+    "shelter.mimic": [
+      {
+        "text": "You do know what you just asked me to put in the back. ...No. You're tired. Never mind."
+      },
+      {
+        "text": "It went through that door very willingly. That should worry one of us."
+      }
+    ],
+    "walkout.human": [
+      {
+        "text": "You looked too long. People don't like being looked at the way you look at them."
+      },
+      {
+        "text": "Scared another one off. More of you for me."
+      }
+    ],
+    "break.mimic": [
+      {
+        "text": "You didn't need to make it show you. They can't help what's underneath."
+      },
+      {
+        "text": "Messy. They're so much nicer when you let them keep it on."
+      }
+    ],
+    "sided": [
+      {
+        "text": "See? We're good at this. You and me."
+      },
+      {
+        "text": "Thank you for listening. You always do, in the end."
+      },
+      {
+        "text": "It's just us up here, Sam. It's better when you remember that.",
+        "minBond": 3
+      }
+    ],
+    "defied": [
+      {
+        "text": "Oh. We're not doing what I said, then."
+      },
+      {
+        "text": "No, no. Your counter. Your call. I only work here."
+      },
+      {
+        "text": "You used to trust me. I think. Didn't you?",
+        "maxBond": -2
+      }
+    ],
+    "kind": [
+      {
+        "text": "On the house. Listen to you. You've never once offered me a coffee."
+      },
+      {
+        "text": "You don't have to be that nice to them. They leave. I don't."
+      },
+      {
+        "text": "Careful. Smile at them like that and they'll take you for a person."
+      }
+    ],
+    "mirror": [
+      {
+        "text": "Don't stare into that thing. It only shows what's standing there."
+      },
+      {
+        "text": "Eyes down here, Sam. Mirrors lie in this light."
+      }
+    ],
+    "hands": [
+      {
+        "text": "Their hands, Sam. Not yours. Yours are fine. I checked."
+      },
+      {
+        "text": "Stop looking at your hands. Please."
+      }
+    ],
+    "keyGive": [
+      {
+        "text": "Fine. But I take them through. You stay where I can see you."
+      },
+      {
+        "text": "All right. Out the back, then. With me. Not you."
+      }
+    ],
+    "keyRefuse": [
+      {
+        "text": "No. Not that one. Not back there."
+      }
+    ],
+    "keyInsist": [
+      {
+        "text": "...Give me a minute to tidy up in there first. Don't follow me."
+      }
+    ],
+    "keyBackDown": [
+      {
+        "text": "Thank you. I knew you'd see it my way."
+      }
+    ],
+    "poke": [
+      {
+        "text": "I'm right here. I'm always right here."
+      },
+      {
+        "text": "Go on. I'm watching. I like watching you work."
+      },
+      {
+        "text": "You don't need to check on me, Sam. I'm not going anywhere."
+      }
+    ]
+  }
 }
