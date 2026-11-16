@@ -1,0 +1,12 @@
+{
+  "face": {
+    "seed": "wren", "hair": "bob", "hairColor": "#2a2622", "skin": "#e6c7a6", "iris": "#3c4a3a",
+    "headW": 29, "headH": 38, "jaw": 0.35, "chin": 1.5,
+    "eyeGap": 13, "eyeY": -5, "eyeDropL": 0, "eyeDropR": 0, "eyeW": 6.2, "eyeH": 3.5, "lid": 0.18, "pupil": 1.05,
+    "browY": 5.5, "browTilt": -0.05, "browThick": 2, "browSkew": 0,
+    "noseLen": 11, "noseW": 4.2, "mouthY": 20, "mouthW": 9.5, "smile": 0.3, "mouthSkew": 0, "lip": 1.6,
+    "hairPart": 0.7, "beard": 0, "wrinkles": 0, "glasses": false,
+    "shoulders": 46, "shirt": "#48584a", "blinkEvery": 7
+  },
+  "lines": {}
+}

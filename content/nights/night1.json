@@ -1,0 +1,16 @@
+{
+  "id": "night1",
+  "number": 1,
+  "title": "Last Fuel",
+  "start": "22:00",
+  "end": "06:00",
+  "timeline": [
+    { "type": "visitor", "visitor": "dale", "at": "22:20" },
+    { "type": "visitor", "visitor": "kid", "at": "23:40" },
+    { "type": "dawn" }
+  ],
+  "scripts": {},
+  "dawn": { "intro": [], "outro": [] },
+  "epilogue": [],
+  "next": "Night 2: Small Talk"
+}

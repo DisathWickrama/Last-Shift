@@ -1,0 +1,104 @@
+{
+  "id": "kid",
+  "title": "A kid, alone",
+  "people": [
+    {
+      "name": "The kid",
+      "isMimic": true,
+      "size": 0.76,
+      "face": {
+        "seed": "kid", "hair": "messy", "hairColor": "#3a2b1e", "skin": "#ecd2ba", "iris": "#4a3b2a",
+        "eyeW": 7.2, "eyeH": 4.4, "eyeGap": 14, "eyeY": -2, "noseLen": 8, "noseW": 3.4, "mouthW": 7, "mouthY": 19,
+        "headW": 30, "headH": 35, "jaw": 0.2, "chin": 0, "beard": 0, "wrinkles": 0, "glasses": false,
+        "shoulders": 34, "shirt": "#6a6258", "browThick": 1.6, "browTilt": -0.4, "smile": -0.12, "lid": 0.05
+      },
+      "tells": {
+        "veins": "none", "reflection": "delayed", "shadow": "many",
+        "drift": ["tooSymmetric", "pupilGrow", "smileHold", "eyeSpread"]
+      }
+    }
+  ],
+  "patience": 6,
+  "greeting": [
+    { "who": "narration", "text": "The bell. Nobody there. Then a hand comes up over the edge of the counter, and a face after it." },
+    { "who": "visitor", "text": "Excuse me. Have you seen my mum and dad?" }
+  ],
+  "annoyed": "Are you nearly finished looking at me?",
+  "notes": {
+    "wrist": "No card. The kid lays both hands flat on the counter, palms up, the way you'd show a teacher they were clean.",
+    "reflection": "The mirror in the corner. The kid sways on its feet. Watch the mirror. Watch the kid.",
+    "shadow": "Small sneakers. One lace undone. The floor around them is busy."
+  },
+  "topics": [
+    {
+      "id": "cold", "tone": "warm",
+      "ask": "No, mate. I'm sorry. Come in out of the cold.",
+      "answer": "It isn't cold.",
+      "note": "The kid's breath doesn't fog. Neither does yours. You hadn't noticed that before."
+    },
+    {
+      "id": "where", "tone": "neutral",
+      "ask": "Where did you last see them?",
+      "answer": "In the car. Dad said wait here. Then somebody said wait here again, from the trees, in Dad's voice. So I waited there instead."
+    },
+    {
+      "id": "name", "tone": "neutral",
+      "ask": "What's your name?",
+      "answer": "{echo|What's yours?}",
+      "note": "It says it the way you said it. The same small rise at the end."
+    },
+    {
+      "id": "look", "tone": "cold", "requires": "where",
+      "ask": "What do your parents look like?",
+      "answer": "Like me. They're going to look just like me."
+    },
+    {
+      "id": "beside", "tone": "strange", "requiresCheck": "shadow", "triggers": "break",
+      "ask": "Who's that standing either side of you?",
+      "answer": "...You can see them?"
+    }
+  ],
+  "wren": {
+    "arrive": "Oh, look at it. Poor little thing.",
+    "advice": "serve",
+    "adviceLine": "It only wants something warm and to be on its way. Look how hard it's trying, Sam. Give it what it wants.",
+    "key": "give",
+    "after": {
+      "serve": "There. Wasn't that kind? You're so good with them.",
+      "turnAway": "It'll find someone softer. They always do. ...Don't look at me like that.",
+      "break": "You didn't have to make it show you. It was doing so well."
+    }
+  },
+  "leave": {
+    "serve": [
+      { "who": "you", "text": "Here. It's hot. There's a ranger station at the bottom of the hill." },
+      { "who": "visitor", "text": "Thank you. You're nice. They said you'd be nice." },
+      { "who": "narration", "text": "It carries the cup out in both hands. It does not drink from it." }
+    ],
+    "turnAway": [
+      { "who": "you", "text": "You can't be in here." },
+      { "who": "visitor", "text": "But I asked properly." },
+      { "who": "narration", "text": "It goes. At the glass it turns around and stands with its hands by its sides, looking in. It is still there the next time you look." }
+    ],
+    "shelter": [
+      { "who": "you", "text": "Come round the back. You can wait there until it's light." },
+      { "who": "visitor", "text": "Is that where you keep them?" },
+      { "who": "narration", "text": "Wren takes its hand before you can ask what it meant." }
+    ],
+    "break": [
+      { "who": "visitor", "text": "Oh. You get it. And you're doing so well, too." },
+      { "who": "narration", "text": "It leaves the way it came. It does not open the door to do it." }
+    ]
+  },
+  "report": {
+    "serve": "A family heading east say they picked up a child walking the centre line near Corrigan's Pass at about five this morning. The Tarrow roadblock reports their car has not come through. It has been four hours.",
+    "turnAway": "Rangers want to stress that no child has been reported missing on the pass. If you see a child on the road, alone, do not stop the car.",
+    "shelter": "Corrigan's Roadhouse did not answer the dawn call-in. A patrol will go up when the fog allows.",
+    "break": "A child's jumper has been found on the centre line east of Corrigan's. It has no label, and no seams.",
+    "missed": "Several drivers report a child standing at the glass of Corrigan's Roadhouse at first light, waiting to be let in."
+  },
+  "flags": {
+    "turnAway": ["lingerer"],
+    "missed": ["lingerer"]
+  }
+}
