@@ -84,6 +84,16 @@ One player action, traced end to end (clicking **Wrists**):
 
 `core/rng.ts` is a small seeded generator (mulberry32). Anything the player could notice changing between runs (faces, vein patterns, which tells a mimic has) uses it. `Math.random()` is only allowed for throwaway noise such as flicker.
 
+## Wren
+
+Wren is three small pieces:
+
+- **Lines** live in `content/wren.json` as pools keyed by situation (`serve.human`, `defied`, `kind`, `mirror`…). A line may carry `minBond` / `maxBond`.
+- **Choosing** is `systems/wren.ts` → `WrenVoice.line(key, bond)`: filter the pool by Bond, avoid repeats, pick one.
+- **Opinion**: every visitor file has a `wren` block with what Wren wants done (`advice`) and the line they say it with. Wren is not always honest. After your first look at a visitor, Wren says it; from then on `NightState.finish()` counts your decision as siding (+1 Bond) or defying (-1 Bond).
+
+Wren also holds the storeroom key: `Shelter` asks `NightState.wrenGivesKey()`, and a refusal becomes a choice (insist: -2 Bond; let it go: +1).
+
 ## Content files
 
 | File | Holds |

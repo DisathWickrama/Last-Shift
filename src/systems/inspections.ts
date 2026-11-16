@@ -39,4 +39,4 @@ export const MINUTES_PER_SECOND = 0.3;
 /** ...and a mimic keeps drifting: drift per real second. */
 export const DRIFT_PER_SECOND = 0.0035;
 /** Seconds of staring into the mirror (or at your own hands) before it costs you. */
-export const STARE_SECONDS = 10;
+export const STARE_SECONDS = 12;

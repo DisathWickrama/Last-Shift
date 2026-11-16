@@ -19,7 +19,7 @@
 import type { Scene } from '../core/scene';
 import type { Game } from '../core/game';
 import { type Renderer, W } from '../render/renderer';
-import { drawRoomBack, drawRoomFront, defaultRoom, VISITOR_SPOT, COUNTER_Y, type RoomState } from '../render/room';
+import { drawRoomBack, drawRoomFront, defaultRoom, VISITOR_SPOT, WREN_SPOT, COUNTER_Y, type RoomState } from '../render/room';
 import { generateFace } from '../render/face';
 import { FaceView } from '../render/faceview';
 import { drawTinted } from '../render/layer';
@@ -29,7 +29,8 @@ import { applyDrift } from '../systems/drift';
 import { NightState, type VisitStatus } from '../systems/night';
 import { CHECKS, TONES, STARE_SECONDS, type CheckKind } from '../systems/inspections';
 import type { Decision, Outcome } from '../systems/stats';
-import { NIGHTS, VISITORS, type Line, type PersonDef, type TopicDef, type Who } from '../core/content';
+import { NIGHTS, VISITORS, WREN, type Line, type PersonDef, type TopicDef, type Who } from '../core/content';
+import { WrenVoice, reactionKey } from '../systems/wren';
 import { lerp, smooth } from '../core/rng';
 import { type Btn, DialogueBox, handleButtons, drawButtons, drawPanel, DIALOGUE, COL_A, COL_B } from '../ui/widgets';
 
@@ -83,9 +84,16 @@ export class NightScene implements Scene {
   private room: RoomState = { ...defaultRoom };
   private time = 0;
   private over = false;
+  /** Wren: always at your right shoulder, always looking at you. */
+  private wren: FaceView;
+  private wrenVoice = new WrenVoice(WREN);
+  /** Where Wren's portrait can be clicked, in virtual pixels. */
+  private readonly wrenZone = { x: 382, y: 98, w: 94, h: 104 };
 
   constructor(private game: Game, nightId = 'night1') {
     this.state = new NightState(NIGHTS[nightId], VISITORS);
+    const { seed, ...pinned } = WREN.face;
+    this.wren = new FaceView(generateFace(seed, pinned), seed);
     if (game.debug) (window as unknown as { __ls: Record<string, unknown> }).__ls.scene = this;
   }
 
@@ -132,6 +140,18 @@ export class NightScene implements Scene {
         restless: this.mode === 'reflection',
       });
     });
+    this.animateWren(dt);
+  }
+
+  private animateWren(dt: number): void {
+    // Wren's face never drifts and almost never looks away from you.
+    this.wren.update(dt, this.wren.base, { talking: this.speaker() === 'wren', stare: 0.9 });
+  }
+
+  /** Queue one of Wren's lines for a situation, if the pool has one that fits the current Bond. */
+  private wrenSays(key: string): void {
+    const line = this.wrenVoice.line(key, this.state.stats.bond);
+    if (line) this.say('wren', line);
   }
 
   /** Who is in the middle of saying a line right now, if anyone. */
@@ -263,6 +283,7 @@ export class NightScene implements Scene {
     this.walkTo = 1;
     this.enqueue({ kind: 'until', done: () => this.walk >= 1 });
     this.lines(visit.def.greeting);
+    if (visit.def.wren.arrive) this.say('wren', visit.def.wren.arrive);
   }
 
   // --- the player's turn ------------------------------------------------------
@@ -274,7 +295,11 @@ export class NightScene implements Scene {
     // Looking too long into the mirror, or at your own hand on the card reader, costs Slip.
     if (this.mode === 'reflection' || this.mode === 'wrist') {
       this.stareT += dt;
-      if (this.stareT > STARE_SECONDS) this.state.stare();
+      if (this.stareT > STARE_SECONDS && this.state.stare()) {
+        // Wren does not like you looking into mirrors, or at your own hands.
+        this.wrenSays(this.mode === 'reflection' ? 'mirror' : 'hands');
+        return;
+      }
     }
     // Drift also creeps up with time, so a mimic can break while you dither.
     if (this.mode === 'counter' && this.state.status() === 'break') {
@@ -282,7 +307,15 @@ export class NightScene implements Scene {
       return;
     }
     this.buttons = this.buildButtons();
-    handleButtons(this.buttons, input);
+    if (handleButtons(this.buttons, input)) return;
+
+    // Clicking Wren: they tell you what they want done (or, if they already have, that they are still here).
+    const z = this.wrenZone;
+    if (this.mode === 'counter' && input.clicked && input.over(z.x, z.y, z.w, z.h)) {
+      input.consume();
+      if (this.state.visit!.heardAdvice) this.wrenSays('poke');
+      else this.say('wren', this.state.hearAdvice());
+    }
   }
 
   private buildButtons(): Btn[] {
@@ -325,7 +358,37 @@ export class NightScene implements Scene {
   }
 
   private decide(decision: Decision): void {
-    this.endVisit(decision);
+    if (decision !== 'shelter') {
+      this.endVisit(decision);
+      return;
+    }
+    // Sheltering means the storeroom, and Wren holds the only key.
+    if (this.state.wrenGivesKey()) {
+      this.wrenSays('keyGive');
+      this.endVisit('shelter');
+      return;
+    }
+    this.wrenSays('keyRefuse');
+    this.enqueue({
+      kind: 'choice',
+      options: [
+        {
+          text: 'Give me the key, Wren.',
+          pick: () => {
+            this.state.insistOnKey();
+            this.wrenSays('keyInsist');
+            this.endVisit('shelter');
+          },
+        },
+        {
+          text: '(let it go)',
+          pick: () => {
+            this.state.apply({ bond: 1 });
+            this.wrenSays('keyBackDown');
+          },
+        },
+      ],
+    });
   }
 
   /** A list of full-width options, for small talk and for choices in scripts. */
@@ -354,15 +417,34 @@ export class NightScene implements Scene {
     this.dialogue.clear();
     this.resolve(this.pending);
     this.pending = 'ok';
+    this.wrenWeighsIn();
+  }
+
+  /**
+   * After your first look at a visitor, Wren leans in and says what they want
+   * done. From then on your decision counts as siding with Wren or defying them.
+   */
+  private wrenWeighsIn(): void {
+    const visit = this.state.visit;
+    if (!visit || visit.heardAdvice || this.state.status() !== 'ok') return;
+    this.say('wren', this.state.hearAdvice());
   }
 
   private ask(topic: TopicDef): void {
+    const firstKindness = topic.tone === 'warm' && !this.state.visit!.wasWarm;
     const result = this.state.ask(topic.id);
     this.mode = 'counter';
     this.say('you', topic.ask);
     this.say(topic.who ?? 'visitor', result.answer);
     if (topic.note) this.say('narration', topic.note);
-    this.enqueue({ kind: 'call', fn: () => this.resolve(result.status) });
+    this.enqueue({
+      kind: 'call',
+      fn: () => {
+        this.resolve(result.status);
+        if (firstKindness) this.wrenSays('kind'); // quietly jealous
+        this.wrenWeighsIn();
+      },
+    });
   }
 
   /** React to what the rules say about the visitor's state after an action. */
@@ -407,10 +489,15 @@ export class NightScene implements Scene {
       {
         kind: 'call',
         fn: () => {
-          this.state.finish(outcome);
+          const record = this.state.finish(outcome);
           this.people = [];
           this.exitBack = false;
           this.dialogue.clear();
+          // Wren always has something to say once the door has shut.
+          const special = visit.def.wren.after?.[outcome];
+          if (special) this.say('wren', special);
+          else this.wrenSays(reactionKey(outcome, visit.def.people));
+          if (record.sided !== null) this.wrenSays(record.sided ? 'sided' : 'defied');
         },
       },
       { kind: 'wait', time: 0.6 },
@@ -429,13 +516,14 @@ export class NightScene implements Scene {
     if (this.mode === 'wrist' && this.people[0]) {
       drawWristCloseup(g, this.time, this.people[0], stats.slip, light);
     } else if (this.mode === 'reflection') {
-      drawMirrorCloseup(g, this.time, this.people, null, light);
+      drawMirrorCloseup(g, this.time, this.people, this.wren, light);
     } else if (this.mode === 'shadow') {
       drawFloorCloseup(g, this.time, this.people, light);
     } else {
       drawRoomBack(g, this.room);
       this.drawPeople(g);
       drawRoomFront(g, this.room);
+      this.drawWren(r);
     }
 
     r.fx.glitch = this.breakT >= 0 && this.breakT < 1.8 ? 0.8 : 0;
@@ -468,6 +556,17 @@ export class NightScene implements Scene {
       }
     }
     g.restore();
+  }
+
+  /** Wren stands on your side of the counter, close, so they are drawn after it and larger. */
+  private drawWren(r: Renderer): void {
+    const dim = (1 - this.room.light) * 0.5;
+    drawTinted(r.g, (l) => this.wren.draw(l, WREN_SPOT.x, WREN_SPOT.y, 1.16), PAL.black, dim);
+    const z = this.wrenZone;
+    const canAsk = this.mode === 'counter' && !this.step && this.queue.length === 0 && this.state.visit;
+    if (canAsk && this.game.input.over(z.x, z.y, z.w, z.h)) {
+      r.text('ask Wren', WREN_SPOT.x, 92, { size: 6, align: 'center', color: PAL.wren });
+    }
   }
 
   /** The strip along the bottom: dialogue on the left, buttons on the right. */
