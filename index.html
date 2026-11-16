@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Last Shift: a slow-burn psychological horror game about the night shift at an isolated mountain roadhouse." />
+    <title>Last Shift</title>
+    <style>
+      html, body { margin: 0; height: 100%; background: #050706; overflow: hidden; }
+      body { display: flex; align-items: center; justify-content: center; }
+      canvas { display: block; image-rendering: pixelated; cursor: crosshair; touch-action: none; }
+    </style>
+  </head>
+  <body>
+    <!-- The whole game is drawn on this one canvas. See src/render/renderer.ts. -->
+    <canvas id="game" aria-label="Last Shift game screen"></canvas>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
