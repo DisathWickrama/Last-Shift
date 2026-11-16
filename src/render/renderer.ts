@@ -72,6 +72,7 @@ export class Renderer {
   /** Start a frame. */
   begin(): void {
     this.texts.length = 0;
+    this.fx = { ...defaultFx }; // effects last one frame unless a scene sets them again
     this.g.setTransform(1, 0, 0, 1, 0, 0);
     this.g.globalAlpha = 1;
     this.g.globalCompositeOperation = 'source-over';
