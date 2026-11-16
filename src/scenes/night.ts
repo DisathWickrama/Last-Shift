@@ -814,6 +814,7 @@ export class NightScene implements Scene {
     r.text(this.state.clock.label, 37, 8, { size: 8, bold: true, align: 'center', color: PAL.sodium });
     const def = this.state.def;
     r.text(`NIGHT ${def.number}  ·  ${def.title.toUpperCase()}`, 8, 23, { size: 6, color: PAL.inkDim });
+    if (this.game.settings.muted) r.text('SOUND OFF  (M)', 8, 31, { size: 6, color: PAL.inkDim });
     if (this.game.debug) this.drawDebug(r);
   }
 

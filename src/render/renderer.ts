@@ -59,8 +59,9 @@ export class Renderer {
   /** Fit the visible canvas to the window, keeping the 16:9 shape. */
   resize(): void {
     const fit = Math.min(window.innerWidth / W, window.innerHeight / H);
-    // Whole-number scales give perfectly even pixels; use them when the window is big enough.
-    const cssScale = fit >= 2 ? Math.floor(fit) : fit;
+    // Snap to half steps (2, 2.5, 3...) once there is room: pixels stay nearly even
+    // without leaving a thick black border on a laptop-sized window.
+    const cssScale = fit >= 2 ? Math.floor(fit * 2) / 2 : fit;
     const dpr = window.devicePixelRatio || 1;
     this.display.style.width = `${W * cssScale}px`;
     this.display.style.height = `${H * cssScale}px`;
