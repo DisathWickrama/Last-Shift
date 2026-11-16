@@ -8,7 +8,6 @@ import type { Game } from '../core/game';
 import { type Renderer, W, H } from '../render/renderer';
 import { drawOutside, defaultRoom } from '../render/room';
 import { PAL, alpha } from '../render/palette';
-import { NightScene } from './night';
 
 export class TitleScene implements Scene {
   private time = 0;
@@ -18,7 +17,7 @@ export class TitleScene implements Scene {
   update(dt: number): void {
     this.time += dt;
     if (this.game.input.advance && !this.game.scenes.busy && this.time > 0.4) {
-      this.game.scenes.go(new NightScene(this.game));
+      this.game.go('night');
     }
   }
 

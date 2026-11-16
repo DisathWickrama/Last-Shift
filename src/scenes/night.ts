@@ -1,88 +1,486 @@
-// The night scene (first version): the counter, one visitor, and live drift.
+// The night scene: where the game is actually played.
 //
-// This version exists to show the face generator working. A stranger walks in;
-// each click pushes their drift up a step, and you can watch the face go
-// subtly wrong. Later chunks replace the clicking with real inspections.
+// It sits between the rules (src/systems/night.ts, which draws nothing) and the
+// renderers (src/render/*, which decide nothing). Its own job is *presentation
+// and pacing*: showing lines one at a time, walking visitors in and out, opening
+// close-ups, and offering buttons.
+//
+// Pattern: "command queue". Anything that should happen in order (say this line,
+// wait for a click, walk to the door, then finish the visit) is pushed onto
+// `queue` as a list of small steps. update() works through one step at a time.
+// When the queue is empty and someone is at the counter, the player is in
+// control and the buttons appear. When the queue is empty and nobody is there,
+// the scene asks NightState for the next event on the timeline.
+//
+//   queue has steps        -> runQueue()   (the game is "talking")
+//   empty, visitor present -> interact()   (the player is choosing)
+//   empty, nobody present  -> nextEvent()  (bring on the next thing)
 
 import type { Scene } from '../core/scene';
 import type { Game } from '../core/game';
-import { type Renderer } from '../render/renderer';
-import { drawRoomBack, drawRoomFront, defaultRoom, VISITOR_SPOT, type RoomState } from '../render/room';
+import { type Renderer, W } from '../render/renderer';
+import { drawRoomBack, drawRoomFront, defaultRoom, VISITOR_SPOT, COUNTER_Y, type RoomState } from '../render/room';
 import { generateFace } from '../render/face';
 import { FaceView } from '../render/faceview';
 import { drawTinted } from '../render/layer';
-import { applyDrift, ALL_TELLS, type DriftTell } from '../systems/drift';
-import { Rng, clamp, lerp, smooth } from '../core/rng';
+import { drawWristCloseup, drawMirrorCloseup, drawFloorCloseup } from '../render/closeups';
 import { PAL } from '../render/palette';
+import { applyDrift } from '../systems/drift';
+import { NightState, type VisitStatus } from '../systems/night';
+import { CHECKS, TONES, STARE_SECONDS, type CheckKind } from '../systems/inspections';
+import type { Outcome } from '../systems/stats';
+import { NIGHTS, VISITORS, type Line, type PersonDef, type TopicDef, type Who } from '../core/content';
+import { lerp, smooth } from '../core/rng';
+import { type Btn, DialogueBox, handleButtons, drawButtons, drawPanel, DIALOGUE, COL_A, COL_B } from '../ui/widgets';
+
+/** What the player is looking at while they are in control. */
+type Mode = 'counter' | 'talk' | CheckKind;
+
+/** One entry in the command queue. */
+type Step =
+  | { kind: 'say'; who: Who; text: string } // show a line, wait for a click
+  | { kind: 'wait'; time: number } // do nothing for a moment
+  | { kind: 'call'; fn: () => void } // run some code, then carry on
+  | { kind: 'until'; done: () => boolean } // hold until something has finished (e.g. a walk)
+  | { kind: 'choice'; options: Option[] }; // offer options, wait for a pick
+
+interface Option {
+  text: string;
+  pick: () => void;
+}
+
+/** A person standing in the shop: their data, their live face, and where they stand. */
+interface PersonView {
+  def: PersonDef;
+  view: FaceView;
+  x: number;
+  y: number;
+  scale: number;
+}
+
+const WALK_IN_SECONDS = 2.4;
+const WALK_OUT_SECONDS = 1.8;
+const BREAK_SECONDS = 1.9;
 
 export class NightScene implements Scene {
-  private room: RoomState = { ...defaultRoom };
-  private visitor!: FaceView;
-  private tells: DriftTell[] = [];
-  private drift = 0;
+  private state: NightState;
+  private queue: Step[] = [];
+  private step: Step | null = null;
+  private dialogue = new DialogueBox();
+  private buttons: Btn[] = [];
+  private mode: Mode = 'counter';
+  private people: PersonView[] = [];
   /** 0 = at the door, 1 = at the counter. */
   private walk = 0;
-  private count = 0;
+  private walkTo = 0;
+  /** Leaving through the back (sheltered) instead of the front door. */
+  private exitBack = false;
+  /** Seconds into the "mask slips" animation, or -1 when nobody is breaking. */
+  private breakT = -1;
+  /** A status found during a close-up, dealt with once the player steps back. */
+  private pending: VisitStatus = 'ok';
+  private stareT = 0;
+  private room: RoomState = { ...defaultRoom };
+  private time = 0;
+  private over = false;
 
-  constructor(private game: Game) {
-    this.nextVisitor();
+  constructor(private game: Game, nightId = 'night1') {
+    this.state = new NightState(NIGHTS[nightId], VISITORS);
+    if (game.debug) (window as unknown as { __ls: Record<string, unknown> }).__ls.scene = this;
   }
 
-  private nextVisitor(): void {
-    this.count++;
-    const seed = `stranger-${this.count}`;
-    this.visitor = new FaceView(generateFace(seed), seed);
-    // Each stranger gets three tells, chosen by the same seed.
-    const rng = new Rng(seed + '-tells');
-    const pool = ALL_TELLS.filter((t) => t !== 'hairFlip' || !['bald', 'cap', 'beanie'].includes(this.visitor.base.hair));
-    this.tells = [];
-    while (this.tells.length < 3) {
-      const t = rng.pick(pool);
-      if (!this.tells.includes(t)) this.tells.push(t);
-    }
-    this.drift = 0;
-    this.walk = 0;
-  }
+  // ---------------------------------------------------------------------------
+  // update
+  // ---------------------------------------------------------------------------
 
   update(dt: number): void {
+    this.time += dt;
+    this.room.time = this.time;
+    this.animate(dt);
+
+    if (this.step || this.queue.length > 0) this.runQueue(dt);
+    else if (this.state.visit) this.interact(dt);
+    else this.nextEvent();
+  }
+
+  /** Things that move on their own every step: walking, the door, faces. */
+  private animate(dt: number): void {
     const { input } = this.game;
-    this.room.time += dt;
-    this.walk = clamp(this.walk + dt / 2.4, 0, 1);
-    this.room.doorOpen = this.walk < 0.5 ? smooth(this.walk * 4) : smooth((1 - this.walk) * 2);
+    if (this.walk < this.walkTo) this.walk = Math.min(this.walkTo, this.walk + dt / WALK_IN_SECONDS);
+    else if (this.walk > this.walkTo) this.walk = Math.max(this.walkTo, this.walk - dt / WALK_OUT_SECONDS);
 
-    if (this.walk >= 1 && (input.clicked || input.pressed(']'))) {
-      this.drift += 0.2;
-      if (this.drift > 1.01) this.nextVisitor();
-    }
-    if (input.pressed('[')) this.drift = 0;
-    if (input.pressed('n')) this.nextVisitor();
+    const atDoor = this.people.length > 0 && !this.exitBack && this.walk > 0.01 && this.walk < 0.45;
+    this.room.doorOpen = lerp(this.room.doorOpen, atDoor ? 1 : 0, 1 - Math.exp(-dt * 7));
 
-    const target = applyDrift(this.visitor.base, this.drift, this.tells);
-    this.visitor.update(dt, target, {
-      lookX: (input.x - VISITOR_SPOT.x) / 200,
-      lookY: (input.y - VISITOR_SPOT.y) / 150,
-      stare: this.drift,
+    if (this.breakT >= 0) this.breakT += dt;
+    const slack = this.slackNow();
+
+    const visit = this.state.visit;
+    const hidden = this.mode === 'wrist' || this.mode === 'shadow';
+    this.people.forEach((p, i) => {
+      // This is the join between rules and pixels: ask the drift model what this
+      // face should look like now, and hand the answer to the view.
+      const drift = visit && p.def.isMimic ? visit.drift : 0;
+      const target = applyDrift(p.view.base, drift, p.def.tells.drift ?? []);
+      p.view.update(dt, target, {
+        talking: this.speaker() === (i === 0 ? 'visitor' : 'companion'),
+        lookX: (input.x - p.x) / 200,
+        lookY: (input.y - p.y) / 150,
+        stare: drift,
+        hidden,
+        slack: p.def.isMimic ? slack : 0,
+        restless: this.mode === 'reflection',
+      });
     });
   }
 
+  /** Who is in the middle of saying a line right now, if anyone. */
+  private speaker(): Who | null {
+    return this.step?.kind === 'say' && this.dialogue.typing ? this.step.who : null;
+  }
+
+  /**
+   * How far the mask has slipped, 0..1. DESIGN.md asks for "quick, glitchy
+   * flashes, not long gore scenes": so the true face flickers in and out for a
+   * second, holds for half a second, and is gone.
+   */
+  private slackNow(): number {
+    const t = this.breakT;
+    if (t < 0) return 0;
+    if (t < 1.3) {
+      const slot = Math.floor(t * 14);
+      const on = (slot * 7919) % 5 < 2; // an irregular but repeatable on/off pattern
+      return on ? Math.min(1, 0.45 + t * 0.6) : 0;
+    }
+    return t < 1.8 ? 1 : 0;
+  }
+
+  // --- the command queue ------------------------------------------------------
+
+  private enqueue(...steps: Step[]): void {
+    this.queue.push(...steps);
+  }
+
+  private say(who: Who, text: string): void {
+    this.enqueue({ kind: 'say', who, text });
+  }
+
+  private lines(lines: readonly Line[]): void {
+    for (const line of lines) this.say(line.who, line.text);
+  }
+
+  private runQueue(dt: number): void {
+    const { input } = this.game;
+    if (!this.step) {
+      this.step = this.queue.shift()!;
+      if (this.step.kind === 'say') {
+        const [name, color] = this.nameOf(this.step.who);
+        this.dialogue.say(name, color, this.step.text);
+      }
+    }
+    const s = this.step;
+    this.buttons = [];
+    switch (s.kind) {
+      case 'say':
+        this.dialogue.update(dt);
+        if (input.advance) {
+          input.consume();
+          // First press finishes the line; the next one moves on.
+          if (this.dialogue.typing) this.dialogue.finish();
+          else this.step = null;
+        }
+        break;
+      case 'wait':
+        s.time -= dt;
+        if (s.time <= 0) this.step = null;
+        break;
+      case 'call':
+        this.step = null; // cleared first, because fn() may add more steps
+        s.fn();
+        break;
+      case 'until':
+        if (s.done()) this.step = null;
+        break;
+      case 'choice':
+        this.buttons = this.optionButtons(s.options);
+        handleButtons(this.buttons, input);
+        break;
+    }
+  }
+
+  private nameOf(who: Who): [string, string] {
+    switch (who) {
+      case 'visitor':
+        return [this.people[0]?.def.name ?? '', PAL.fluoro];
+      case 'companion':
+        return [this.people[1]?.def.name ?? '', PAL.fluoro];
+      case 'wren':
+        return ['Wren', PAL.wren];
+      case 'you':
+        return ['You', PAL.you];
+      case 'radio':
+        return ['CB radio', PAL.radio];
+      default:
+        return ['', PAL.inkDim];
+    }
+  }
+
+  // --- the timeline -----------------------------------------------------------
+
+  private nextEvent(): void {
+    if (this.over) return;
+    const ev = this.state.nextEvent();
+    if (!ev || ev.type === 'dawn') {
+      this.over = true;
+      this.game.go('end', {
+        heading: '6:00 AM',
+        lines: ['The shift is over.'],
+        next: this.state.def.next,
+      });
+    } else if (ev.type === 'visitor') {
+      this.arrive(ev.visitor);
+    }
+  }
+
+  private arrive(id: string): void {
+    const visit = this.state.beginVisit(id);
+    const n = visit.def.people.length;
+    this.people = visit.def.people.map((def, i) => {
+      const size = def.size ?? 1;
+      const { seed, ...pinned } = def.face;
+      return {
+        def,
+        view: new FaceView(generateFace(seed, pinned), seed),
+        x: VISITOR_SPOT.x + (i - (n - 1) / 2) * 76,
+        y: VISITOR_SPOT.y + (1 - size) * 165, // shorter people stand lower in the frame
+        scale: size * 1.04,
+      };
+    });
+    this.mode = 'counter';
+    this.exitBack = false;
+    this.walk = 0;
+    this.walkTo = 1;
+    this.enqueue({ kind: 'until', done: () => this.walk >= 1 });
+    this.lines(visit.def.greeting);
+  }
+
+  // --- the player's turn ------------------------------------------------------
+
+  private interact(dt: number): void {
+    const { input } = this.game;
+    this.state.tick(dt);
+
+    // Looking too long into the mirror, or at your own hand on the card reader, costs Slip.
+    if (this.mode === 'reflection' || this.mode === 'wrist') {
+      this.stareT += dt;
+      if (this.stareT > STARE_SECONDS) this.state.stare();
+    }
+    // Drift also creeps up with time, so a mimic can break while you dither.
+    if (this.mode === 'counter' && this.state.status() === 'break') {
+      this.breakOut();
+      return;
+    }
+    this.buttons = this.buildButtons();
+    handleButtons(this.buttons, input);
+  }
+
+  private buildButtons(): Btn[] {
+    const visit = this.state.visit!;
+    const out: Btn[] = [];
+    if (this.mode === 'counter') {
+      const kinds: CheckKind[] = ['wrist', 'reflection', 'shadow'];
+      kinds.forEach((kind, i) => {
+        out.push({
+          x: COL_A.x, y: 207 + i * 15, w: COL_A.w, h: 13,
+          label: CHECKS[kind].label, hint: `${CHECKS[kind].minutes}m`, key: String(i + 1),
+          onClick: () => this.check(kind),
+        });
+      });
+      out.push({
+        x: COL_A.x, y: 252, w: COL_A.w, h: 13,
+        label: 'Small talk', hint: `${TONES.neutral.minutes}m`, key: '4',
+        disabled: this.state.topics().length === 0,
+        onClick: () => (this.mode = 'talk'),
+      });
+      out.push(...this.decisionButtons());
+    } else if (this.mode === 'talk') {
+      const options: Option[] = this.state.topics().slice(0, 4).map((t) => ({ text: t.ask, pick: () => this.ask(t) }));
+      options.push({ text: '(say nothing more)', pick: () => (this.mode = 'counter') });
+      return this.optionButtons(options);
+    } else {
+      out.push({ x: COL_B.x, y: 207, w: COL_B.w, h: 20, label: 'Step back', key: 'b', onClick: () => this.stepBack() });
+    }
+    void visit;
+    return out;
+  }
+
+  /** The right-hand column. For now, one button that sends the visitor on their way. */
+  private decisionButtons(): Btn[] {
+    return [
+      { x: COL_B.x, y: 207, w: COL_B.w, h: 18, label: 'Send them on', key: 'q', onClick: () => this.endVisit('serve') },
+    ];
+  }
+
+  /** A list of full-width options, for small talk and for choices in scripts. */
+  private optionButtons(options: Option[]): Btn[] {
+    return options.map((o, i) => ({
+      x: 6, y: 207 + i * 12, w: W - 12, h: 11, left: true,
+      label: `${i + 1}. ${o.text}`, key: String(i + 1),
+      onClick: () => {
+        this.step = null;
+        o.pick();
+      },
+    }));
+  }
+
+  private check(kind: CheckKind): void {
+    const visit = this.state.visit!;
+    this.pending = this.state.inspect(kind);
+    this.mode = kind;
+    this.stareT = 0;
+    this.dialogue.say('', PAL.inkDim, visit.def.notes?.[kind] ?? '');
+    this.dialogue.finish();
+  }
+
+  private stepBack(): void {
+    this.mode = 'counter';
+    this.dialogue.clear();
+    this.resolve(this.pending);
+    this.pending = 'ok';
+  }
+
+  private ask(topic: TopicDef): void {
+    const result = this.state.ask(topic.id);
+    this.mode = 'counter';
+    this.say('you', topic.ask);
+    this.say(topic.who ?? 'visitor', result.answer);
+    if (topic.note) this.say('narration', topic.note);
+    this.enqueue({ kind: 'call', fn: () => this.resolve(result.status) });
+  }
+
+  /** React to what the rules say about the visitor's state after an action. */
+  private resolve(status: VisitStatus): void {
+    const visit = this.state.visit;
+    if (!visit) return;
+    if (status === 'annoyed') {
+      this.state.warned();
+      this.say('visitor', visit.def.annoyed);
+    } else if (status === 'walkout') {
+      this.endVisit('walkout');
+    } else if (status === 'break') {
+      this.breakOut();
+    }
+  }
+
+  /** The mask slips: a second of flashes, then it leaves. */
+  private breakOut(): void {
+    this.mode = 'counter';
+    this.enqueue(
+      { kind: 'call', fn: () => (this.breakT = 0) },
+      { kind: 'until', done: () => this.breakT > BREAK_SECONDS },
+      { kind: 'call', fn: () => (this.breakT = -1) },
+    );
+    this.endVisit('break');
+  }
+
+  /** Play the leaving lines, walk them out, and tell the rules how it ended. */
+  private endVisit(outcome: Outcome): void {
+    const visit = this.state.visit!;
+    this.mode = 'counter';
+    this.lines(visit.def.leave[outcome] ?? []);
+    this.enqueue(
+      {
+        kind: 'call',
+        fn: () => {
+          this.exitBack = outcome === 'shelter';
+          this.walkTo = 0;
+        },
+      },
+      { kind: 'until', done: () => this.walk <= 0 },
+      {
+        kind: 'call',
+        fn: () => {
+          this.state.finish(outcome);
+          this.people = [];
+          this.exitBack = false;
+          this.dialogue.clear();
+        },
+      },
+      { kind: 'wait', time: 0.6 },
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // draw
+  // ---------------------------------------------------------------------------
+
   draw(r: Renderer): void {
     const g = r.g;
-    drawRoomBack(g, this.room);
+    const stats = this.state.stats;
+    const light = this.room.light;
 
-    // Walking in: the visitor starts small and dark at the door, and grows as they approach.
+    if (this.mode === 'wrist' && this.people[0]) {
+      drawWristCloseup(g, this.time, this.people[0], stats.slip, light);
+    } else if (this.mode === 'reflection') {
+      drawMirrorCloseup(g, this.time, this.people, null, light);
+    } else if (this.mode === 'shadow') {
+      drawFloorCloseup(g, this.time, this.people, light);
+    } else {
+      drawRoomBack(g, this.room);
+      this.drawPeople(g);
+      drawRoomFront(g, this.room);
+    }
+
+    r.fx.glitch = this.breakT >= 0 && this.breakT < 1.8 ? 0.8 : 0;
+    r.fx.gore = this.slackNow() > 0 ? 0.22 : 0;
+
+    this.drawBand(r);
+    this.drawHud(r);
+  }
+
+  private drawPeople(g: CanvasRenderingContext2D): void {
+    if (this.people.length === 0 || (this.walk <= 0 && this.walkTo <= 0)) return;
     const t = smooth(this.walk);
-    const scale = lerp(0.42, 1, t);
-    const y = lerp(104, VISITOR_SPOT.y, t);
     g.save();
     g.beginPath();
-    g.rect(0, 0, 480, 196); // nothing below the counter line
+    g.rect(0, 0, W, COUNTER_Y); // the counter hides everything below it
     g.clip();
-    drawTinted(g, (l) => this.visitor.draw(l, VISITOR_SPOT.x, y, scale), PAL.fogDark, (1 - t) * 0.85);
+    // Draw the second person first so the one doing the talking stands in front.
+    for (let i = this.people.length - 1; i >= 0; i--) {
+      const p = this.people[i];
+      const dim = (1 - this.room.light) * 0.5;
+      if (this.exitBack) {
+        // Led away to the right, towards the storeroom, fading as they go.
+        drawTinted(g, (l) => p.view.draw(l, p.x + (1 - t) * 170, p.y, p.scale), PAL.fogDark, dim, t);
+      } else {
+        // Coming in from the door: small and dark at first, like a shape in the fog.
+        const x = lerp(226 + (p.x - VISITOR_SPOT.x) * 0.3, p.x, t);
+        const y = lerp(104, p.y, t);
+        const scale = lerp(0.42, 1, t) * p.scale;
+        drawTinted(g, (l) => p.view.draw(l, x, y, scale), PAL.fogDark, Math.min(1, (1 - t) * 0.85 + dim));
+      }
+    }
     g.restore();
+  }
 
-    drawRoomFront(g, this.room);
+  /** The strip along the bottom: dialogue on the left, buttons on the right. */
+  private drawBand(r: Renderer): void {
+    const { input } = this.game;
+    const options = this.mode === 'talk' || this.step?.kind === 'choice';
+    if (!options) {
+      this.dialogue.draw(r, this.time, DIALOGUE, this.step?.kind === 'say');
+      const idle = !this.step && this.queue.length === 0 && this.state.visit && this.mode === 'counter';
+      if (idle && !this.dialogue.text) {
+        r.text('Inspect them, talk to them, or decide.', DIALOGUE.x + 7, DIALOGUE.y + 6, { size: 7, color: PAL.inkDim });
+      }
+    }
+    drawButtons(r, this.buttons, input);
+  }
 
-    r.text(`drift ${this.drift.toFixed(1)}   tells: ${this.tells.join(', ')}`, 8, 232, { color: PAL.inkDim, size: 7 });
-    r.text('click: more drift    [ : reset    N : next stranger', 8, 246, { color: PAL.ink, size: 8 });
+  private drawHud(r: Renderer): void {
+    drawPanel(r.g, 6, 5, 62, 14);
+    r.text(this.state.clock.label, 37, 8, { size: 8, bold: true, align: 'center', color: PAL.sodium });
+    const def = this.state.def;
+    r.text(`NIGHT ${def.number}  ·  ${def.title.toUpperCase()}`, 8, 23, { size: 6, color: PAL.inkDim });
   }
 }

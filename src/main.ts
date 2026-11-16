@@ -10,8 +10,10 @@ import { startLoop } from './core/loop';
 import { SceneManager } from './core/scene';
 import { Input } from './core/input';
 import { Renderer } from './render/renderer';
-import type { Game } from './core/game';
+import type { Game, EndData } from './core/game';
 import { TitleScene } from './scenes/title';
+import { NightScene } from './scenes/night';
+import { EndScene } from './scenes/end';
 
 const canvas = document.getElementById('game') as HTMLCanvasElement;
 const params = new URLSearchParams(location.search);
@@ -25,9 +27,15 @@ const game: Game = {
     muted: false,
   },
   debug: params.has('debug'),
+  // The one place that knows which scenes exist.
+  go(scene: 'title' | 'night' | 'end', data?: EndData): void {
+    if (scene === 'title') game.scenes.go(new TitleScene(game));
+    else if (scene === 'night') game.scenes.go(new NightScene(game));
+    else if (data) game.scenes.go(new EndScene(game, data));
+  },
 };
 
-game.scenes.go(new TitleScene(game));
+game.go('title');
 
 startLoop(
   (dt) => {

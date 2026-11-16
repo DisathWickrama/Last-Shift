@@ -46,7 +46,24 @@ Scenes sit in the middle. Each frame a scene asks the systems "what is true now?
 
 ### 3. A night is a state machine fed by JSON
 
-*(arrives in a later chunk; this section will be filled in then)*
+`systems/night.ts` → `NightState` is the model of one night: the clock, the hidden stats, the visitor at the counter (their drift and patience), and a log of how each visit ended. It reads a night file (`content/nights/night1.json`) whose `timeline` lists what happens in order, and visitor files (`content/visitors/*.json`) that hold each person's face, tells, dialogue and outcomes.
+
+`scenes/night.ts` → `NightScene` presents that model. It uses a **command queue**: anything that must happen in order (say a line, wait for a click, walk to the door, finish the visit) is pushed onto a list of small steps and worked through one at a time.
+
+```
+queue has steps          → the game is "talking": show lines, play walks
+queue empty, visitor in  → the player's turn: buttons appear
+queue empty, nobody in   → ask NightState for the next timeline event
+```
+
+One player action, traced end to end (clicking **Wrists**):
+
+1. `ui/widgets.ts` `handleButtons` sees the click and runs the button's `onClick`.
+2. `NightScene.check('wrist')` calls `NightState.inspect('wrist')`.
+3. `inspect` looks up the cost in `systems/inspections.ts`, advances the clock, adds drift if a mimic is present, takes patience, and returns a status (`ok`, `annoyed`, `walkout`, `break`).
+4. The scene switches to the wrist close-up. `render/closeups.ts` draws the arms, reading the visitor's `tells.veins` from their JSON to decide what the veins look like.
+5. Meanwhile, every step, `animate()` asks `applyDrift` for the face the visitor should have now and passes it to their `FaceView`, so when you step back the face may have moved on.
+6. On **Step back**, the scene acts on the status: an annoyed line, a walk-out, or the mask slipping.
 
 ## How a frame reaches the screen
 
@@ -67,13 +84,24 @@ Scenes sit in the middle. Each frame a scene asks the systems "what is true now?
 
 `core/rng.ts` is a small seeded generator (mulberry32). Anything the player could notice changing between runs (faces, vein patterns, which tells a mimic has) uses it. `Math.random()` is only allowed for throwaway noise such as flicker.
 
+## Content files
+
+| File | Holds |
+| --- | --- |
+| `content/visitors/<id>.json` | one visit: the people (face seed, pinned sliders, tells), patience, greeting, small-talk topics, Wren's opinion, leaving lines and dawn-report lines for every outcome |
+| `content/nights/night1.json` | the timeline, named scripts, dawn report framing, epilogue |
+| `content/wren.json` | Wren's face and pools of reactive lines |
+
+`core/content.ts` has the TypeScript types for all of these and loads them with Vite's `import.meta.glob`, so a new visitor file is picked up without touching code.
+
 ## Folder map
 
 | Folder | Job |
 | --- | --- |
-| `src/core/` | loop, scene manager, input, RNG, the shared `Game` object |
-| `src/render/` | renderer, palette, face generator, face view, room, filters |
-| `src/systems/` | pure game rules (so far: drift) |
-| `src/scenes/` | title screen, night |
-| `content/` | story data as JSON (so far empty) |
+| `src/core/` | loop, scene manager, input, RNG, content types + loader, the shared `Game` object |
+| `src/render/` | renderer, palette, face generator, face view, room, close-ups, filters |
+| `src/systems/` | pure game rules: drift, clock, inspections, stats, night state, Wren's line picker, dawn report |
+| `src/ui/` | buttons, panels, the dialogue box |
+| `src/scenes/` | title screen, night, end card |
+| `content/` | story data as JSON |
 | `tests/` | unit tests for `systems/` |

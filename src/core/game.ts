@@ -15,6 +15,15 @@ export interface Settings {
   muted: boolean;
 }
 
+/** What the end card shows. Built by the night scene when the shift is over. */
+export interface EndData {
+  heading: string;
+  lines: string[];
+  next: string;
+  /** Only shown with ?debug. */
+  debug?: string;
+}
+
 export interface Game {
   r: Renderer;
   input: Input;
@@ -22,4 +31,10 @@ export interface Game {
   settings: Settings;
   /** True when the URL has ?debug: shows the hidden numbers. */
   debug: boolean;
+  /**
+   * Change scene by name. Scenes call this instead of importing each other,
+   * which would create circular imports (title -> night -> end -> title).
+   */
+  go(scene: 'title' | 'night'): void;
+  go(scene: 'end', data: EndData): void;
 }
