@@ -478,7 +478,8 @@ export function drawFace(g: G, p: FaceParams, x: number, y: number, scale: numbe
   g.fillStyle = shade(skin, 0.87);
   g.fillRect(p.headW * 0.58, -p.headH * 1.2, p.headW, p.headH * 3 + drop);
   if (p.beard > 0) {
-    g.globalAlpha = Math.min(0.92, p.beard * 0.85);
+    // light values read as stubble, heavy ones as a full beard
+    g.globalAlpha = p.beard < 0.6 ? p.beard * 0.45 : Math.min(0.92, p.beard * 0.9);
     g.fillStyle = shade(p.hairColor, 0.95);
     g.beginPath();
     g.moveTo(-p.headW - 2, p.mouthY - 12);
@@ -528,20 +529,27 @@ export function drawBackOfHead(g: G, p: FaceParams, x: number, y: number, scale:
   g.rotate(tilt);
   drawHairBack(g, p);
   const covered = p.hair === 'cap' || p.hair === 'beanie';
+  const skin = shade(lit(p.skin), 0.8);
   headPath(g, p);
-  g.fillStyle = p.hair === 'bald' ? shade(lit(p.skin), 0.8) : covered ? shade(p.hairColor, 0.9) : p.hairColor;
+  g.fillStyle = p.hair === 'bald' ? skin : shade(p.hairColor, 0.92);
   g.fill();
+  // Short hair stops at the nape of the neck; long hair covers it.
+  if (p.hair !== 'long' && p.hair !== 'bob' && p.hair !== 'bald') {
+    g.save();
+    headPath(g, p);
+    g.clip();
+    g.fillStyle = skin;
+    g.fillRect(-p.headW, p.headH * 0.5, p.headW * 2, p.headH);
+    g.restore();
+  }
   if (covered) {
     const top = -4 + (-p.headH - 2 + 4) / 0.75;
     g.fillStyle = p.hat;
     g.beginPath();
-    g.moveTo(-p.headW - 1.5, -p.headH * 0.3);
-    g.bezierCurveTo(-p.headW - 1.5, top - 2, p.headW + 1.5, top - 2, p.headW + 1.5, -p.headH * 0.3);
+    g.moveTo(-p.headW - 1.5, -p.headH * 0.25);
+    g.bezierCurveTo(-p.headW - 1.5, top - 2, p.headW + 1.5, top - 2, p.headW + 1.5, -p.headH * 0.25);
     g.closePath();
     g.fill();
   }
-  // a strip of neck below the hairline
-  g.fillStyle = shade(lit(p.skin), 0.7);
-  g.fillRect(-p.headW * 0.4, p.headH * 0.72, p.headW * 0.8, 8);
   g.restore();
 }

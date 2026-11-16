@@ -24,6 +24,8 @@ export interface FaceInputs {
   hidden?: boolean;
   /** 0..1 the mask slipping. */
   slack?: number;
+  /** Shift weight more often and further (used while you watch them in the mirror). */
+  restless?: boolean;
 }
 
 export class FaceView {
@@ -106,8 +108,10 @@ export class FaceView {
     // --- shifting weight ---
     this.leanIn -= dt;
     if (this.leanIn <= 0) {
-      this.leanIn = this.rng.range(1.2, 2.6);
-      this.leanTarget = this.rng.range(-1, 1) * 5;
+      this.leanIn = inp.restless ? this.rng.range(0.9, 1.7) : this.rng.range(1.6, 3.2);
+      // Pick a clearly different spot each time, so the movement reads as a movement.
+      const reach = inp.restless ? 11 : 4;
+      this.leanTarget = (this.leanTarget > 0 ? -1 : 1) * this.rng.range(0.35, 1) * reach;
     }
     this.lean = lerp(this.lean, this.leanTarget, 1 - Math.exp(-dt * 4));
     this.anim.tilt = this.lean * 0.012;
