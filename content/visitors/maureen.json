@@ -1,0 +1,98 @@
+{
+  "id": "maureen",
+  "title": "Maureen, grey nomad",
+  "people": [
+    {
+      "name": "Maureen",
+      "isMimic": false,
+      "face": {
+        "seed": "maureen", "hair": "bun", "hairColor": "#a9a296", "skin": "#e6c7a6", "iris": "#46566a",
+        "glasses": true, "wrinkles": 0.8, "smile": 0.38, "browTilt": -0.2, "browThick": 1.7, "lid": 0.22,
+        "jaw": 0.4, "beard": 0, "shoulders": 44, "shirt": "#70685a", "headW": 29, "headH": 37
+      },
+      "tells": { "veins": "human", "reflection": "human", "shadow": "human" }
+    }
+  ],
+  "patience": 9,
+  "greeting": [
+    { "who": "narration", "text": "The bell. A small woman in a quilted vest, carrying a paper plate under cling wrap as if it were the crown jewels." },
+    { "who": "visitor", "text": "Oh, thank goodness, a light on. I'm Maureen. I baked these at the van park in Tarrow this morning and I've nobody left to give them to. Go on, love. You look like you could use it." },
+    { "who": "narration", "set": "scone", "text": "She sets a scone on the counter and reads your name tag. \"Sam. That's a good plain name.\" It takes you a second to realise she means you." }
+  ],
+  "annoyed": "Now, I don't mind a careful young person. But I am seventy-one, and I have been standing a while.",
+  "notes": {
+    "wrist": "She pays from a purse that shuts with a kiss-clasp. Skin like tissue paper. Every vein she owns is on show.",
+    "reflection": "In the mirror: a small bent back and a grey bun. It moves when she moves.",
+    "shadow": "Sensible shoes. One shadow, soft at the edges, tucked under her like a cat."
+  },
+  "topics": [
+    {
+      "id": "alone", "tone": "neutral", "minutes": 20,
+      "ask": "Travelling on your own?",
+      "answer": "Forty-one years with Ken, then two without. The van's quieter now. Not better. He did all the reversing."
+    },
+    {
+      "id": "headed", "tone": "neutral", "minutes": 20,
+      "ask": "Where are you headed?",
+      "answer": "Mullane Flat, for the dahlia show. If they ever open the road. I've a tuber in the van fridge that won't keep forever."
+    },
+    {
+      "id": "thanks", "tone": "warm", "minutes": 15,
+      "ask": "That's very kind of you. Thank you.",
+      "answer": "Eat it while the cream's cold. That's all I ask.",
+      "note": "You don't. You smile, and you move the plate a little to one side."
+    },
+    {
+      "id": "why", "tone": "cold", "minutes": 15,
+      "ask": "Why are you being so nice to me?",
+      "answer": "Oh, love. Has nobody been?",
+      "note": "You find you don't have an answer ready."
+    },
+    {
+      "id": "ken", "tone": "strange", "requires": "alone", "minutes": 20,
+      "ask": "What did Ken's hands look like?",
+      "answer": "...Big. Freckled. A scar just here, from a bandsaw. What a thing to ask. What a thing to make me remember."
+    }
+  ],
+  "wren": {
+    "arrive": "Oh, here we go. Somebody's nan.",
+    "advice": "turnAway",
+    "adviceLine": "I don't like her. Nobody is that nice at midnight. Tell her we're shut, Sam. Trust me on this one.",
+    "key": "refuse",
+    "after": {
+      "serve": "Finally. I thought she was going to adopt you.",
+      "turnAway": "Good. That's good. She'd only have kept you talking. ...I don't like sharing.",
+      "shelter": "She's on the cot. She asked me whether you were eating enough. I said I'd see to it."
+    }
+  },
+  "leave": {
+    "serve": [
+      { "who": "you", "text": "Unleaded's on pump two. There's a lay-by past the canopy if you'd rather sit the fog out in the van." },
+      { "who": "visitor", "text": "You're a good one, Sam. Whoever taught you your manners did a proper job." },
+      { "who": "narration", "text": "She pats your hand. Hers is warm. You notice the warmth, as if it were unusual." }
+    ],
+    "turnAway": [
+      { "who": "you", "text": "I'm sorry. We're closing." },
+      { "who": "visitor", "text": "Oh. Oh, of course, I've kept you. You keep the scone, love." },
+      { "who": "narration", "text": "She goes out backwards, apologising to the door." }
+    ],
+    "shelter": [
+      { "who": "you", "text": "The road isn't safe tonight. We've a cot out the back." },
+      { "who": "visitor", "text": "Well, if it's no trouble. I'll not sleep, mind. I'll just rest my eyes." }
+    ],
+    "walkout": [
+      { "who": "visitor", "text": "I think I've taken up enough of your evening, dear. I know when I'm being looked over." },
+      { "who": "narration", "text": "She leaves the scone. She does not look back at it, or at you." }
+    ]
+  },
+  "report": {
+    "serve": "A woman in a campervan sat out the fog in the lay-by at Corrigan's and has been in touch with her family. She asked us to pass on that the young one on nights should eat something.",
+    "turnAway": "A campervan is parked at the Corrigan's pumps with its lights on and its side door open. There is a kettle boiled dry on the stove. Rangers would like to speak to the owner.",
+    "walkout": "A campervan has been found in the run-off lane two kilometres below Corrigan's. Its owner, a woman in her seventies, was not inside. A tray of scones was.",
+    "shelter": "A traveller who sheltered at Corrigan's overnight has rung her daughter. She says the staff were lovely. She says one of them stood outside her door until morning.",
+    "missed": "A campervan waited at Corrigan's pumps for some time overnight and was not attended to. It is no longer there."
+  },
+  "flags": {
+    "turnAway": ["car"]
+  }
+}
