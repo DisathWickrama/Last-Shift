@@ -28,7 +28,7 @@ import { PAL } from '../render/palette';
 import { applyDrift } from '../systems/drift';
 import { NightState, type VisitStatus } from '../systems/night';
 import { CHECKS, TONES, STARE_SECONDS, type CheckKind } from '../systems/inspections';
-import type { Outcome } from '../systems/stats';
+import type { Decision, Outcome } from '../systems/stats';
 import { NIGHTS, VISITORS, type Line, type PersonDef, type TopicDef, type Who } from '../core/content';
 import { lerp, smooth } from '../core/rng';
 import { type Btn, DialogueBox, handleButtons, drawButtons, drawPanel, DIALOGUE, COL_A, COL_B } from '../ui/widgets';
@@ -236,6 +236,7 @@ export class NightScene implements Scene {
         heading: '6:00 AM',
         lines: ['The shift is over.'],
         next: this.state.def.next,
+        debug: this.statsLine(),
       });
     } else if (ev.type === 'visitor') {
       this.arrive(ev.visitor);
@@ -314,11 +315,17 @@ export class NightScene implements Scene {
     return out;
   }
 
-  /** The right-hand column. For now, one button that sends the visitor on their way. */
+  /** The right-hand column: the three things you can do with a visitor. */
   private decisionButtons(): Btn[] {
-    return [
-      { x: COL_B.x, y: 207, w: COL_B.w, h: 18, label: 'Send them on', key: 'q', onClick: () => this.endVisit('serve') },
-    ];
+    const make = (i: number, label: string, key: string, decision: Decision): Btn => ({
+      x: COL_B.x, y: 207 + i * 20, w: COL_B.w, h: 18, label, key,
+      onClick: () => this.decide(decision),
+    });
+    return [make(0, 'Serve', 'q', 'serve'), make(1, 'Turn away', 'w', 'turnAway'), make(2, 'Shelter', 'e', 'shelter')];
+  }
+
+  private decide(decision: Decision): void {
+    this.endVisit(decision);
   }
 
   /** A list of full-width options, for small talk and for choices in scripts. */
@@ -482,5 +489,26 @@ export class NightScene implements Scene {
     r.text(this.state.clock.label, 37, 8, { size: 8, bold: true, align: 'center', color: PAL.sodium });
     const def = this.state.def;
     r.text(`NIGHT ${def.number}  ·  ${def.title.toUpperCase()}`, 8, 23, { size: 6, color: PAL.inkDim });
+    if (this.game.debug) this.drawDebug(r);
+  }
+
+  /** ?debug: the numbers the player is never meant to see. */
+  private drawDebug(r: Renderer): void {
+    const s = this.state.stats;
+    const v = this.state.visit;
+    const rows = [`humanity ${s.humanity}   bond ${s.bond}   slip ${s.slip}`];
+    if (v) {
+      const kinds = v.def.people.map((p) => (p.isMimic ? 'MIMIC' : 'human')).join(' + ');
+      rows.push(`${v.def.title}: ${kinds}`);
+      rows.push(`drift ${v.drift.toFixed(2)}   patience ${v.patience}   wren wants: ${v.def.wren.advice}`);
+    }
+    drawPanel(r.g, 300, 3, 176, 5 + rows.length * 8);
+    rows.forEach((row, i) => r.text(row, 304, 6 + i * 8, { size: 6, color: PAL.radio }));
+  }
+
+  private statsLine(): string {
+    const s = this.state.stats;
+    const outcomes = this.state.log.map((rec) => `${rec.visitor}:${rec.outcome}`).join('  ');
+    return `humanity ${s.humanity}  bond ${s.bond}  slip ${s.slip}   ${outcomes}`;
   }
 }
