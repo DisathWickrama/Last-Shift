@@ -84,6 +84,33 @@ One player action, traced end to end (clicking **Wrists**):
 
 `core/rng.ts` is a small seeded generator (mulberry32). Anything the player could notice changing between runs (faces, vein patterns, which tells a mimic has) uses it. `Math.random()` is only allowed for throwaway noise such as flicker.
 
+## Scripts: quiet moments, the radio, dawn
+
+Not everything in a night is a visitor. The radio tutorial, the scone, the smoke break, the storeroom and the noticeboard are **scripts**: lists of "beats" in the night's JSON.
+
+```json
+{ "who": "wren", "text": "You're not going to eat that." },
+{ "choice": [
+    { "text": "I'm not hungry.", "slip": 1, "then": [ { "who": "wren", "text": "No. We never are, on nights." } ] },
+    { "text": "You have it.",    "bond": 1, "then": [ ... ] }
+] }
+```
+
+A beat is either a line or a choice. A line can carry:
+
+| Field | Effect |
+| --- | --- |
+| `if` | only play when a condition on flags or stats holds (`{ "flag": "mimicInBack" }`, `{ "minBond": 2 }`) |
+| `fx` | fire a named effect: `static`, `radioOff`, `knock`, `glitch`, `gore`, `dark`, `lights`, `song`, `songOff`, `photo` |
+| `set` / `clear` | set or clear a flag |
+| `bond` / `slip` / `humanity` | move a hidden stat |
+
+`NightScene.scriptSteps()` turns beats into queue steps. Conditions are checked when a beat is *reached*, so a choice early in a script can change a line later in it. Long lines are split into pages at sentence ends automatically.
+
+**Flags** are how story reaches the picture. Content sets a flag (`"set": "scone"`); each frame the scene copies flags into `RoomState` (`room.scone = flags.has('scone')`); `render/room.ts` draws a scone. Nothing in the renderer knows why.
+
+**The timeline** in the night file orders everything: scripts and visitors with clock times, ending in `dawn`. At dawn, `systems/report.ts` builds the radio report by picking, for each visitor, the sentence in their JSON that matches how their visit ended. Then the `epilogue` script plays, and the end card shows the `summary` sentences whose conditions match your hidden stats.
+
 ## Wren
 
 Wren is three small pieces:

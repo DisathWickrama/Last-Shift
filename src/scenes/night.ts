@@ -29,7 +29,8 @@ import { applyDrift } from '../systems/drift';
 import { NightState, type VisitStatus } from '../systems/night';
 import { CHECKS, TONES, STARE_SECONDS, type CheckKind } from '../systems/inspections';
 import type { Decision, Outcome } from '../systems/stats';
-import { NIGHTS, VISITORS, WREN, type Line, type PersonDef, type TopicDef, type Who } from '../core/content';
+import { NIGHTS, VISITORS, WREN, type Beat, type Line, type PersonDef, type TopicDef, type Who } from '../core/content';
+import { buildReport } from '../systems/report';
 import { WrenVoice, reactionKey } from '../systems/wren';
 import { lerp, smooth } from '../core/rng';
 import { type Btn, DialogueBox, handleButtons, drawButtons, drawPanel, DIALOGUE, COL_A, COL_B } from '../ui/widgets';
@@ -39,11 +40,11 @@ type Mode = 'counter' | 'talk' | CheckKind;
 
 /** One entry in the command queue. */
 type Step =
-  | { kind: 'say'; who: Who; text: string } // show a line, wait for a click
+  | { kind: 'say'; who: Who; text: string; when?: () => boolean; enter?: () => void } // show a line, wait for a click
   | { kind: 'wait'; time: number } // do nothing for a moment
   | { kind: 'call'; fn: () => void } // run some code, then carry on
   | { kind: 'until'; done: () => boolean } // hold until something has finished (e.g. a walk)
-  | { kind: 'choice'; options: Option[] }; // offer options, wait for a pick
+  | { kind: 'choice'; options: Option[]; when?: () => boolean }; // offer options, wait for a pick
 
 interface Option {
   text: string;
@@ -57,6 +58,20 @@ interface PersonView {
   x: number;
   y: number;
   scale: number;
+}
+
+/** Cut text after each sentence end (". ", "! ", "? "), keeping every character, including a leading "...". */
+function splitSentences(text: string): string[] {
+  const parts: string[] = [];
+  let start = 0;
+  for (let i = 1; i < text.length; i++) {
+    if (text[i] === ' ' && /[.!?]["')]?$/.test(text.slice(Math.max(0, i - 2), i))) {
+      parts.push(text.slice(start, i + 1));
+      start = i + 1;
+    }
+  }
+  if (start < text.length) parts.push(text.slice(start));
+  return parts;
 }
 
 const WALK_IN_SECONDS = 2.4;
@@ -84,6 +99,13 @@ export class NightScene implements Scene {
   private room: RoomState = { ...defaultRoom };
   private time = 0;
   private over = false;
+  /** Who is walking right now. null means everyone at the counter. */
+  private walkers: PersonView[] | null = null;
+  /** Timers for one-off effects fired by scripts ("glitch", "gore", "dark"). */
+  private glitchT = 0;
+  private goreT = 0;
+  private lightsOut = false;
+  private dawnTo = 0;
   /** Wren: always at your right shoulder, always looking at you. */
   private wren: FaceView;
   private wrenVoice = new WrenVoice(WREN);
@@ -121,6 +143,18 @@ export class NightScene implements Scene {
     this.room.doorOpen = lerp(this.room.doorOpen, atDoor ? 1 : 0, 1 - Math.exp(-dt * 7));
 
     if (this.breakT >= 0) this.breakT += dt;
+    this.glitchT = Math.max(0, this.glitchT - dt);
+    this.goreT = Math.max(0, this.goreT - dt);
+
+    // The room is drawn from the night's flags: content sets a flag, the picture follows.
+    const flags = this.state.flags;
+    this.room.dawn = lerp(this.room.dawn, this.dawnTo, 1 - Math.exp(-dt * 0.8));
+    this.room.light = this.lightsOut ? 0.04 : 1;
+    this.room.scone = flags.has('scone');
+    this.room.lingerer = flags.has('lingerer');
+    this.room.photoFlipped = flags.has('photoFlipped');
+    this.room.car = flags.has('car') && this.room.dawn > 0.3;
+    this.room.marks = flags.has('marks') && this.room.dawn > 0.3;
     const slack = this.slackNow();
 
     const visit = this.state.visit;
@@ -182,23 +216,109 @@ export class NightScene implements Scene {
   }
 
   private say(who: Who, text: string): void {
-    this.enqueue({ kind: 'say', who, text });
+    this.enqueue(...this.saySteps({ who, text }));
   }
 
   private lines(lines: readonly Line[]): void {
-    for (const line of lines) this.say(line.who, line.text);
+    for (const line of lines) this.enqueue(...this.saySteps(line));
+  }
+
+  /**
+   * Turn one line of content into 'say' steps. A line too long for the box is
+   * split at sentence ends into several pages, so writers never count letters.
+   * Effects, flags and stat changes on the line fire as its first page starts.
+   */
+  private saySteps(line: Line & { bond?: number; slip?: number; humanity?: number }, when?: () => boolean): Step[] {
+    const text = this.state.fill(line.text);
+    const maxLines = line.who === 'narration' ? 5 : 4;
+    const fits = (t: string) => this.game.r.wrap(t, DIALOGUE.w - 14, 8).length <= maxLines;
+    const pages: string[] = [];
+    let page = '';
+    for (const sentence of splitSentences(text)) {
+      if (page && !fits(page + sentence)) {
+        pages.push(page.trim());
+        page = sentence;
+      } else {
+        page += sentence;
+      }
+    }
+    if (page.trim()) pages.push(page.trim());
+
+    const enter = () => {
+      if (line.fx) this.fx(line.fx);
+      this.state.apply(line);
+    };
+    return pages.map((t, i) => ({ kind: 'say' as const, who: line.who, text: t, when, enter: i === 0 ? enter : undefined }));
+  }
+
+  /**
+   * Turn a script from the night's JSON into steps. Conditions are checked when
+   * each beat is reached, not now, so an earlier choice can change a later line.
+   */
+  private scriptSteps(beats: readonly Beat[]): Step[] {
+    const steps: Step[] = [];
+    for (const beat of beats) {
+      const when = beat.if ? () => this.state.test(beat.if) : undefined;
+      if ('choice' in beat) {
+        steps.push({
+          kind: 'choice',
+          when,
+          options: beat.choice.map((c) => ({
+            text: c.text,
+            pick: () => {
+              this.state.apply(c);
+              // The chosen branch plays next, ahead of whatever else is queued.
+              this.queue.unshift(...this.scriptSteps(c.then ?? []));
+            },
+          })),
+        });
+      } else {
+        steps.push(...this.saySteps(beat, when));
+      }
+    }
+    return steps;
+  }
+
+  /** Named one-off effects that content can fire from a line ("fx": "knock"). */
+  private fx(name: string): void {
+    switch (name) {
+      case 'static':
+        this.room.radioLive = true;
+        break;
+      case 'radioOff':
+        this.room.radioLive = false;
+        break;
+      case 'glitch':
+        this.glitchT = 0.5;
+        break;
+      case 'gore':
+        this.glitchT = 0.7;
+        this.goreT = 0.7;
+        break;
+      case 'dark':
+        this.lightsOut = true;
+        break;
+      case 'lights':
+        this.lightsOut = false;
+        break;
+    }
   }
 
   private runQueue(dt: number): void {
     const { input } = this.game;
-    if (!this.step) {
-      this.step = this.queue.shift()!;
-      if (this.step.kind === 'say') {
-        const [name, color] = this.nameOf(this.step.who);
-        this.dialogue.say(name, color, this.step.text);
+    while (!this.step && this.queue.length > 0) {
+      const next = this.queue.shift()!;
+      // A step with a condition is dropped if the condition no longer holds.
+      if ((next.kind === 'say' || next.kind === 'choice') && next.when && !next.when()) continue;
+      this.step = next;
+      if (next.kind === 'say') {
+        next.enter?.();
+        const [name, color] = this.nameOf(next.who);
+        this.dialogue.say(name, color, next.text);
       }
     }
     const s = this.step;
+    if (!s) return;
     this.buttons = [];
     switch (s.kind) {
       case 'say':
@@ -250,17 +370,41 @@ export class NightScene implements Scene {
   private nextEvent(): void {
     if (this.over) return;
     const ev = this.state.nextEvent();
-    if (!ev || ev.type === 'dawn') {
+    if (!ev) {
       this.over = true;
-      this.game.go('end', {
-        heading: '6:00 AM',
-        lines: ['The shift is over.'],
-        next: this.state.def.next,
-        debug: this.statsLine(),
-      });
     } else if (ev.type === 'visitor') {
       this.arrive(ev.visitor);
+    } else if (ev.type === 'script') {
+      this.dialogue.clear();
+      this.enqueue({ kind: 'wait', time: 0.5 }, ...this.scriptSteps(this.state.script(ev.script)));
+    } else {
+      this.dawn();
     }
+  }
+
+  /** 6 am: the light changes, the radio reads its report, the epilogue plays, then the end card. */
+  private dawn(): void {
+    const def = this.state.def;
+    const report = buildReport(def, this.state.log, VISITORS);
+    this.dialogue.clear();
+    this.enqueue({ kind: 'call', fn: () => (this.dawnTo = 1) }, { kind: 'wait', time: 2.5 });
+    report.forEach((text, i) => {
+      this.enqueue(...this.saySteps({ who: 'radio', text, fx: i === 0 ? 'static' : undefined }));
+    });
+    this.enqueue({ kind: 'call', fn: () => this.fx('radioOff') });
+    this.enqueue(...this.scriptSteps(def.epilogue));
+    this.enqueue({
+      kind: 'call',
+      fn: () => {
+        this.over = true;
+        this.game.go('end', {
+          heading: `NIGHT ${def.number}  ·  ${def.title.toUpperCase()}`,
+          lines: def.summary.filter((line) => this.state.test(line.if)).map((line) => line.text),
+          next: def.next,
+          debug: this.statsLine(),
+        });
+      },
+    });
   }
 
   private arrive(id: string): void {
@@ -477,15 +621,36 @@ export class NightScene implements Scene {
     const visit = this.state.visit!;
     this.mode = 'counter';
     this.lines(visit.def.leave[outcome] ?? []);
-    this.enqueue(
+
+    // When a mimic breaks, only the mimic goes out of the door. Anyone human
+    // who came in with it is left at your counter, and is taken through to the back.
+    const mimics = this.people.filter((p) => p.def.isMimic);
+    const split = outcome === 'break' && mimics.length < this.people.length;
+    const walkOut = (who: PersonView[] | null, back: boolean): Step[] => [
       {
         kind: 'call',
         fn: () => {
-          this.exitBack = outcome === 'shelter';
+          this.walkers = who;
+          this.exitBack = back;
+          this.walk = 1;
           this.walkTo = 0;
         },
       },
       { kind: 'until', done: () => this.walk <= 0 },
+      {
+        kind: 'call',
+        fn: () => {
+          this.people = who ? this.people.filter((p) => !who.includes(p)) : [];
+          this.walkers = null;
+          this.walk = this.people.length > 0 ? 1 : 0;
+          this.walkTo = this.walk;
+        },
+      },
+    ];
+    this.enqueue(...walkOut(split ? mimics : null, outcome === 'shelter'));
+    if (split) this.enqueue({ kind: 'wait', time: 0.8 }, ...walkOut(null, true));
+
+    this.enqueue(
       {
         kind: 'call',
         fn: () => {
@@ -523,11 +688,12 @@ export class NightScene implements Scene {
       drawRoomBack(g, this.room);
       this.drawPeople(g);
       drawRoomFront(g, this.room);
-      this.drawWren(r);
+      // When the lights go out in a script, Wren is in the back with the key.
+      if (!this.lightsOut) this.drawWren(r);
     }
 
-    r.fx.glitch = this.breakT >= 0 && this.breakT < 1.8 ? 0.8 : 0;
-    r.fx.gore = this.slackNow() > 0 ? 0.22 : 0;
+    r.fx.glitch = (this.breakT >= 0 && this.breakT < 1.8) || this.glitchT > 0 ? 0.8 : 0;
+    r.fx.gore = this.slackNow() > 0 ? 0.22 : this.goreT > 0 ? 0.5 : 0;
 
     this.drawBand(r);
     this.drawHud(r);
@@ -535,7 +701,6 @@ export class NightScene implements Scene {
 
   private drawPeople(g: CanvasRenderingContext2D): void {
     if (this.people.length === 0 || (this.walk <= 0 && this.walkTo <= 0)) return;
-    const t = smooth(this.walk);
     g.save();
     g.beginPath();
     g.rect(0, 0, W, COUNTER_Y); // the counter hides everything below it
@@ -543,6 +708,8 @@ export class NightScene implements Scene {
     // Draw the second person first so the one doing the talking stands in front.
     for (let i = this.people.length - 1; i >= 0; i--) {
       const p = this.people[i];
+      // Anyone not currently walking simply stands at the counter.
+      const t = !this.walkers || this.walkers.includes(p) ? smooth(this.walk) : 1;
       const dim = (1 - this.room.light) * 0.5;
       if (this.exitBack) {
         // Led away to the right, towards the storeroom, fading as they go.
