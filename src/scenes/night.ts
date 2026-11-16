@@ -23,6 +23,8 @@ import { drawRoomBack, drawRoomFront, defaultRoom, VISITOR_SPOT, WREN_SPOT, COUN
 import { generateFace } from '../render/face';
 import { FaceView } from '../render/faceview';
 import { drawTinted } from '../render/layer';
+import { Flicker } from '../render/flicker';
+import { hashString } from '../core/rng';
 import { drawWristCloseup, drawMirrorCloseup, drawFloorCloseup } from '../render/closeups';
 import { PAL } from '../render/palette';
 import { applyDrift } from '../systems/drift';
@@ -106,6 +108,9 @@ export class NightScene implements Scene {
   private goreT = 0;
   private lightsOut = false;
   private dawnTo = 0;
+  private flicker = new Flicker();
+  /** Counts letters as they are typed, so only every third one makes a voice blip. */
+  private letters = 0;
   /** Wren: always at your right shoulder, always looking at you. */
   private wren: FaceView;
   private wrenVoice = new WrenVoice(WREN);
@@ -117,6 +122,12 @@ export class NightScene implements Scene {
     const { seed, ...pinned } = WREN.face;
     this.wren = new FaceView(generateFace(seed, pinned), seed);
     if (game.debug) (window as unknown as { __ls: Record<string, unknown> }).__ls.scene = this;
+  }
+
+  /** Leaving the scene: make sure nothing is left playing. */
+  exit(): void {
+    this.game.audio.song(false);
+    this.game.audio.radio(false);
   }
 
   // ---------------------------------------------------------------------------
@@ -149,7 +160,9 @@ export class NightScene implements Scene {
     // The room is drawn from the night's flags: content sets a flag, the picture follows.
     const flags = this.state.flags;
     this.room.dawn = lerp(this.room.dawn, this.dawnTo, 1 - Math.exp(-dt * 0.8));
-    this.room.light = this.lightsOut ? 0.04 : 1;
+    // The tubes get worse as the night goes on. A script can also put them out completely.
+    const flick = this.flicker.update(dt, this.state.clock.progress, this.game.settings.reducedFlicker);
+    this.room.light = this.lightsOut ? 0.04 : flick;
     this.room.scone = flags.has('scone');
     this.room.lingerer = flags.has('lingerer');
     this.room.photoFlipped = flags.has('photoFlipped');
@@ -175,6 +188,12 @@ export class NightScene implements Scene {
       });
     });
     this.animateWren(dt);
+
+    this.game.audio.update(dt, {
+      drift: visit && visit.def.people.some((p) => p.isMimic) ? visit.drift : 0,
+      light: this.room.light,
+      scene: 'night',
+    });
   }
 
   private animateWren(dt: number): void {
@@ -281,25 +300,47 @@ export class NightScene implements Scene {
 
   /** Named one-off effects that content can fire from a line ("fx": "knock"). */
   private fx(name: string): void {
+    const { audio } = this.game;
     switch (name) {
       case 'static':
         this.room.radioLive = true;
+        audio.radio(true);
         break;
       case 'radioOff':
         this.room.radioLive = false;
+        audio.radio(false);
+        break;
+      case 'knock':
+        audio.sting('knock');
+        break;
+      case 'bell':
+        audio.sting('bell');
+        break;
+      case 'photo':
+        audio.sting('photo');
+        break;
+      case 'song':
+        audio.song(true);
+        break;
+      case 'songOff':
+        audio.song(false);
         break;
       case 'glitch':
         this.glitchT = 0.5;
+        audio.sting('static');
         break;
       case 'gore':
         this.glitchT = 0.7;
         this.goreT = 0.7;
+        audio.sting('gore');
         break;
       case 'dark':
         this.lightsOut = true;
+        audio.sting('thud');
         break;
       case 'lights':
         this.lightsOut = false;
+        audio.sting('tick');
         break;
     }
   }
@@ -322,7 +363,12 @@ export class NightScene implements Scene {
     this.buttons = [];
     switch (s.kind) {
       case 'say':
-        this.dialogue.update(dt);
+        if (this.dialogue.update(dt) && this.letters++ % 3 === 0) {
+          const speaker = s.who === 'companion' ? this.people[1] : this.people[0];
+          // Each visitor's voice has its own pitch, taken from their name.
+          const pitch = speaker ? (hashString(speaker.def.name) % 100) / 100 : 0.5;
+          this.game.audio.voice(s.who, pitch);
+        }
         if (input.advance) {
           input.consume();
           // First press finishes the line; the next one moves on.
@@ -343,7 +389,7 @@ export class NightScene implements Scene {
         break;
       case 'choice':
         this.buttons = this.optionButtons(s.options);
-        handleButtons(this.buttons, input);
+        if (handleButtons(this.buttons, input)) this.game.audio.sting('click');
         break;
     }
   }
@@ -425,6 +471,7 @@ export class NightScene implements Scene {
     this.exitBack = false;
     this.walk = 0;
     this.walkTo = 1;
+    this.game.audio.sting('bell');
     this.enqueue({ kind: 'until', done: () => this.walk >= 1 });
     this.lines(visit.def.greeting);
     if (visit.def.wren.arrive) this.say('wren', visit.def.wren.arrive);
@@ -451,7 +498,10 @@ export class NightScene implements Scene {
       return;
     }
     this.buttons = this.buildButtons();
-    if (handleButtons(this.buttons, input)) return;
+    if (handleButtons(this.buttons, input)) {
+      this.game.audio.sting('click');
+      return;
+    }
 
     // Clicking Wren: they tell you what they want done (or, if they already have, that they are still here).
     const z = this.wrenZone;
@@ -609,7 +659,13 @@ export class NightScene implements Scene {
   private breakOut(): void {
     this.mode = 'counter';
     this.enqueue(
-      { kind: 'call', fn: () => (this.breakT = 0) },
+      {
+        kind: 'call',
+        fn: () => {
+          this.breakT = 0;
+          this.game.audio.sting('break');
+        },
+      },
       { kind: 'until', done: () => this.breakT > BREAK_SECONDS },
       { kind: 'call', fn: () => (this.breakT = -1) },
     );
@@ -640,6 +696,7 @@ export class NightScene implements Scene {
       {
         kind: 'call',
         fn: () => {
+          if (!back && outcome !== 'break') this.game.audio.sting('bell'); // the door, on the way out
           this.people = who ? this.people.filter((p) => !who.includes(p)) : [];
           this.walkers = null;
           this.walk = this.people.length > 0 ? 1 : 0;
@@ -692,6 +749,8 @@ export class NightScene implements Scene {
       if (!this.lightsOut) this.drawWren(r);
     }
 
+    // High Slip makes the interface itself unreliable.
+    r.fx.textGlitch = Math.max(0, stats.slip - 2) / 3;
     r.fx.glitch = (this.breakT >= 0 && this.breakT < 1.8) || this.glitchT > 0 ? 0.8 : 0;
     r.fx.gore = this.slackNow() > 0 ? 0.22 : this.goreT > 0 ? 0.5 : 0;
 

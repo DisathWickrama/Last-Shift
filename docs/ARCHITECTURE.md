@@ -72,7 +72,21 @@ One player action, traced end to end (clicking **Wrists**):
 1. Scenes draw shapes on a hidden **480×270** canvas. Every position in the game is in these "virtual pixels", whatever the size of the window.
 2. `present()` copies that canvas to the visible one, enlarged with smoothing off, which gives the chunky lo-fi look.
 3. Text is queued during drawing and painted afterwards at full resolution, because tiny pixelated text is unreadable.
-4. `render/filters.ts` runs post-processing at both stages (for now only the fade to black).
+4. `render/filters.ts` runs post-processing at both stages:
+   - on the small canvas: glitch (horizontal strips copied sideways), the deep-red gore wash, and **ordered dithering** (a 4×4 Bayer matrix nudges each pixel before it is rounded to a coarse shade, turning smooth gradients into a cross-hatch);
+   - on the big canvas, over the text: scanlines and a vignette (painted once and cached), then the fade to black.
+
+`render/flicker.ts` decides how bright the tubes are each moment. Bursts of stutter get more frequent and deeper as the clock runs. With **F** (or the OS "reduce motion" setting) a burst becomes one slow shallow dip instead. Room colours go through a helper that darkens them by the current light level; things that make their own light (the fridge, the pumps) skip it, so when the tubes cut out the shop is lit by the fridge and the sodium lamps.
+
+## Sound
+
+`audio/audio.ts` builds everything from Web Audio nodes; there are no sound files.
+
+- **Beds** run all the time and the game only turns their volume up and down: tube buzz (follows the flicker), fridge hum, wind (noise through a wandering band-pass filter), radio static, and the **drift drone**: two low tones a few hertz apart that swell with the visitor's drift, joined by a thin sour pair when drift is high.
+- **Stings** are built on demand and discarded: the door bell, knocks, the mask-slip, and a "voice" blip for every third letter of dialogue, with a pitch per speaker.
+- The **radio song** is a short waltz stored as numbers and scheduled a quarter of a second ahead so the rhythm stays even, played flat and through a small-speaker filter.
+
+Browsers block sound until the player interacts, so `start()` is called from the title screen's click. `NightScene.animate()` calls `audio.update()` every step with the current drift and light.
 
 ## The loop
 
@@ -136,9 +150,10 @@ Wren also holds the storeroom key: `Shelter` asks `NightState.wrenGivesKey()`, a
 | Folder | Job |
 | --- | --- |
 | `src/core/` | loop, scene manager, input, RNG, content types + loader, the shared `Game` object |
-| `src/render/` | renderer, palette, face generator, face view, room, close-ups, filters |
+| `src/render/` | renderer, palette, face generator, face view, room, close-ups, filters, flicker |
 | `src/systems/` | pure game rules: drift, clock, inspections, stats, night state, Wren's line picker, dawn report |
 | `src/ui/` | buttons, panels, the dialogue box |
+| `src/audio/` | Web Audio ambience, stings, radio song |
 | `src/scenes/` | title screen, night, end card |
 | `content/` | story data as JSON |
 | `tests/` | unit tests for `systems/` |
