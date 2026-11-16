@@ -8,7 +8,7 @@
 // Because nothing here touches the canvas, the whole night can be played from a
 // unit test: see tests/night.test.ts.
 
-import type { Beat, Cond, NightDef, TimelineEvent, TopicDef, VisitorDef, ChoiceDef } from '../core/content';
+import type { Beat, Cond, NightDef, TimelineEvent, TopicDef, VisitorDef } from '../core/content';
 import { clamp } from '../core/rng';
 import { Clock } from './clock';
 import { BREAK_AT } from './drift';
@@ -115,8 +115,8 @@ export class NightState {
     return true;
   }
 
-  /** Apply the side effects a script beat or choice can carry. */
-  apply(effect: Pick<ChoiceDef, 'bond' | 'slip' | 'humanity' | 'set'> & { clear?: string }): void {
+  /** Apply the side effects a line, script beat or choice can carry. */
+  apply(effect: Partial<Stats> & { set?: string; clear?: string }): void {
     this.stats = addStats(this.stats, effect);
     if (effect.set) this.flags.add(effect.set);
     if (effect.clear) this.flags.delete(effect.clear);

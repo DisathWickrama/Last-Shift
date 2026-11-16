@@ -45,6 +45,7 @@ const night: NightDef = {
   scripts: { onlyIfFlag: [] },
   dawn: { intro: [], outro: [] },
   epilogue: [],
+  summary: [],
   next: '',
 };
 

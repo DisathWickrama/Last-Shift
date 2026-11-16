@@ -5,12 +5,485 @@
   "start": "22:00",
   "end": "06:00",
   "timeline": [
-    { "type": "visitor", "visitor": "dale", "at": "22:20" },
-    { "type": "visitor", "visitor": "kid", "at": "23:40" },
-    { "type": "dawn" }
+    {
+      "type": "script",
+      "script": "open",
+      "at": "22:00"
+    },
+    {
+      "type": "visitor",
+      "visitor": "dale",
+      "at": "22:20"
+    },
+    {
+      "type": "visitor",
+      "visitor": "maureen",
+      "at": "23:30"
+    },
+    {
+      "type": "script",
+      "script": "scone",
+      "if": {
+        "flag": "scone"
+      }
+    },
+    {
+      "type": "visitor",
+      "visitor": "backpackers",
+      "at": "00:55"
+    },
+    {
+      "type": "script",
+      "script": "smoke",
+      "at": "01:50"
+    },
+    {
+      "type": "visitor",
+      "visitor": "gus",
+      "at": "02:35"
+    },
+    {
+      "type": "script",
+      "script": "storeroom",
+      "at": "03:00",
+      "if": {
+        "flag": "mimicInBack"
+      }
+    },
+    {
+      "type": "visitor",
+      "visitor": "kid",
+      "at": "04:15"
+    },
+    {
+      "type": "script",
+      "script": "storeroom",
+      "if": {
+        "flag": "mimicInBack",
+        "notFlag": "storeroomDone"
+      }
+    },
+    {
+      "type": "script",
+      "script": "storeroomAgain",
+      "if": {
+        "flag": "mimicInBack"
+      }
+    },
+    {
+      "type": "dawn"
+    }
   ],
-  "scripts": {},
-  "dawn": { "intro": [], "outro": [] },
-  "epilogue": [],
-  "next": "Night 2: Small Talk"
+  "scripts": {
+    "open": [
+      {
+        "who": "narration",
+        "text": "Corrigan's Roadhouse. Ten at night. The fog came down off the tops yesterday and has not lifted. The phones are out. The road down is closed."
+      },
+      {
+        "who": "narration",
+        "text": "Your name tag says SAM. You have worked nights here for... a while."
+      },
+      {
+        "who": "wren",
+        "text": "There you are. I was starting to think you'd forgotten the way in."
+      },
+      {
+        "who": "wren",
+        "text": "Nothing on the road yet. It's just us up here."
+      },
+      {
+        "who": "radio",
+        "fx": "static",
+        "text": "...repeat. This is Tarrow ranger station with an advisory for all premises on the pass road. Do not close. Travellers will need fuel and shelter. But listen carefully."
+      },
+      {
+        "who": "radio",
+        "text": "Some of what is coming out of the fog is not who it says it is. They copy people. They are good at it. They are not perfect."
+      },
+      {
+        "who": "radio",
+        "text": "Check the wrists. Ask them to pay by card, and look. A person has veins: faint, blue, and no two wrists the same. If there are none, or they are dark, or silver, or they move, do not serve."
+      },
+      {
+        "who": "radio",
+        "text": "Check a reflection. A window, a mirror, anything. A person's reflection keeps time with them and faces the way it should. If it lags, or if it is looking back at you, do not serve."
+      },
+      {
+        "who": "radio",
+        "text": "We will read a report at first light. Tarrow out.",
+        "fx": "radioOff"
+      },
+      {
+        "who": "wren",
+        "text": "Veins and mirrors. Easy. ...You'll be good at this, Sam. I've got a feeling."
+      },
+      {
+        "who": "narration",
+        "text": "Taped to the till is a road map with two towns on it. TARROW, 80 km east. MULLANE FLAT, 64 km west. Nothing in between but you."
+      },
+      {
+        "who": "narration",
+        "text": "Serve them, turn them away, or shelter them out the back. Every look costs time, and people only put up with so much looking. Wren has the only key."
+      }
+    ],
+    "scone": [
+      {
+        "who": "narration",
+        "text": "The scone sits on its paper plate. Jam, cream, a dusting of flour from a stranger's kitchen bench."
+      },
+      {
+        "who": "narration",
+        "text": "You should be starving. You try to remember the last thing you ate, and the trying slides off."
+      },
+      {
+        "who": "wren",
+        "text": "You're not going to eat that."
+      },
+      {
+        "choice": [
+          {
+            "text": "I'm not hungry.",
+            "slip": 1,
+            "then": [
+              {
+                "who": "wren",
+                "text": "No. We never are, on nights. Funny, that."
+              }
+            ]
+          },
+          {
+            "text": "You have it.",
+            "bond": 1,
+            "then": [
+              {
+                "who": "wren",
+                "text": "Me? Oh, I couldn't. Leave it for the ants."
+              }
+            ]
+          },
+          {
+            "text": "It was kind of her.",
+            "bond": -1,
+            "then": [
+              {
+                "who": "wren",
+                "text": "It was a scone, Sam. Don't make it a romance."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "who": "narration",
+        "text": "The scone stays where it is. By morning it will not have a single bite out of it."
+      }
+    ],
+    "smoke": [
+      {
+        "who": "narration",
+        "fx": "song",
+        "text": "Ten to two. Nobody on the road. Wren props the back door open with a milk crate and lights a cigarette they don't seem to enjoy."
+      },
+      {
+        "who": "wren",
+        "text": "Come here. You've got five minutes. The fog can mind the shop."
+      },
+      {
+        "who": "narration",
+        "text": "You stand shoulder to shoulder in the doorway. The smoke goes out into the grey and the grey takes it. Inside, the radio has found a station: a slow song, half a turn flat."
+      },
+      {
+        "who": "wren",
+        "text": "Do you remember your first shift? You dropped a whole tray of pies. You looked at me like I was going to tell on you."
+      },
+      {
+        "choice": [
+          {
+            "text": "I remember.",
+            "bond": 1,
+            "slip": 1,
+            "then": [
+              {
+                "who": "narration",
+                "text": "You don't. But the picture arrives as Wren describes it, complete, like a photo sliding out of a printer."
+              },
+              {
+                "who": "wren",
+                "text": "Course you do."
+              }
+            ]
+          },
+          {
+            "text": "I don't remember that at all.",
+            "bond": -1,
+            "then": [
+              {
+                "who": "wren",
+                "text": "...No. Well. It was a long time ago. Three weeks is a long time, up here."
+              }
+            ]
+          },
+          {
+            "text": "Tell me again.",
+            "bond": 1,
+            "then": [
+              {
+                "who": "wren",
+                "text": "Any time. I like telling you who you are."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "who": "radio",
+        "fx": "static",
+        "text": "...kkssh... no, mate. I'm sorry. Come in out of the cold... kkssh..."
+      },
+      {
+        "who": "narration",
+        "fx": "radioOff",
+        "text": "That was the CB, on the counter, inside. That was your voice. You have not said that to anyone."
+      },
+      {
+        "who": "wren",
+        "fx": "songOff",
+        "text": "Skip. Bounce. Old broadcasts get stuck up here in the cloud. Don't listen to it."
+      },
+      {
+        "who": "narration",
+        "text": "Wren flicks the cigarette out into the fog. You don't see it land."
+      }
+    ],
+    "storeroom": [
+      {
+        "who": "narration",
+        "fx": "knock",
+        "text": "The fridge motor cuts out, and in the quiet you hear it: something in the storeroom, knocking. Not to be let out. In a rhythm. Like an answer.",
+        "set": "storeroomDone"
+      },
+      {
+        "who": "wren",
+        "text": "Stay here."
+      },
+      {
+        "who": "narration",
+        "fx": "dark",
+        "text": "Wren lifts the key from around their neck and goes into the back. The door shuts. The lights go."
+      },
+      {
+        "who": "narration",
+        "fx": "gore",
+        "text": "A sound like a wet sheet pulled off a line. A voice starts to say something, and is not allowed to finish."
+      },
+      {
+        "who": "narration",
+        "fx": "lights",
+        "set": "marks",
+        "clear": "mimicInBack",
+        "text": "The lights come back. Wren is behind the counter again, drying their hands on a tea towel that used to be white."
+      },
+      {
+        "who": "wren",
+        "text": "All sorted. Don't go back there. ...You wanted to help. I know. That's what I love about you."
+      },
+      {
+        "choice": [
+          {
+            "text": "What did you do?",
+            "bond": -1,
+            "then": [
+              {
+                "who": "wren",
+                "text": "What you'd have done, if you'd remembered how."
+              }
+            ]
+          },
+          {
+            "text": "Thank you.",
+            "bond": 1,
+            "slip": 1,
+            "then": [
+              {
+                "who": "wren",
+                "text": "Always."
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "storeroomAgain": [
+      {
+        "who": "narration",
+        "fx": "knock",
+        "text": "The knocking again. Wren doesn't say anything this time. Wren looks at you for a while, takes the key, and goes."
+      },
+      {
+        "who": "narration",
+        "fx": "dark",
+        "text": "The door. The dark."
+      },
+      {
+        "who": "narration",
+        "fx": "gore",
+        "text": "It takes less time than before. You are not sure whether that is better."
+      },
+      {
+        "who": "narration",
+        "fx": "lights",
+        "set": "marks",
+        "clear": "mimicInBack",
+        "text": "The lights. Wren, at your shoulder, smelling of the cold."
+      },
+      {
+        "who": "wren",
+        "text": "You keep bringing them home, Sam. I'm not angry. I only want to know what you think you're doing."
+      },
+      {
+        "choice": [
+          {
+            "text": "Trying to help.",
+            "bond": -1,
+            "then": [
+              {
+                "who": "wren",
+                "text": "Help. ...They don't need help. They need a door. And we've only the one."
+              }
+            ]
+          },
+          {
+            "text": "I don't know.",
+            "slip": 1,
+            "bond": 1,
+            "then": [
+              {
+                "who": "wren",
+                "text": "No. I know you don't. That's all right. I do."
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "dawn": {
+    "intro": [
+      "...this is Tarrow ranger station with the first-light report for the pass road. Fog is unchanged. The road remains closed in both directions."
+    ],
+    "outro": [
+      "Premises on the pass are asked to stay open tonight. Corrigan's Roadhouse: thank you. Whoever is up there. Tarrow out."
+    ]
+  },
+  "epilogue": [
+    {
+      "who": "narration",
+      "text": "Six o'clock. The fog goes from black to the colour of dishwater. That is all the dawn you are getting."
+    },
+    {
+      "who": "wren",
+      "if": {
+        "minBond": 2
+      },
+      "text": "We did well. You did well. Same time tonight? ...I'm joking. Where else would you go."
+    },
+    {
+      "who": "wren",
+      "if": {
+        "minBond": -1,
+        "maxBond": 1
+      },
+      "text": "That's one down. Same again tonight."
+    },
+    {
+      "who": "wren",
+      "if": {
+        "maxBond": -2
+      },
+      "text": "Long night. You were... different, tonight. Go and lie down. I'll lock up."
+    },
+    {
+      "who": "narration",
+      "text": "On your way past the noticeboard, something catches at you. Rosters. A fire-safety sheet. And a staff photo: two people in Corrigan's shirts with their arms around each other, squinting into the sun."
+    },
+    {
+      "who": "narration",
+      "text": "You lean in to see their faces."
+    },
+    {
+      "who": "narration",
+      "fx": "photo",
+      "set": "photoFlipped",
+      "text": "Wren's hand comes past your shoulder and turns the photo to face the wall. Quick. Casual. Like straightening a picture."
+    },
+    {
+      "who": "wren",
+      "text": "Old one. Terrible of both of us. I'll put a better one up."
+    },
+    {
+      "who": "narration",
+      "text": "The pin goes back in. Wren does not let go of your shoulder until you are looking somewhere else."
+    }
+  ],
+  "summary": [
+    {
+      "if": {
+        "minHumanity": 3
+      },
+      "text": "Most of the people who came to your counter tonight are still people."
+    },
+    {
+      "if": {
+        "minHumanity": 0,
+        "maxHumanity": 2
+      },
+      "text": "Some of them made it down the mountain. You try not to count."
+    },
+    {
+      "if": {
+        "maxHumanity": -1
+      },
+      "text": "The fog took more than its share tonight. Some of that was you."
+    },
+    {
+      "if": {
+        "minBond": 2
+      },
+      "text": "Wren walks you to the door at knock-off, a hand on the small of your back."
+    },
+    {
+      "if": {
+        "minBond": -1,
+        "maxBond": 1
+      },
+      "text": "Wren watches you clock off, and says nothing, and keeps watching."
+    },
+    {
+      "if": {
+        "maxBond": -2
+      },
+      "text": "Wren does not say goodbye. Wren counts the till twice and looks at you three times."
+    },
+    {
+      "if": {
+        "maxSlip": 1
+      },
+      "text": "Your hands are steady. You check them twice anyway."
+    },
+    {
+      "if": {
+        "minSlip": 2,
+        "maxSlip": 3
+      },
+      "text": "You catch your reflection in the door glass on the way out. It takes a moment to catch you back."
+    },
+    {
+      "if": {
+        "minSlip": 4
+      },
+      "text": "On the way out you say goodnight to your reflection. It says it first."
+    }
+  ],
+  "next": "Night 2: Small Talk  ·  coming later"
 }

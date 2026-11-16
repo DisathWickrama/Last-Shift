@@ -27,6 +27,14 @@ export type Who = 'visitor' | 'companion' | 'wren' | 'you' | 'radio' | 'narratio
 export interface Line {
   who: Who;
   text: string;
+  /**
+   * A named effect that fires as the line starts: "static" / "radioOff" (the CB
+   * radio), "knock", "glitch", "gore", "dark" / "lights", "song" / "songOff", "bell", "photo".
+   */
+  fx?: string;
+  /** Set or clear a flag as the line starts. */
+  set?: string;
+  clear?: string;
 }
 
 /** A condition on the current state of the night. Every field given must hold. */
@@ -122,7 +130,6 @@ export interface VisitorDef {
 
 export interface ChoiceDef {
   text: string;
-  tone?: Tone;
   bond?: number;
   slip?: number;
   humanity?: number;
@@ -131,17 +138,14 @@ export interface ChoiceDef {
   then?: Beat[];
 }
 
-/** One step of a script: either a line (with optional effects) or a choice. */
+/** One step of a script: either a line (with optional conditions and stat changes) or a choice. */
 export type Beat =
   | (Line & {
-      /** A named effect: "static", "knock", "glitch", "gore", "dark", "song", "songOff", "bell"... */
-      fx?: string;
       /** Skip this beat unless the condition holds. */
       if?: Cond;
-      set?: string;
-      clear?: string;
       bond?: number;
       slip?: number;
+      humanity?: number;
     })
   | { choice: ChoiceDef[]; if?: Cond };
 
@@ -162,9 +166,11 @@ export interface NightDef {
   scripts: Record<string, Beat[]>;
   /** The morning radio report. Each visitor's own line is slotted between intro and outro. */
   dawn: { intro: string[]; outro: string[] };
-  /** Closing narration. Lines are shown if their condition holds. */
-  epilogue: (Line & { if?: Cond })[];
-  /** Shown on the end card. */
+  /** A script played after the dawn report, before the end card. */
+  epilogue: Beat[];
+  /** Sentences for the end card. Each is shown if its condition holds. */
+  summary: { text: string; if?: Cond }[];
+  /** Shown at the bottom of the end card. */
   next: string;
 }
 
