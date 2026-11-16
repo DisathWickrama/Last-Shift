@@ -16,7 +16,11 @@ export class TitleScene implements Scene {
 
   update(dt: number): void {
     this.time += dt;
+    this.game.audio.update(dt, { drift: 0, light: 1, scene: 'title' });
     if (this.game.input.advance && !this.game.scenes.busy && this.time > 0.4) {
+      // Browsers only allow sound after a click or key press, so audio starts here.
+      this.game.audio.start();
+      this.game.audio.sting('click');
       this.game.go('night');
     }
   }
@@ -43,6 +47,9 @@ export class TitleScene implements Scene {
     r.text('Night 1 of 5  ·  headphones recommended  ·  flickering lights and horror themes', W / 2, 246, {
       size: 6, align: 'center', color: PAL.inkDim,
     });
-    r.text('F  softer flicker      M  mute', W / 2, 256, { size: 6, align: 'center', color: PAL.inkDim });
+    const { reducedFlicker, muted } = this.game.settings;
+    r.text(`F  softer flicker: ${reducedFlicker ? 'on' : 'off'}      M  sound: ${muted ? 'off' : 'on'}`, W / 2, 256, {
+      size: 6, align: 'center', color: PAL.inkDim,
+    });
   }
 }

@@ -17,6 +17,7 @@ export class EndScene implements Scene {
 
   update(dt: number): void {
     this.time += dt;
+    this.game.audio.update(dt, { drift: 0, light: 1, scene: 'end' });
     this.buttons = this.time > 1.5
       ? [{ x: W / 2 - 60, y: 226, w: 120, h: 16, label: 'Work the shift again', onClick: () => this.game.go('night') }]
       : [];

@@ -8,6 +8,7 @@
 import type { Renderer } from '../render/renderer';
 import type { Input } from './input';
 import type { SceneManager } from './scene';
+import type { AudioEngine } from '../audio/audio';
 
 export interface Settings {
   /** Softer, slower light flicker. Toggled with F; on by default if the OS asks for reduced motion. */
@@ -28,6 +29,7 @@ export interface Game {
   r: Renderer;
   input: Input;
   scenes: SceneManager;
+  audio: AudioEngine;
   settings: Settings;
   /** True when the URL has ?debug: shows the hidden numbers. */
   debug: boolean;

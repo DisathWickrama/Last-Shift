@@ -10,6 +10,7 @@ import { startLoop } from './core/loop';
 import { SceneManager } from './core/scene';
 import { Input } from './core/input';
 import { Renderer } from './render/renderer';
+import { AudioEngine } from './audio/audio';
 import type { Game, EndData } from './core/game';
 import { TitleScene } from './scenes/title';
 import { NightScene } from './scenes/night';
@@ -22,6 +23,7 @@ const game: Game = {
   r: new Renderer(canvas),
   input: new Input(canvas),
   scenes: new SceneManager(),
+  audio: new AudioEngine(),
   settings: {
     reducedFlicker: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
     muted: false,
@@ -41,7 +43,10 @@ startLoop(
   (dt) => {
     // Keys that work everywhere.
     if (game.input.pressed('f')) game.settings.reducedFlicker = !game.settings.reducedFlicker;
-    if (game.input.pressed('m')) game.settings.muted = !game.settings.muted;
+    if (game.input.pressed('m')) {
+      game.settings.muted = !game.settings.muted;
+      game.audio.setMuted(game.settings.muted);
+    }
     game.scenes.update(dt);
     game.input.endStep();
   },
