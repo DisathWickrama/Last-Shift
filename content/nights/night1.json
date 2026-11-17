@@ -485,5 +485,7 @@
       "text": "On the way out you say goodnight to your reflection. It says it first."
     }
   ],
-  "next": "Night 2: Small Talk  ·  coming later"
+  "next": "Night 2: Familiar Faces",
+  "dread": 0.15,
+  "score": 1
 }

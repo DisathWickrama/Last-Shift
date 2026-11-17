@@ -1,0 +1,195 @@
+{
+  "endings": [
+    {
+      "id": "justUs",
+      "title": "Just Us",
+      "if": {
+        "flag": "justUs"
+      },
+      "script": [
+        {
+          "who": "wren",
+          "text": "Come on. Turn the sign. Nobody is coming up tonight that we need."
+        },
+        {
+          "who": "narration",
+          "text": "Wren takes the shop down to the fridge glow and shows you everything, room by room: the storeroom, the two shapes under the tarp, three weeks of roster in your handwriting.",
+          "fx": "dark"
+        },
+        {
+          "who": "wren",
+          "text": "It's just us. It was always going to be just us. I only wanted you to choose it."
+        },
+        {
+          "who": "narration",
+          "text": "The radio finds its song. Two attendants at a counter, practising a smile at each other until neither can tell who is leading.",
+          "fx": "song"
+        }
+      ],
+      "card": [
+        "You asked early, and Wren told you.",
+        "There is one more night on the roster. You will not have to wonder about a single customer.",
+        "You know exactly what you are. It is almost a relief."
+      ]
+    },
+    {
+      "id": "cleanHands",
+      "title": "Clean Hands",
+      "if": {
+        "flag": "final:deny"
+      },
+      "script": [
+        {
+          "who": "you",
+          "text": "I'm Sam. I'm a person. I can prove it."
+        },
+        {
+          "who": "narration",
+          "text": "The box cutter is in the drawer under the till, where it has always been."
+        },
+        {
+          "who": "wren",
+          "text": "Sam. Sam, don't. There's nothing in there. I've looked."
+        },
+        {
+          "who": "narration",
+          "text": "You insist. You hold your wrist out over the counter so that the ranger can see there are veins.",
+          "fx": "gore"
+        },
+        {
+          "who": "narration",
+          "text": "...",
+          "fx": "dark"
+        }
+      ],
+      "card": [
+        "You were sure.",
+        "Ranger Holt's report describes what she saw at that counter. Nobody at Tarrow station will sign it.",
+        "Your hands, at least, are clean. There was nothing in them to spill."
+      ]
+    },
+    {
+      "id": "fogLifts",
+      "title": "Fog Lifts",
+      "if": {
+        "flag": "final:leave"
+      },
+      "script": [
+        {
+          "who": "narration",
+          "text": "You unpin the name tag and set it on the counter, face down."
+        },
+        {
+          "who": "wren",
+          "text": "Sam. ...It's just us. You said."
+        },
+        {
+          "who": "narration",
+          "text": "You walk Holt to her truck and tell her never to come back. Then you keep walking: past the pumps, past the last orange lamp, until the fog is all there is."
+        },
+        {
+          "who": "radio",
+          "text": "...Tarrow ranger station, first-light report. The fog on the pass lifted at dawn. Rescuers at Corrigan's Roadhouse have found two bodies in the storeroom. The roadhouse was otherwise empty.",
+          "fx": "static"
+        },
+        {
+          "who": "narration",
+          "text": "Whatever walked into the fog has not come out the other side. Or it has, and nobody knew to look.",
+          "fx": "radioOff"
+        }
+      ],
+      "card": [
+        "You saved more of them than you took.",
+        "Two attendants were buried under their own names.",
+        "Somewhere below the pass, something with a kind face is walking, and has not decided who to be."
+      ]
+    },
+    {
+      "id": "wrongAnswer",
+      "title": "Wrong Answer",
+      "if": {
+        "maxBond": 2
+      },
+      "script": [
+        {
+          "who": "wren",
+          "text": "You told her to run.",
+          "if": {
+            "flag": "final:warn"
+          }
+        },
+        {
+          "who": "wren",
+          "text": "You said the right thing. You don't mean it. I've watched that face for three weeks. I know when it's lying.",
+          "if": {
+            "flag": "final:accept"
+          }
+        },
+        {
+          "who": "wren",
+          "text": "Wrong answer, Sam."
+        },
+        {
+          "who": "narration",
+          "text": "Wren is very fast, and knows exactly where you come apart, because Wren helped put you together.",
+          "fx": "gore"
+        },
+        {
+          "who": "narration",
+          "text": "The last thing you see is the bell over the door, still swinging.",
+          "fx": "dark"
+        },
+        {
+          "who": "narration",
+          "text": "Down the mountain, a ranger's truck reaches the roadblock doing a hundred and ten.",
+          "if": {
+            "flag": "final:warn"
+          }
+        }
+      ],
+      "card": [
+        "It was never only your choice. There were always two of you up here.",
+        "Wren works the counter alone now, and tells travellers the other one is out the back.",
+        "In a way, that is true."
+      ]
+    },
+    {
+      "id": "closeEnough",
+      "title": "Close Enough",
+      "script": [
+        {
+          "who": "wren",
+          "text": "You let her go. ...All right. For you. One. When they come, we'll be ready. We'll be lovely.",
+          "if": {
+            "flag": "final:warn"
+          }
+        },
+        {
+          "who": "wren",
+          "text": "There. That's that. It's just us.",
+          "if": {
+            "flag": "final:accept"
+          }
+        },
+        {
+          "who": "narration",
+          "text": "Wren puts the radio on. You dance, badly, between the counter and the fridge at four in the morning. Then the bell rings, and you both turn to it with the same smile.",
+          "fx": "song"
+        },
+        {
+          "who": "you",
+          "text": "Evening. Last fuel for eighty k. What can we get you?"
+        },
+        {
+          "who": "narration",
+          "text": "The fog never lifts. The lights at Corrigan's never go out. The staff are lovely."
+        }
+      ],
+      "card": [
+        "You and Wren run Corrigan's together. Forever.",
+        "Travellers say the service is perfect. They say the two of you never seem to blink out of turn.",
+        "Close enough."
+      ]
+    }
+  ]
+}

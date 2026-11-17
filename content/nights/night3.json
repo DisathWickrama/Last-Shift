@@ -1,0 +1,323 @@
+{
+  "id": "night3",
+  "number": 3,
+  "title": "Last Shift",
+  "start": "22:00",
+  "end": "06:00",
+  "clearFlags": [
+    "scone",
+    "lingerer",
+    "car",
+    "marks",
+    "mimicInBack",
+    "humanInBack",
+    "storeroomDone"
+  ],
+  "dread": 1,
+  "score": 3,
+  "timeline": [
+    {
+      "type": "script",
+      "script": "open",
+      "at": "22:00"
+    },
+    {
+      "type": "script",
+      "script": "mirror",
+      "at": "22:30"
+    },
+    {
+      "type": "visitor",
+      "visitor": "cal",
+      "at": "22:50"
+    },
+    {
+      "type": "visitor",
+      "visitor": "photosam",
+      "at": "00:40"
+    },
+    {
+      "type": "script",
+      "script": "reveal",
+      "at": "02:00"
+    },
+    {
+      "type": "visitor",
+      "visitor": "holt",
+      "at": "03:30"
+    },
+    {
+      "type": "ending"
+    }
+  ],
+  "scripts": {
+    "open": [
+      {
+        "who": "narration",
+        "text": "Third night. You came in by the front door, you think. The bell did not ring for you."
+      },
+      {
+        "who": "wren",
+        "text": "There you are. I counted the minutes.",
+        "if": {
+          "minBond": 4
+        }
+      },
+      {
+        "who": "wren",
+        "text": "You came back. I wasn't sure you would.",
+        "if": {
+          "maxBond": 3
+        }
+      },
+      {
+        "who": "radio",
+        "text": "...Tarrow ranger station. A missing persons notice for the pass road. Two night attendants from Corrigan's Roadhouse, last seen three weeks ago, the night the fog came down.",
+        "fx": "static"
+      },
+      {
+        "who": "radio",
+        "text": "The first: early twenties, slight, dark hair, name tag reading SAM. The second: the same age, dark bob, answers to Wren. Both were rostered on. Neither clocked off."
+      },
+      {
+        "who": "radio",
+        "text": "If you are at Corrigan's and can hear this: we do not know who has been answering the call-in. A ranger is coming up at the first opportunity. Tarrow out.",
+        "fx": "radioOff"
+      },
+      {
+        "who": "wren",
+        "text": "...Same names. Fancy that. Common names."
+      },
+      {
+        "choice": [
+          {
+            "text": "That's us, Wren.",
+            "bond": -1,
+            "then": [
+              {
+                "who": "wren",
+                "text": "It's two people with our names. Leave it. Please."
+              }
+            ]
+          },
+          {
+            "text": "(say nothing)",
+            "bond": 1,
+            "slip": 1,
+            "then": [
+              {
+                "who": "narration",
+                "text": "You say nothing. You are getting good at it."
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "mirror": [
+      {
+        "who": "narration",
+        "text": "You pass under the convex mirror. For two nights there has been a pale blank in it where you should be. Tonight there is a face.",
+        "fx": "showSelfMirror"
+      },
+      {
+        "who": "narration",
+        "text": "You tilt your head. A moment later, so does the face. You are fairly sure a reflection is meant to be quicker than that."
+      },
+      {
+        "who": "wren",
+        "text": "Eyes down here, Sam.",
+        "fx": "hideCloseup"
+      }
+    ],
+    "reveal": [
+      {
+        "who": "narration",
+        "text": "Two o'clock. The shop is very quiet. The storeroom door. The key on its cord around Wren's neck."
+      },
+      {
+        "who": "narration",
+        "text": "Ask her what's in the storeroom. Ask her who.",
+        "if": {
+          "flag": "calSpoke"
+        }
+      },
+      {
+        "choice": [
+          {
+            "text": "Wren. Open the storeroom.",
+            "bond": -1,
+            "set": "confronted",
+            "then": [
+              {
+                "who": "wren",
+                "text": "...Yes. All right. You've earned it. I'm sorry it's like this."
+              },
+              {
+                "who": "narration",
+                "text": "Wren unlocks the door, puts on the light inside, and stands back so that you can see past.",
+                "fx": "dark"
+              },
+              {
+                "who": "narration",
+                "text": "Two people on the floor between the pallets, laid side by side, hands folded. Corrigan's shirts. Three weeks. One has a dark bob. The other one has your face.",
+                "fx": "gore"
+              },
+              {
+                "who": "narration",
+                "text": "You are back at the counter. You do not remember walking.",
+                "fx": "lights"
+              },
+              {
+                "who": "wren",
+                "text": "They were kind. That's why we chose them. I carried them in myself. I didn't want you to have to."
+              }
+            ]
+          },
+          {
+            "text": "(stay quiet)",
+            "bond": 2,
+            "slip": 1,
+            "then": [
+              {
+                "who": "narration",
+                "text": "You don't ask. Wren watches you not ask, and something in their shoulders comes down."
+              },
+              {
+                "who": "wren",
+                "text": "Thank you. It's better not looking. But you'll want to look at yourself, I think. Just the once."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "who": "narration",
+        "text": "You turn your own hands over under the tubes. For the first time, nobody stops you. The skin of your wrists is smooth and whole. There is nothing under it at all.",
+        "fx": "showSelfWrist"
+      },
+      {
+        "who": "narration",
+        "text": "Then the mirror. The face from the photograph. It tilts its head a moment after you do.",
+        "fx": "showSelfMirror"
+      },
+      {
+        "who": "narration",
+        "text": "Then it stops waiting for you. It smiles, on its own, to show you how.",
+        "fx": "showSelfMirrorWrong"
+      },
+      {
+        "who": "wren",
+        "text": "You're getting so good at being you. Better than he was. He never once looked at me the way you do.",
+        "fx": "hideCloseup"
+      }
+    ],
+    "finale": [
+      {
+        "who": "narration",
+        "text": "Holt is waiting for an answer. Wren's hand lies flat on the counter beside yours, not touching. Everything you have done up here is in the room with you."
+      },
+      {
+        "choice": [
+          {
+            "text": "Smile. Pour her a coffee. Send her home.",
+            "outcome": "serve",
+            "set": "final:accept"
+          },
+          {
+            "text": "Bring her out the back.",
+            "outcome": "shelter",
+            "set": "final:accept"
+          },
+          {
+            "text": "Holt. Run. Don't stop at the pumps.",
+            "outcome": "turnAway",
+            "set": "final:warn"
+          },
+          {
+            "text": "I'm Sam. I'm human. Watch.",
+            "outcome": "missed",
+            "set": "final:deny",
+            "if": {
+              "minSlip": 6
+            }
+          },
+          {
+            "text": "Take off the name tag. Walk out into the fog.",
+            "outcome": "missed",
+            "set": "final:leave",
+            "if": {
+              "minHumanity": 4,
+              "maxBond": 2
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "dawn": {
+    "intro": [],
+    "outro": []
+  },
+  "epilogue": [],
+  "summary": [
+    {
+      "if": {
+        "minHumanity": 5
+      },
+      "text": "Most of the people who have come to your counter are still people."
+    },
+    {
+      "if": {
+        "minHumanity": 0,
+        "maxHumanity": 4
+      },
+      "text": "Some of them made it down the mountain. You have stopped counting."
+    },
+    {
+      "if": {
+        "maxHumanity": -1
+      },
+      "text": "The fog is taking more than its share. A good part of that is you."
+    },
+    {
+      "if": {
+        "minBond": 4
+      },
+      "text": "Wren walks you to the door at knock-off, and does not quite let you through it."
+    },
+    {
+      "if": {
+        "minBond": -1,
+        "maxBond": 3
+      },
+      "text": "Wren watches you clock off, and says nothing, and keeps watching."
+    },
+    {
+      "if": {
+        "maxBond": -2
+      },
+      "text": "Wren counts the till twice and looks at you three times."
+    },
+    {
+      "if": {
+        "maxSlip": 2
+      },
+      "text": "Your hands are steady. You check them twice anyway."
+    },
+    {
+      "if": {
+        "minSlip": 3,
+        "maxSlip": 5
+      },
+      "text": "Your reflection in the door glass takes a moment to catch you up."
+    },
+    {
+      "if": {
+        "minSlip": 6
+      },
+      "text": "You say goodnight to your reflection. It says it first."
+    }
+  ],
+  "next": ""
+}

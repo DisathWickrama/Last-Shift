@@ -1,0 +1,137 @@
+{
+  "id": "dale2",
+  "title": "Something wearing Dale",
+  "people": [
+    {
+      "name": "Dale",
+      "isMimic": true,
+      "face": {
+        "seed": "dale",
+        "hair": "cap",
+        "hat": "#4a4a3c",
+        "hairColor": "#5a4a3a",
+        "skin": "#d8b08a",
+        "beard": 0.45,
+        "wrinkles": 0.6,
+        "browTilt": 0.35,
+        "browThick": 3,
+        "lid": 0.32,
+        "smile": -0.1,
+        "jaw": 0.85,
+        "shoulders": 55,
+        "shirt": "#5a5040",
+        "glasses": false
+      },
+      "tells": {
+        "veins": "mirrored",
+        "reflection": "delayed",
+        "shadow": "human",
+        "drift": [
+          "eyeDrop",
+          "smileHold",
+          "pupilGrow"
+        ]
+      }
+    }
+  ],
+  "patience": 6,
+  "greeting": [
+    {
+      "who": "narration",
+      "text": "The bell over the door. A big man in a work shirt, rubbing his eyes with the heel of his hand."
+    },
+    {
+      "who": "visitor",
+      "text": "Evening. Large flat white, and whatever diesel you'll let me have. Can't see my own bonnet out there."
+    },
+    {
+      "who": "narration",
+      "text": "Word for word. Even the pause. Last night you gave this man his coffee and watched his tail-lights go."
+    }
+  ],
+  "annoyed": "Mate. I've shown you my hands.",
+  "notes": {
+    "wrist": "He taps his card and waits. Compare the left wrist with the right.",
+    "reflection": "Him from behind. Watch when he shifts his weight, and when the mirror does.",
+    "shadow": "One shadow. Soft. They got that part right."
+  },
+  "topics": [
+    {
+      "id": "back",
+      "tone": "neutral",
+      "ask": "Back so soon, Dale?",
+      "answer": "Frozen peas to Mullane Flat. Should've been there by midnight."
+    },
+    {
+      "id": "deliv",
+      "tone": "cold",
+      "requires": "back",
+      "ask": "You delivered those last night.",
+      "answer": "{echo|Long haul tonight?}",
+      "note": "That was your line. He has it by heart."
+    },
+    {
+      "id": "real",
+      "tone": "strange",
+      "requiresCheck": "reflection",
+      "triggers": "break",
+      "ask": "Where's the real Dale?",
+      "answer": "He stopped for a bloke waving on the roadside. Good bloke. He always stopped."
+    }
+  ],
+  "wren": {
+    "arrive": "Look who's back. See? You were nice to him, and he came home.",
+    "advice": "serve",
+    "adviceLine": "It's Dale. You served Dale last night. What's changed? ...Don't answer that. Serve him.",
+    "key": "give",
+    "after": {
+      "break": "He was a nice one to wear. Shame.",
+      "serve": "Same order, same pump. I do like a regular."
+    }
+  },
+  "leave": {
+    "serve": [
+      {
+        "who": "visitor",
+        "text": "Cheers. Keep that door locked between customers, yeah? I mean it."
+      }
+    ],
+    "turnAway": [
+      {
+        "who": "you",
+        "text": "No coffee. Not for you."
+      },
+      {
+        "who": "visitor",
+        "text": "...Righto. You were kinder last night. He remembered you being kind."
+      }
+    ],
+    "shelter": [
+      {
+        "who": "you",
+        "text": "Out the back, Dale."
+      },
+      {
+        "who": "visitor",
+        "text": "Cheers. Cheers. Cheers."
+      }
+    ],
+    "break": [
+      {
+        "who": "visitor",
+        "text": "He said you were a good kid. That's why I came to you first."
+      },
+      {
+        "who": "narration",
+        "text": "It leaves the cap on the counter. There is still a head-shaped warmth in it."
+      }
+    ]
+  },
+  "report": {
+    "serve": "A B-double left Corrigan's westbound in the night. It is the same B-double that reached Mullane Flat yesterday. The depot says its driver has not left town.",
+    "turnAway": "A man was seen walking west from Corrigan's on the centre line at a steady four kilometres an hour. He has not slowed down.",
+    "shelter": "A truck driver in Mullane Flat rang us to say he dreamed he was in a storeroom. He wanted somebody to know.",
+    "break": "A truck driver in Mullane Flat woke screaming at ten past two and could not say why.",
+    "missed": "A B-double idled at Corrigan's pumps all night. Nobody was seen in the cab."
+  }
+}
