@@ -81,7 +81,7 @@ startLoop(
       menu.update();
     } else {
       // Esc, or the small button in the corner (for touch screens), pauses a night.
-      const corner = input.clicked && input.over(W - 20, 3, 17, 12);
+      const corner = input.clicked && input.over(W - 34, 0, 34, 22); // generous, for thumbs
       if (menu.pausable && !game.scenes.busy && (input.pressed('escape') || corner)) {
         input.consume();
         menu.open('pause');

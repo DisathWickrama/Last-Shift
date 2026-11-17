@@ -387,7 +387,8 @@ export class NightScene implements Scene {
    */
   private saySteps(line: Line & { bond?: number; slip?: number; humanity?: number }, when?: () => boolean): Step[] {
     const text = this.state.fill(line.text);
-    const maxLines = line.who === 'narration' ? 5 : 4;
+    // One row of the box is kept free for the "SPACE next" reminder.
+    const maxLines = line.who === 'narration' ? 4 : 3;
     const fits = (t: string) => this.game.r.wrap(t, DIALOGUE.w - 14, 8).length <= maxLines;
     const pages: string[] = [];
     let page = '';

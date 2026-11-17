@@ -9,11 +9,16 @@
       html, body { margin: 0; height: 100%; background: #050706; overflow: hidden; }
       body { display: flex; align-items: center; justify-content: center; }
       canvas { display: block; image-rendering: pixelated; cursor: crosshair; touch-action: none; }
+      /* On a phone held upright the picture is small: suggest turning it. */
+      #rotate { display: none; position: fixed; bottom: 12%; left: 0; right: 0; margin: 0; text-align: center;
+                color: #7f9082; font: 14px "Courier New", monospace; }
+      @media (orientation: portrait) and (max-width: 600px) { #rotate { display: block; } }
     </style>
   </head>
   <body>
     <!-- The whole game is drawn on this one canvas. See src/render/renderer.ts. -->
     <canvas id="game" aria-label="Last Shift game screen"></canvas>
+    <p id="rotate">Turn your phone sideways for a bigger picture.</p>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

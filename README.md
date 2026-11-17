@@ -16,13 +16,14 @@ Built with Vite + TypeScript + HTML Canvas. No game engine and no asset files: e
 
 ## How to play
 
-- Click (or press Space) to move dialogue along.
-- With a visitor at the counter, use the tray on the right:
+- Click (or press Space) to move dialogue along. Hold **Shift** to fast-forward.
+- With a visitor at the counter, use the tray on the right. Point at any button to see what it does:
   - **Wrists**, **Reflection**, **Shadow**: look for what the radio told you to look for. Each costs time and patience.
   - **Small talk**: ask questions. How you ask matters.
   - **Serve**, **Turn away**, **Shelter**: decide. Wren has opinions, and the only key.
 - Click Wren to ask what they think.
-- **M** mutes. **F** softens the light flicker.
+- **Esc** (or the `II` in the corner) opens the pause menu: settings, how to play, quit to title.
+- Settings are saved: master, music and effects volume, text speed, softer flicker, screen shake, fullscreen.
 - At 6 am the radio reads out what your choices did.
 
 Keys: `1`–`4` for the checks, `Q` `W` `E` for the decisions, `B` to step back from a close-up.
