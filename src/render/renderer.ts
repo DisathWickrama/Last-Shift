@@ -140,7 +140,15 @@ export class Renderer {
     s.setTransform(1, 0, 0, 1, 0, 0);
     s.globalAlpha = 1;
     s.imageSmoothingEnabled = false;
-    s.drawImage(this.low, 0, 0, dw, dh);
+    // Screen shake: draw the whole picture a few pixels off, a different way each frame.
+    const jolt = this.fx.shake * 3 * this.scale;
+    const sx = jolt ? Math.round((Math.random() - 0.5) * 2 * jolt) : 0;
+    const sy = jolt ? Math.round((Math.random() - 0.5) * 2 * jolt) : 0;
+    if (jolt) {
+      s.fillStyle = '#050706';
+      s.fillRect(0, 0, dw, dh);
+    }
+    s.drawImage(this.low, sx, sy, dw, dh);
 
     s.textBaseline = 'top';
     for (const t of this.texts) {
