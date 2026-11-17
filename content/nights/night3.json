@@ -41,6 +41,14 @@
     },
     {
       "type": "visitor",
+      "visitor": "family",
+      "at": "23:30",
+      "if": {
+        "flag": "kid:serve"
+      }
+    },
+    {
+      "type": "visitor",
       "visitor": "photosam",
       "at": "00:40"
     },
@@ -62,7 +70,8 @@
     "open": [
       {
         "who": "narration",
-        "text": "Third night. You came in by the front door, you think. The bell did not ring for you."
+        "text": "Third night. You came in by the front door, you think. The bell did not ring for you.",
+        "fx": "glass"
       },
       {
         "who": "wren",
@@ -76,7 +85,8 @@
         "text": "Something in a Corrigan's shirt has been standing under the canopy since you served it. It waves when you look.",
         "if": {
           "flag": "dale2:serve"
-        }
+        },
+        "fx": "figure"
       },
       {
         "who": "narration",
@@ -190,7 +200,8 @@
     "reveal": [
       {
         "who": "narration",
-        "text": "Two o'clock. The shop is very quiet. The storeroom door. The key on its cord around Wren's neck."
+        "text": "Two o'clock. The shop is very quiet. The storeroom door. The key on its cord around Wren's neck.",
+        "fx": "blackout"
       },
       {
         "who": "narration",
@@ -295,7 +306,8 @@
     "finale": [
       {
         "who": "narration",
-        "text": "Holt is waiting for an answer. Wren's hand lies flat on the counter beside yours, not touching. Everything you have done up here is in the room with you."
+        "text": "Holt is waiting for an answer. Wren's hand lies flat on the counter beside yours, not touching. Everything you have done up here is in the room with you.",
+        "fx": "figure"
       },
       {
         "who": "wren",

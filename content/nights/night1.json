@@ -253,7 +253,8 @@
       },
       {
         "who": "narration",
-        "text": "Wren flicks the cigarette out into the fog. You don't see it land."
+        "text": "Wren flicks the cigarette out into the fog. You don't see it land. For a second you think someone out there bends to pick it up.",
+        "fx": "figure"
       }
     ],
     "storeroom": [

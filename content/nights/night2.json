@@ -140,7 +140,8 @@
         "text": "The child is still standing at the glass. It has not shifted its feet since last night.",
         "if": {
           "flag": "lingerer"
-        }
+        },
+        "fx": "glass"
       },
       {
         "who": "wren",
@@ -235,6 +236,11 @@
       }
     ],
     "hand": [
+      {
+        "who": "narration",
+        "text": "Quarter to midnight. Out by the pumps, in the orange, somebody is standing with their arms by their sides. When you look properly, it is a pump.",
+        "fx": "figure"
+      },
       {
         "who": "narration",
         "text": "A bottle goes over while you restock the fridge. You reach into the broken glass without thinking.",
@@ -536,7 +542,8 @@
   "epilogue": [
     {
       "who": "narration",
-      "text": "Six. Grey. Two nights down."
+      "text": "Six. Grey. Two nights down. Out by the pumps, something stands very straight in the new light, and then is a pump again.",
+      "fx": "figure"
     },
     {
       "who": "narration",

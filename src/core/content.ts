@@ -29,7 +29,9 @@ export interface Line {
   text: string;
   /**
    * A named effect that fires as the line starts: "static" / "radioOff" (the CB
-   * radio), "knock", "glitch", "gore", "dark" / "lights", "song" / "songOff", "bell", "photo".
+   * radio), "knock", "glass", "glitch", "gore", "dark" / "lights", "blackout", "figure", "song" / "songOff",
+   * "bell", "photo", "boom", "rise", "dawn", "wrenSlip", and the close-ups "showWrenWrist", "showSelfWrist",
+   * "showSelfMirror", "showSelfMirrorWrong", "hideCloseup".
    */
   fx?: string;
   /** Set or clear a flag as the line starts. */

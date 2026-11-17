@@ -464,6 +464,20 @@ export class NightScene implements Scene {
       case 'dawn':
         this.dawnTo = 1;
         break;
+      // The haunt events can also be fired on purpose, from a line of a script.
+      case 'figure':
+        this.figureT = 9;
+        this.room.figureNear = Math.max(0.45, this.state.def.dread ?? 0);
+        audio.sting('rise');
+        break;
+      case 'glass':
+        audio.sting('glass');
+        this.glitchT = 0.08;
+        break;
+      case 'blackout':
+        this.blackoutT = 2.2;
+        audio.sting('thud');
+        break;
       case 'wrenSlip':
         this.wrenSlipT = 1.5;
         this.goreT = 0.25;

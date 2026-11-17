@@ -1,0 +1,186 @@
+{
+  "id": "family",
+  "title": "The family who stopped",
+  "people": [
+    {
+      "name": "The mother",
+      "isMimic": true,
+      "learns": true,
+      "face": {
+        "seed": "family-mum",
+        "hair": "bob",
+        "hairColor": "#3a2b1e",
+        "skin": "#ecd2ba",
+        "iris": "#4a3b2a",
+        "glasses": false,
+        "beard": 0,
+        "wrinkles": 0.15,
+        "smile": 0.35,
+        "browTilt": -0.4,
+        "shirt": "#6a6258",
+        "jaw": 0.25,
+        "shoulders": 44
+      },
+      "tells": {
+        "veins": "none",
+        "reflection": "delayed",
+        "shadow": "human",
+        "drift": [
+          "tooSymmetric",
+          "pupilGrow",
+          "smileHold"
+        ]
+      }
+    },
+    {
+      "name": "The kid",
+      "isMimic": true,
+      "size": 0.76,
+      "face": {
+        "seed": "kid",
+        "hair": "messy",
+        "hairColor": "#3a2b1e",
+        "skin": "#ecd2ba",
+        "iris": "#4a3b2a",
+        "eyeW": 7.2,
+        "eyeH": 4.4,
+        "eyeGap": 14,
+        "eyeY": -2,
+        "noseLen": 8,
+        "noseW": 3.4,
+        "mouthW": 7,
+        "mouthY": 19,
+        "headW": 30,
+        "headH": 35,
+        "jaw": 0.2,
+        "chin": 0,
+        "beard": 0,
+        "wrinkles": 0,
+        "glasses": false,
+        "shoulders": 34,
+        "shirt": "#6a6258",
+        "browThick": 1.6,
+        "browTilt": -0.4,
+        "smile": -0.12,
+        "lid": 0.05
+      },
+      "tells": {
+        "veins": "none",
+        "reflection": "delayed",
+        "shadow": "many",
+        "drift": [
+          "pupilGrow",
+          "smileHold",
+          "eyeSpread"
+        ]
+      }
+    }
+  ],
+  "patience": 6,
+  "greeting": [
+    {
+      "who": "narration",
+      "text": "The bell. The child you gave the hot chocolate to, holding the hand of a woman in a good coat. They have the same eyes. Not similar. The same."
+    },
+    {
+      "who": "visitor",
+      "text": "We wanted to say thank you. You were kind to our youngest. So few people stop."
+    },
+    {
+      "who": "companion",
+      "text": "They said you'd be nice."
+    }
+  ],
+  "annoyed": "Are you nearly finished looking at us?",
+  "notes": {
+    "wrist": "She lays her hands on the counter the way the child did. Palms up. Like a teacher's pet.",
+    "reflection": "Two backs in the mirror. Watch them sway. Watch which sways first.",
+    "shadow": "Two pairs of shoes. Count what lies around them."
+  },
+  "topics": [
+    {
+      "id": "family",
+      "tone": "neutral",
+      "ask": "Where's the rest of the family?",
+      "answer": "In the car. All of us are in the car. There's ever such a lot of room in the car now."
+    },
+    {
+      "id": "youngest",
+      "tone": "cold",
+      "requires": "family",
+      "ask": "Your youngest. How many are there?",
+      "who": "companion",
+      "answer": "As many as stopped."
+    },
+    {
+      "id": "them",
+      "tone": "strange",
+      "requiresCheck": "reflection",
+      "triggers": "break",
+      "ask": "You're wearing the people who picked it up.",
+      "answer": "They were so pleased to help. You know how that feels. You gave it the cup."
+    }
+  ],
+  "wren": {
+    "arrive": "Oh, it found a family. Look, Sam. Look what your hot chocolate did.",
+    "advice": "serve",
+    "adviceLine": "They only came to say thank you. That's manners. You started this one, Sam. See it through.",
+    "key": "give",
+    "after": {
+      "serve": "A whole family. Because of you. You should be proud, really.",
+      "turnAway": "They'll forgive you. They're very forgiving, once there's enough of them.",
+      "break": "That was a family, Sam. You made it and then you unmade it."
+    }
+  },
+  "leave": {
+    "serve": [
+      {
+        "who": "you",
+        "text": "...You're welcome. Drive safe."
+      },
+      {
+        "who": "visitor",
+        "text": "We always do now."
+      },
+      {
+        "who": "narration",
+        "text": "They go out hand in hand. Neither of them uses the door."
+      }
+    ],
+    "turnAway": [
+      {
+        "who": "you",
+        "text": "Get out. Both of you."
+      },
+      {
+        "who": "companion",
+        "text": "But I asked properly."
+      },
+      {
+        "who": "narration",
+        "text": "The same sentence. The same face saying it. Two of them now."
+      }
+    ],
+    "shelter": [
+      {
+        "who": "you",
+        "text": "Out the back. Both of you."
+      },
+      {
+        "who": "visitor",
+        "text": "Is that where you keep yours? We'd love to see."
+      }
+    ],
+    "break": [
+      {
+        "who": "visitor",
+        "text": "You get it. You helped. That's all we wanted to say."
+      },
+      {
+        "who": "narration",
+        "text": "They leave, and the bell does not ring, and out in the car park a great many car doors close at once."
+      }
+    ]
+  },
+  "report": {}
+}
