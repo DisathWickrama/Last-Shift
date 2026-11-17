@@ -1,0 +1,140 @@
+{
+  "id": "tom2",
+  "title": "Tom, alone",
+  "people": [
+    {
+      "name": "Tom",
+      "isMimic": true,
+      "face": {
+        "seed": "tom",
+        "hair": "beanie",
+        "hat": "#3d4a5a",
+        "hairColor": "#3a2b1e",
+        "skin": "#d8b08a",
+        "iris": "#4a3b2a",
+        "glasses": false,
+        "wrinkles": 0,
+        "beard": 0.4,
+        "browTilt": -0.05,
+        "smile": 0.34,
+        "lid": 0.15,
+        "jaw": 0.7,
+        "shoulders": 50,
+        "shirt": "#48584a"
+      },
+      "tells": {
+        "veins": "human",
+        "reflection": "human",
+        "shadow": "none",
+        "drift": [
+          "smileHold",
+          "noBlink",
+          "pupilGrow"
+        ]
+      }
+    }
+  ],
+  "patience": 6,
+  "greeting": [
+    {
+      "who": "narration",
+      "text": "The bell, once. The backpacker from last night, on his own, wearing a woman's parka that does not fit him across the shoulders."
+    },
+    {
+      "who": "visitor",
+      "text": "Hi. Sorry. Two coffees, and can we fill a water bladder?"
+    },
+    {
+      "who": "narration",
+      "text": "He looks to his left for someone to finish the sentence. There is no one to his left."
+    }
+  ],
+  "annoyed": "Look, is there a problem? He's fine. He's just tired.",
+  "notes": {
+    "wrist": "He has learned to take his hands out of his pockets. Veins. Hers, you think.",
+    "reflection": "His back, facing the right way this time. He has been practising.",
+    "shadow": "Wet boots. Look underneath them."
+  },
+  "topics": [
+    {
+      "id": "jess",
+      "tone": "neutral",
+      "ask": "Where's Jess?",
+      "answer": "Jess is wrecked. She's not really talking."
+    },
+    {
+      "id": "coat",
+      "tone": "cold",
+      "requires": "jess",
+      "ask": "That's her coat.",
+      "answer": "She came back for me. So I kept some."
+    },
+    {
+      "id": "shadow",
+      "tone": "strange",
+      "requiresCheck": "shadow",
+      "triggers": "break",
+      "ask": "You still haven't got a shadow, Tom.",
+      "answer": "...No. She had a lovely one."
+    }
+  ],
+  "wren": {
+    "arrive": "Oh, he's doing both voices now. That's sweet.",
+    "advice": "serve",
+    "adviceLine": "You served him last night and the sky didn't fall. He's a regular now. Two coffees, Sam.",
+    "key": "give"
+  },
+  "leave": {
+    "serve": [
+      {
+        "who": "visitor",
+        "text": "Thank you. Come on, Tom."
+      },
+      {
+        "who": "narration",
+        "text": "He holds the door for nobody, and waits, and follows them out."
+      }
+    ],
+    "turnAway": [
+      {
+        "who": "you",
+        "text": "No. Not again."
+      },
+      {
+        "who": "visitor",
+        "text": "Something."
+      },
+      {
+        "who": "narration",
+        "text": "It is what he said last night, when she asked him to say something."
+      }
+    ],
+    "shelter": [
+      {
+        "who": "you",
+        "text": "Out the back."
+      },
+      {
+        "who": "visitor",
+        "text": "Thank you. Thank you."
+      }
+    ],
+    "break": [
+      {
+        "who": "visitor",
+        "text": "You let us both go. This is what that looks like."
+      },
+      {
+        "who": "narration",
+        "text": "He zips her parka up to the chin and walks out into the fog."
+      }
+    ]
+  },
+  "report": {
+    "serve": "A man bought two coffees at Corrigan's overnight and carried them both away. The woman he was collected with yesterday has not been seen since the roadblock.",
+    "turnAway": "A man in a woman's parka was seen walking the pass road, stopping every few metres to hold a door that was not there.",
+    "shelter": "Corrigan's reports a walker sheltering. Rangers ask: only the one?",
+    "break": "A woman's parka has been found folded on the kerb at Corrigan's. The pockets were full of hair.",
+    "missed": "A man waited at Corrigan's door overnight, saying two people's lines."
+  }
+}

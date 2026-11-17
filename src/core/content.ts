@@ -142,6 +142,9 @@ export interface VisitorDef {
 
 // --- nights -------------------------------------------------------------------
 
+/** A sentence of the dawn report: plain text, or text that is only read out when a condition holds. */
+export type ReportLine = string | { text: string; if?: Cond };
+
 export interface ChoiceDef {
   text: string;
   /** Only offer this option when the condition holds. */
@@ -191,7 +194,7 @@ export interface NightDef {
   /** Named scripts that timeline events refer to. */
   scripts: Record<string, Beat[]>;
   /** The morning radio report. Each visitor's own line is slotted between intro and outro. */
-  dawn: { intro: string[]; outro: string[] };
+  dawn: { intro: ReportLine[]; outro: ReportLine[] };
   /** A script played after the dawn report, before the end card. */
   epilogue: Beat[];
   /** Sentences for the end card. Each is shown if its condition holds. */

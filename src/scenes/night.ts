@@ -490,7 +490,7 @@ export class NightScene implements Scene {
   /** 6 am: the light changes, the radio reads its report, the epilogue plays, then the end card. */
   private dawn(): void {
     const def = this.state.def;
-    const report = buildReport(def, this.state.log, VISITORS);
+    const report = buildReport(def, this.state.log, VISITORS, (cond) => this.state.test(cond));
     this.dialogue.clear();
     this.enqueue({ kind: 'call', fn: () => (this.dawnTo = 1) }, { kind: 'wait', time: 2.5 });
     report.forEach((text, i) => {

@@ -33,6 +33,14 @@
     },
     {
       "type": "visitor",
+      "visitor": "jess3",
+      "at": "23:50",
+      "if": {
+        "flag": "backpackers:break"
+      }
+    },
+    {
+      "type": "visitor",
       "visitor": "photosam",
       "at": "00:40"
     },
@@ -64,6 +72,20 @@
         }
       },
       {
+        "who": "narration",
+        "text": "Something in a Corrigan's shirt has been standing under the canopy since you served it. It waves when you look.",
+        "if": {
+          "flag": "dale2:serve"
+        }
+      },
+      {
+        "who": "narration",
+        "text": "The child is gone from the glass. There are two small handprints on it, on the inside.",
+        "if": {
+          "flag": "lingerer"
+        }
+      },
+      {
         "who": "wren",
         "text": "You came back. I wasn't sure you would.",
         "if": {
@@ -78,6 +100,20 @@
       {
         "who": "radio",
         "text": "The first: early twenties, slight, dark hair, name tag reading SAM. The second: the same age, dark bob, answers to Wren. Both were rostered on. Neither clocked off."
+      },
+      {
+        "who": "radio",
+        "text": "We have a photograph of the two attendants, handed in by a contractor. We have a second report that the people now behind that counter match it exactly. Too exactly.",
+        "if": {
+          "flag": "gusWarned"
+        }
+      },
+      {
+        "who": "radio",
+        "text": "A further notice. The pass was declared open yesterday by somebody using our call sign. Eleven vehicles went up. We have counted eleven come down. We have not been able to count the people in them.",
+        "if": {
+          "flag": "passCleared"
+        }
       },
       {
         "who": "radio",
@@ -134,6 +170,28 @@
       {
         "who": "narration",
         "text": "Two o'clock. The shop is very quiet. The storeroom door. The key on its cord around Wren's neck."
+      },
+      {
+        "who": "narration",
+        "text": "Your bandaged hand. You already know what is under there. Nothing. You have known for a day.",
+        "if": {
+          "flag": "sawHand"
+        }
+      },
+      {
+        "who": "wren",
+        "text": "You promised me. Last night. It's just us, no matter what. I'm holding you to that.",
+        "if": {
+          "flag": "promised"
+        }
+      },
+      {
+        "who": "narration",
+        "text": "From inside the storeroom, at the height of your own hand: three knocks. It remembers you knocking.",
+        "fx": "knock",
+        "if": {
+          "flag": "knockedBack"
+        }
       },
       {
         "who": "narration",
@@ -216,6 +274,27 @@
       {
         "who": "narration",
         "text": "Holt is waiting for an answer. Wren's hand lies flat on the counter beside yours, not touching. Everything you have done up here is in the room with you."
+      },
+      {
+        "who": "wren",
+        "text": "Remember what you promised.",
+        "if": {
+          "flag": "promised"
+        }
+      },
+      {
+        "who": "visitor",
+        "text": "Gus from the council brought us a photo. That's how I knew I'd know you. Same faces. ...Exactly the same. Not a day on you.",
+        "if": {
+          "flag": "gusWarned"
+        }
+      },
+      {
+        "who": "visitor",
+        "text": "That courier got through, by the way. The kidney. She says the kid on nights at Corrigan's told her not to stop for anything. You saved a little girl, Sam.",
+        "if": {
+          "flag": "kidneyArrived"
+        }
       },
       {
         "choice": [

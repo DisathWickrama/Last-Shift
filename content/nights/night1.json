@@ -275,7 +275,8 @@
       {
         "who": "narration",
         "fx": "gore",
-        "text": "A sound like a wet sheet pulled off a line. A voice starts to say something, and is not allowed to finish."
+        "text": "A sound like a wet sheet pulled off a line. A voice starts to say something, and is not allowed to finish.",
+        "set": "usedStoreroom"
       },
       {
         "who": "narration",
@@ -328,7 +329,8 @@
       {
         "who": "narration",
         "fx": "gore",
-        "text": "It takes less time than before. You are not sure whether that is better."
+        "text": "It takes less time than before. You are not sure whether that is better.",
+        "set": "usedStoreroom"
       },
       {
         "who": "narration",

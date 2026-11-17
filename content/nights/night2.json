@@ -6,7 +6,6 @@
   "end": "06:00",
   "clearFlags": [
     "scone",
-    "lingerer",
     "car",
     "marks",
     "mimicInBack",
@@ -56,6 +55,14 @@
     },
     {
       "type": "visitor",
+      "visitor": "tom2",
+      "at": "23:55",
+      "if": {
+        "flag": "backpackers:serve"
+      }
+    },
+    {
+      "type": "visitor",
       "visitor": "aldous",
       "at": "00:20"
     },
@@ -77,6 +84,17 @@
     },
     {
       "type": "visitor",
+      "visitor": "gus2",
+      "at": "03:00",
+      "if": {
+        "anyFlag": [
+          "gus:serve",
+          "gus:shelter"
+        ]
+      }
+    },
+    {
+      "type": "visitor",
       "visitor": "noor",
       "at": "03:40"
     },
@@ -85,6 +103,22 @@
       "script": "storeroom",
       "if": {
         "flag": "mimicInBack"
+      }
+    },
+    {
+      "type": "script",
+      "script": "dance",
+      "at": "04:40",
+      "if": {
+        "minBond": 3
+      }
+    },
+    {
+      "type": "script",
+      "script": "cold",
+      "at": "04:40",
+      "if": {
+        "maxBond": -2
       }
     },
     {
@@ -100,6 +134,58 @@
       {
         "who": "wren",
         "text": "Evening, you. Sleep well? ...No. Me neither."
+      },
+      {
+        "who": "narration",
+        "text": "The child is still standing at the glass. It has not shifted its feet since last night.",
+        "if": {
+          "flag": "lingerer"
+        }
+      },
+      {
+        "who": "wren",
+        "text": "Don't wave at it. Don't feed it.",
+        "if": {
+          "flag": "lingerer"
+        }
+      },
+      {
+        "who": "wren",
+        "text": "No scone lady tonight. Shame. I'd got used to hating her.",
+        "if": {
+          "noFlags": [
+            "maureen:serve",
+            "maureen:shelter"
+          ]
+        }
+      },
+      {
+        "who": "wren",
+        "text": "You took one of them off a girl last night. In front of me. You've a taste for it now, haven't you.",
+        "if": {
+          "flag": "backpackers:break"
+        }
+      },
+      {
+        "who": "wren",
+        "text": "I scrubbed the storeroom floor this afternoon. Twice. Try not to give me a reason tonight.",
+        "if": {
+          "flag": "usedStoreroom"
+        }
+      },
+      {
+        "who": "wren",
+        "text": "You did everything I asked last night. Every single thing. I could get used to you.",
+        "if": {
+          "minBond": 4
+        }
+      },
+      {
+        "who": "wren",
+        "text": "You didn't listen to me much last night. I noticed. I notice everything about you.",
+        "if": {
+          "maxBond": -2
+        }
       },
       {
         "who": "narration",
@@ -296,7 +382,8 @@
       {
         "who": "narration",
         "text": "Something is said in a voice you served coffee to. Then nothing is said.",
-        "fx": "gore"
+        "fx": "gore",
+        "set": "usedStoreroom"
       },
       {
         "who": "narration",
@@ -309,6 +396,94 @@
         "who": "wren",
         "text": "That's the last one I do for you tonight."
       }
+    ],
+    "dance": [
+      {
+        "who": "narration",
+        "text": "Twenty to five. Nothing on the road. Wren turns the radio up and holds out a hand.",
+        "fx": "song"
+      },
+      {
+        "who": "wren",
+        "text": "Come on. Nobody's looking. Nobody's ever looking."
+      },
+      {
+        "who": "narration",
+        "text": "You dance between the counter and the fridge, slowly, badly. Wren leads. Your feet know the steps before you do, which is strange, because you have never danced."
+      },
+      {
+        "choice": [
+          {
+            "text": "Rest your head on Wren's shoulder.",
+            "bond": 2,
+            "slip": 1,
+            "then": [
+              {
+                "who": "narration",
+                "text": "There is no heartbeat under your ear. You think about that. Then you think: there isn't one over it, either."
+              },
+              {
+                "who": "wren",
+                "text": "There. That's us."
+              }
+            ]
+          },
+          {
+            "text": "Step back.",
+            "bond": -1,
+            "then": [
+              {
+                "who": "wren",
+                "text": "...Too soon. All right. I can wait. I'm very good at waiting."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "who": "narration",
+        "text": "The song runs down like a tape with a thumb on the reel.",
+        "fx": "songOff"
+      }
+    ],
+    "cold": [
+      {
+        "who": "narration",
+        "text": "Twenty to five. Wren has not spoken to you in an hour. Now they hold out a hand, palm up."
+      },
+      {
+        "who": "wren",
+        "text": "Name tag."
+      },
+      {
+        "choice": [
+          {
+            "text": "Hand it over.",
+            "bond": 1,
+            "slip": 1,
+            "then": [
+              {
+                "who": "narration",
+                "text": "Wren looks at it for a long time. SAM. Then pins it back on you, a little too hard, a little too straight."
+              },
+              {
+                "who": "wren",
+                "text": "It's still yours. For now. Earn it."
+              }
+            ]
+          },
+          {
+            "text": "No.",
+            "bond": -1,
+            "then": [
+              {
+                "who": "wren",
+                "text": "No. Fine. Keep it. But remember who gave it to you."
+              }
+            ]
+          }
+        ]
+      }
     ]
   },
   "dawn": {
@@ -316,6 +491,24 @@
       "...Tarrow ranger station, first-light report, second night. Fog unchanged. Road closed."
     ],
     "outro": [
+      {
+        "if": {
+          "flag": "kid:serve"
+        },
+        "text": "The family who picked up a child on the pass have been found. They are well. Rangers say all four of them are exactly, identically well."
+      },
+      {
+        "if": {
+          "flag": "passCleared"
+        },
+        "text": "A notice has gone out, in our name, that the pass is open. It is not. We did not send it. Eleven vehicles have started up from Mullane Flat."
+      },
+      {
+        "if": {
+          "flag": "gusWarned"
+        },
+        "text": "On the strength of a photograph handed in tonight, a ranger will go up to Corrigan's tomorrow, whatever the fog does."
+      },
       "Corrigan's Roadhouse: we have had no voice contact from you in three weeks, only the call-in tone. Somebody is pressing the button. Tarrow out."
     ]
   },

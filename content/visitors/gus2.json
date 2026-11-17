@@ -1,0 +1,149 @@
+{
+  "id": "gus2",
+  "title": "Gus, on his Thursday run",
+  "people": [
+    {
+      "name": "Gus",
+      "isMimic": false,
+      "face": {
+        "seed": "gus",
+        "hair": "short",
+        "hairColor": "#1d1b19",
+        "skin": "#c79a76",
+        "iris": "#2c2620",
+        "eyeDropL": 1.7,
+        "browSkew": 0.9,
+        "mouthSkew": 0.8,
+        "lid": 0.08,
+        "pupil": 1.1,
+        "wrinkles": 0.45,
+        "beard": 0.35,
+        "browTilt": -0.35,
+        "smile": -0.22,
+        "glasses": false,
+        "jaw": 0.55,
+        "shoulders": 47,
+        "shirt": "#2f3a44",
+        "blinkEvery": 1.6
+      },
+      "tells": {
+        "veins": "human",
+        "reflection": "human",
+        "shadow": "human"
+      }
+    }
+  ],
+  "patience": 5,
+  "greeting": [
+    {
+      "who": "narration",
+      "text": "The bell. The wiry man from last night, steadier, with something folded in his fist."
+    },
+    {
+      "who": "visitor",
+      "text": "Bins. Thursday. And I brought this, 'cause it's been eating me. Found it in the ute. Staff Christmas do, two years back."
+    },
+    {
+      "who": "narration",
+      "text": "A photograph. Two people in Corrigan's shirts. He holds it up beside your face, and his hand begins to shake again.",
+      "set": "gusPhoto"
+    }
+  ],
+  "annoyed": "Stop looking at me and look at the bloody photo.",
+  "notes": {
+    "wrist": "The same scabbed knuckles. The same cord-thick veins.",
+    "reflection": "His back, in the mirror. And two shapes behind the counter that he keeps not looking at.",
+    "shadow": "One shadow. It is shaking slightly."
+  },
+  "topics": [
+    {
+      "id": "photo",
+      "tone": "neutral",
+      "ask": "Who's in the photo?",
+      "answer": "Sam. And Wren. Them. You. Except it's not, is it. You're too... you're too tidy. Sam had a chip in his front tooth."
+    },
+    {
+      "id": "tooth",
+      "tone": "strange",
+      "requires": "photo",
+      "ask": "Which tooth?",
+      "answer": "...Don't. Don't go and put one in. Jesus Christ."
+    },
+    {
+      "id": "help",
+      "tone": "warm",
+      "ask": "Gus. Go home. Don't come back up here.",
+      "answer": "You're warning me. Whatever you are, you're warning me. ...Right. Right."
+    }
+  ],
+  "wren": {
+    "arrive": "He came back. With paper. Sam, take that off him.",
+    "advice": "shelter",
+    "adviceLine": "He knows. Look at his face, he knows. We can't let him drive back down with that photo. Put him in the back, Sam. I'll talk to him.",
+    "key": "give",
+    "after": {
+      "serve": "He's gone down the hill with a photograph of us. Of them. I hope you know what you've done.",
+      "shelter": "He's quiet now. I burned the photo in the sink. You don't need to see it.",
+      "turnAway": "The photo went with him. That's the second-worst way that could have gone."
+    }
+  },
+  "leave": {
+    "serve": [
+      {
+        "who": "you",
+        "text": "Take the photo to Tarrow. Show the rangers."
+      },
+      {
+        "who": "visitor",
+        "text": "...I will. I bloody will."
+      },
+      {
+        "who": "narration",
+        "text": "He does not turn his back on you until he is through the door.",
+        "set": "gusWarned"
+      }
+    ],
+    "turnAway": [
+      {
+        "who": "you",
+        "text": "Bins are done. Off you go."
+      },
+      {
+        "who": "visitor",
+        "text": "Yeah. Yeah, I'm going. I'm not coming Thursdays any more."
+      }
+    ],
+    "shelter": [
+      {
+        "who": "you",
+        "text": "Come and sit out the back a minute. You've had a shock."
+      },
+      {
+        "who": "visitor",
+        "text": "...Have I. Yeah. Yeah, maybe I have."
+      }
+    ],
+    "walkout": [
+      {
+        "who": "visitor",
+        "text": "Nope. No. I've seen enough."
+      },
+      {
+        "who": "narration",
+        "text": "He takes the photo with him."
+      }
+    ]
+  },
+  "report": {
+    "serve": "A council contractor has handed rangers a photograph of the Corrigan's night staff and a statement we are still trying to understand.",
+    "turnAway": "A council contractor says he will no longer service Corrigan's Roadhouse. He would not give a reason over the radio.",
+    "walkout": "A council contractor says he will no longer service Corrigan's Roadhouse. He would not give a reason over the radio.",
+    "shelter": "A council ute is parked at Corrigan's with the keys in it. The contractor's wife has rung the station four times.",
+    "missed": "The bins at Corrigan's were not collected."
+  },
+  "effects": {
+    "shelter": {
+      "humanity": -2
+    }
+  }
+}

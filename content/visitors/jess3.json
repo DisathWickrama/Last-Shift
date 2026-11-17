@@ -1,0 +1,123 @@
+{
+  "id": "jess3",
+  "title": "Jess, who you kept",
+  "people": [
+    {
+      "name": "Jess",
+      "isMimic": false,
+      "face": {
+        "seed": "jess",
+        "hair": "long",
+        "hairColor": "#85683e",
+        "skin": "#ecd2ba",
+        "iris": "#3c4a3a",
+        "glasses": false,
+        "wrinkles": 0,
+        "beard": 0,
+        "browTilt": -0.4,
+        "smile": -0.18,
+        "lid": 0.1,
+        "jaw": 0.3,
+        "shoulders": 43,
+        "shirt": "#4a4452",
+        "headW": 28.5,
+        "headH": 37
+      },
+      "tells": {
+        "veins": "human",
+        "reflection": "human",
+        "shadow": "human"
+      }
+    }
+  ],
+  "patience": 6,
+  "greeting": [
+    {
+      "who": "narration",
+      "text": "The bell. Jess, in a ranger-issue blanket, come back up the hill in a borrowed car. She does not come all the way to the counter."
+    },
+    {
+      "who": "visitor",
+      "text": "I had to see. They put up the posters at the station today. The missing ones. And I thought: that's who made me the coffee."
+    }
+  ],
+  "annoyed": "You looked at Tom like that. Right before.",
+  "notes": {
+    "wrist": "Her hands are shaking. Her veins are exactly where they were.",
+    "reflection": "Her back. And the counter. Count who is behind it.",
+    "shadow": "One. Hers."
+  },
+  "topics": [
+    {
+      "id": "why",
+      "tone": "neutral",
+      "ask": "Why did you come back?",
+      "answer": "Because you took that thing off me when you didn't have to. And I can't work out why one of them would."
+    },
+    {
+      "id": "one",
+      "tone": "strange",
+      "requires": "why",
+      "ask": "One of them?",
+      "answer": "...You don't know. Oh my God. You actually don't know.",
+      "note": "Wren is suddenly standing very close to you."
+    },
+    {
+      "id": "go",
+      "tone": "warm",
+      "ask": "Jess. Go back down. Tell them everything.",
+      "answer": "I will. Whatever you are: thank you. I mean that."
+    }
+  ],
+  "wren": {
+    "arrive": "You saved her once. That was once.",
+    "advice": "turnAway",
+    "adviceLine": "She's seen the posters. She'll say it out loud in a minute. Get her out of here before she says it, Sam.",
+    "key": "refuse"
+  },
+  "leave": {
+    "serve": [
+      {
+        "who": "you",
+        "text": "Take a coffee for the road. Drive slowly."
+      },
+      {
+        "who": "visitor",
+        "text": "You're kinder than he was by the end. Is that awful to say?",
+        "set": "jessKnows"
+      }
+    ],
+    "turnAway": [
+      {
+        "who": "you",
+        "text": "You shouldn't be here. Go."
+      },
+      {
+        "who": "visitor",
+        "text": "I know. I know. I just needed to see your face do it."
+      }
+    ],
+    "shelter": [
+      {
+        "who": "you",
+        "text": "Stay. Out the back."
+      },
+      {
+        "who": "visitor",
+        "text": "...No. I don't think I will. I've seen what you do with people out the back."
+      }
+    ],
+    "walkout": [
+      {
+        "who": "visitor",
+        "text": "There. That look. That's the one."
+      }
+    ]
+  },
+  "report": {},
+  "effects": {
+    "shelter": {
+      "humanity": -1
+    }
+  }
+}
