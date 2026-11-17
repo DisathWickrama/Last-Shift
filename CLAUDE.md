@@ -48,7 +48,7 @@ src/
   core/          game loop, scene manager, input, seeded RNG, content types + loader, save
   render/        renderer (low-res canvas + text), face generator, room, close-ups, filters
   systems/       drift, inspections, clock, stats, night state machine, campaign, Wren, dawn report
-  ui/            buttons, dialogue box, choice list
+  ui/            buttons, dialogue box, choice list, overlay menus, help text
   audio/         Web Audio ambience, stings, radio song
   scenes/        title, night, end card, haunt (when the shop misbehaves)
 content/
