@@ -91,7 +91,7 @@ One player action, traced end to end (clicking **Wrists**):
 | `blackout` | the tubes go out for a couple of seconds; on the last night the figure is at the glass when they do |
 | `flash` | a drifting mimic's face slips for a single frame |
 
-None of it touches the rules. The mirror close-up also takes the dread value: on later nights Wren's reflection turns to watch you, and on the last night the blank where you should be has a face.
+With **F** (softer flicker) on, the flash-only events are dropped and mask slips ease in and out instead of strobing. None of it touches the rules. The mirror close-up also takes the dread value: on later nights Wren's reflection turns to watch you, and on the last night the blank where you should be has a face.
 
 ## Sound
 

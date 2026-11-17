@@ -234,7 +234,8 @@ export class NightScene implements Scene {
     // ...except when a script lets Wren's own mask slip, in flashes, like any other mimic's.
     this.wrenSlipT = Math.max(0, this.wrenSlipT - dt);
     const slot = Math.floor(this.wrenSlipT * 14);
-    const slack = this.wrenSlipT > 0 && (slot * 7919) % 5 < 3 ? 0.85 : 0;
+    const calm = this.game.settings.reducedFlicker; // no strobing in the softer mode
+    const slack = this.wrenSlipT > 0 && (calm || (slot * 7919) % 5 < 3) ? 0.85 : 0;
     this.wren.update(dt, this.wren.base, { talking: this.speaker() === 'wren', stare: 0.9, slack });
   }
 
@@ -267,7 +268,9 @@ export class NightScene implements Scene {
         slip: this.state.stats.slip,
         mimicSlipping: !!visit && visit.drift > 0.5 && visit.def.people.some((p) => p.isMimic),
       });
-      switch (event) {
+      // The softer mode drops the two events that are nothing but a flash.
+      const calm = this.game.settings.reducedFlicker && (event === 'tear' || event === 'flash');
+      switch (calm ? null : event) {
         case 'tear':
           this.glitchT = 0.12;
           audio.sting('tear');
@@ -331,6 +334,8 @@ export class NightScene implements Scene {
     if (this.flashT > 0) return 0.7; // a single-frame slip, there and gone
     const t = this.breakT;
     if (t < 0) return 0;
+    // With "softer flicker" on there is no strobing: the mask simply eases off and back.
+    if (this.game.settings.reducedFlicker) return t < 1.8 ? Math.min(1, t * 1.2) : 0;
     if (t < 1.3) {
       const slot = Math.floor(t * 14);
       const on = (slot * 7919) % 5 < 2; // an irregular but repeatable on/off pattern
@@ -973,7 +978,8 @@ export class NightScene implements Scene {
 
     // High Slip makes the interface itself unreliable.
     r.fx.textGlitch = Math.min(1, Math.max(0, stats.slip - 3) / 8);
-    r.fx.glitch = (this.breakT >= 0 && this.breakT < 1.8) || this.glitchT > 0 ? 0.8 : 0;
+    const tearing = (this.breakT >= 0 && this.breakT < 1.8) || this.glitchT > 0;
+    r.fx.glitch = tearing ? (this.game.settings.reducedFlicker ? 0.15 : 0.8) : 0;
     r.fx.gore = this.slackNow() > 0 ? 0.22 : this.goreT > 0 ? 0.5 : 0;
 
     this.drawBand(r);
