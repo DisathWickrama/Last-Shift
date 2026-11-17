@@ -18,6 +18,11 @@ import {
 } from './inspections';
 import { type Decision, type Outcome, type Stats, addStats, outcomeEffects, zeroStats } from './stats';
 
+/** Bond at or above this: Wren will hand over the key for anyone. */
+export const WREN_DEVOTED = 6;
+/** Bond at or below this: Wren refuses the key and stops volunteering advice. */
+export const WREN_ESTRANGED = -5;
+
 /** What should happen next with the visitor at the counter. */
 export type VisitStatus =
   | 'ok'
@@ -279,7 +284,15 @@ export class NightState {
 
   /** Will Wren hand over the storeroom key for this visitor? */
   wrenGivesKey(): boolean {
+    // Bond changes what Wren will do, not only what Wren says.
+    if (this.stats.bond >= WREN_DEVOTED) return true; // devoted: anything you ask
+    if (this.stats.bond <= WREN_ESTRANGED) return false; // estranged: the key stays round Wren's neck
     return this.need().def.wren.key === 'give';
+  }
+
+  /** At very low Bond, Wren stops offering an opinion unless you ask for it. */
+  wrenSulks(): boolean {
+    return this.stats.bond <= WREN_ESTRANGED;
   }
 
   /** You pushed past Wren's "no". */

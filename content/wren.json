@@ -193,6 +193,25 @@
       {
         "text": "You don't need to check on me, Sam. I'm not going anywhere."
       }
+    ],
+    "sulk": [
+      {
+        "text": "Work it out yourself. You're so good at it."
+      },
+      {
+        "text": "You don't want my opinion. You've made that plain."
+      },
+      {
+        "text": "I'm not saying anything. You'd only do the opposite."
+      }
+    ],
+    "devoted": [
+      {
+        "text": "Not that one. ...No. All right. For you. Only ever for you."
+      },
+      {
+        "text": "You know I can't say no to you. Give me the key. I'll take them."
+      }
     ]
   }
 }

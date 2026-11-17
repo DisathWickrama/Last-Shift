@@ -223,6 +223,33 @@ describe('NightState visits', () => {
     expect(s.stats.humanity).toBe(-1);
   });
 
+  it('lets Bond change whether Wren hands over the key', () => {
+    const s = fresh();
+    s.beginVisit('human'); // this visitor's file says Wren gives the key
+    expect(s.wrenGivesKey()).toBe(true);
+    s.stats.bond = -5;
+    expect(s.wrenGivesKey()).toBe(false);
+    expect(s.wrenSulks()).toBe(true);
+    s.stats.bond = 6;
+    expect(s.wrenGivesKey()).toBe(true);
+  });
+
+  it('carries stats and flags in from an earlier night, minus the cleared ones', () => {
+    const s = new NightState({ ...night, clearFlags: ['scone'] }, cast, { stats: { humanity: 2, bond: -1, slip: 3 }, flags: ['scone', 'dale:serve'] });
+    expect(s.stats).toEqual({ humanity: 2, bond: -1, slip: 3 });
+    expect(s.flags.has('dale:serve')).toBe(true);
+    expect(s.flags.has('scone')).toBe(false);
+    expect(s.test({ anyFlag: ['nope', 'dale:serve'] })).toBe(true);
+    expect(s.test({ noFlags: ['dale:serve'] })).toBe(false);
+  });
+
+  it('records how each visit ended as a flag', () => {
+    const s = fresh();
+    s.beginVisit('human');
+    s.finish('turnAway');
+    expect(s.flags.has('human:turnAway')).toBe(true);
+  });
+
   it('charges Slip for staring only once per visit', () => {
     const s = fresh();
     s.beginVisit('human');

@@ -16,7 +16,7 @@ const DECISIONS: Decision[] = ['serve', 'turnAway', 'shelter'];
 const WREN_KEYS = [
   'serve.human', 'serve.mimic', 'turnAway.human', 'turnAway.mimic', 'shelter.human', 'shelter.mimic',
   'walkout.human', 'break.mimic', 'sided', 'defied', 'kind', 'mirror', 'hands',
-  'keyGive', 'keyRefuse', 'keyInsist', 'keyBackDown', 'poke',
+  'keyGive', 'keyRefuse', 'keyInsist', 'keyBackDown', 'poke', 'sulk', 'devoted',
 ];
 
 const visitors = Object.values(VISITORS);
@@ -101,10 +101,9 @@ describe('nights', () => {
     expect(night.summary.length).toBeGreaterThan(0);
   });
 
-  it('always has something to say on the end card, whatever the stats', () => {
-    const night = NIGHTS.night1;
-    for (let humanity = -6; humanity <= 6; humanity++) {
-      for (let bond = -8; bond <= 8; bond++) {
+  it.each(nights.filter((n) => n.timeline.some((e) => e.type === 'dawn')).map((n) => [n.id, n] as const))('%s always has three things to say on the end card, whatever the stats', (_id, night) => {
+    for (let humanity = -9; humanity <= 9; humanity += 1) {
+      for (let bond = -12; bond <= 12; bond++) {
         for (let slip = 0; slip <= 8; slip++) {
           const state = new NightState(night, VISITORS);
           state.stats = { humanity, bond, slip };

@@ -18,7 +18,8 @@
         },
         {
           "who": "wren",
-          "text": "It's just us. It was always going to be just us. I only wanted you to choose it."
+          "text": "It's just us. It was always going to be just us. I only wanted you to choose it.",
+          "fx": "wrenSlip"
         },
         {
           "who": "narration",
@@ -45,7 +46,8 @@
         },
         {
           "who": "narration",
-          "text": "The box cutter is in the drawer under the till, where it has always been."
+          "text": "The box cutter is in the drawer under the till, where it has always been.",
+          "fx": "showSelfWrist"
         },
         {
           "who": "wren",
@@ -85,7 +87,8 @@
         },
         {
           "who": "narration",
-          "text": "You walk Holt to her truck and tell her never to come back. Then you keep walking: past the pumps, past the last orange lamp, until the fog is all there is."
+          "text": "You walk Holt to her truck and tell her never to come back. Then you keep walking: past the pumps, past the last orange lamp, until the fog is all there is.",
+          "fx": "dawn"
         },
         {
           "who": "radio",
@@ -127,7 +130,8 @@
         },
         {
           "who": "wren",
-          "text": "Wrong answer, Sam."
+          "text": "Wrong answer, Sam.",
+          "fx": "wrenSlip"
         },
         {
           "who": "narration",
@@ -182,7 +186,8 @@
         },
         {
           "who": "narration",
-          "text": "The fog never lifts. The lights at Corrigan's never go out. The staff are lovely."
+          "text": "The fog never lifts. The lights at Corrigan's never go out. The staff are lovely.",
+          "fx": "wrenSlip"
         }
       ],
       "card": [

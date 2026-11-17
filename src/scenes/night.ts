@@ -135,6 +135,10 @@ export class NightScene implements Scene {
   /** You. The face you have not been allowed to look at. */
   private self: FaceView;
   private inset: Inset = null;
+  /** Seconds left of Wren's mask slipping (fired by the "wrenSlip" effect). */
+  private wrenSlipT = 0;
+  /** The visitor Wren has already refused to comment on. */
+  private sulkedAt = '';
 
   constructor(private game: Game) {
     // Which night this is, and everything carried into it, comes from the campaign.
@@ -227,7 +231,11 @@ export class NightScene implements Scene {
 
   private animateWren(dt: number): void {
     // Wren's face never drifts and almost never looks away from you.
-    this.wren.update(dt, this.wren.base, { talking: this.speaker() === 'wren', stare: 0.9 });
+    // ...except when a script lets Wren's own mask slip, in flashes, like any other mimic's.
+    this.wrenSlipT = Math.max(0, this.wrenSlipT - dt);
+    const slot = Math.floor(this.wrenSlipT * 14);
+    const slack = this.wrenSlipT > 0 && (slot * 7919) % 5 < 3 ? 0.85 : 0;
+    this.wren.update(dt, this.wren.base, { talking: this.speaker() === 'wren', stare: 0.9, slack });
   }
 
   /** Queue one of Wren's lines for a situation, if the pool has one that fits the current Bond. */
@@ -452,6 +460,14 @@ export class NightScene implements Scene {
         break;
       case 'boom':
         audio.sting('boom');
+        break;
+      case 'dawn':
+        this.dawnTo = 1;
+        break;
+      case 'wrenSlip':
+        this.wrenSlipT = 1.5;
+        this.goreT = 0.25;
+        audio.sting('break');
         break;
       case 'rise':
         audio.sting('rise');
@@ -734,7 +750,8 @@ export class NightScene implements Scene {
     }
     // Sheltering means the storeroom, and Wren holds the only key.
     if (this.state.wrenGivesKey()) {
-      this.wrenSays('keyGive');
+      // "devoted" is for a visitor Wren would normally refuse, handed over anyway because you asked.
+      this.wrenSays(this.state.visit!.def.wren.key === 'refuse' ? 'devoted' : 'keyGive');
       this.endVisit('shelter');
       return;
     }
@@ -797,6 +814,12 @@ export class NightScene implements Scene {
   private wrenWeighsIn(): void {
     const visit = this.state.visit;
     if (!visit || visit.heardAdvice || this.state.status() !== 'ok') return;
+    if (this.state.wrenSulks()) {
+      // Too far apart: Wren keeps their opinion to themself unless you click and ask.
+      if (this.sulkedAt !== visit.def.id) this.wrenSays('sulk');
+      this.sulkedAt = visit.def.id;
+      return;
+    }
     this.say('wren', this.state.hearAdvice());
   }
 
