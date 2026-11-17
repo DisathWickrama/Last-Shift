@@ -93,6 +93,27 @@
         }
       },
       {
+        "who": "wren",
+        "text": "You looked at a lot of wrists last night. Word gets round out there. I'd look somewhere else tonight.",
+        "if": {
+          "flag": "relied:wrist"
+        }
+      },
+      {
+        "who": "wren",
+        "text": "You and that mirror, last night. They'll have noticed. They notice what we look at.",
+        "if": {
+          "flag": "relied:reflection"
+        }
+      },
+      {
+        "who": "wren",
+        "text": "All that staring at the floor last night. They'll have tidied their shadows up for you.",
+        "if": {
+          "flag": "relied:shadow"
+        }
+      },
+      {
         "who": "radio",
         "text": "...Tarrow ranger station. A missing persons notice for the pass road. Two night attendants from Corrigan's Roadhouse, last seen three weeks ago, the night the fog came down.",
         "fx": "static"

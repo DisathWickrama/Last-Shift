@@ -147,6 +147,7 @@ A beat is either a line or a choice. A line can carry:
 
 - `systems/campaign.ts` holds what carries between nights: a `CampaignData` of the three stats and the set of flags. When a night ends the scene calls `absorb()`, and the next `NightState` is built from it. Each night file lists `clearFlags` for things that should not carry (last night's scone).
 - Every visit leaves a flag such as `dale:serve`. Timeline events can carry an `if`, so Night 2 brings Maureen back if you saved her (`maureen2`) and something wearing her if you did not (`maureen2x`). Conditions can test `flag`, `notFlag`, `anyFlag`, `noFlags` and stat ranges.
+- **They learn.** At each dawn `absorb()` notes the check you used most as a flag (`relied:wrist`). A mimic whose JSON says `"learns": true` turns up next night with that check looking human, provided it still has another tell to be caught by (`NightState.adapt`). The content is never modified: the visit works from a changed copy.
 - A timeline event of type `ending` stops the game. `content/endings.json` is an ordered list; `pickEnding()` takes the first whose condition holds. The final visitor uses `"decide": "finale"`: instead of the three buttons, a script offers choices (some only when a stat is high enough) and each choice's `outcome` ends the visit.
 - Script effects `showWrenWrist`, `showSelfWrist`, `showSelfMirror` put a close-up on screen during a script: this is how you finally inspect Wren, and yourself (`content/self.json` is your face).
 - `core/save.ts` writes the campaign to the browser's `localStorage` at each dawn, and keeps a separate list of endings found. The title screen offers **Continue** when a save exists. A campaign is plain data, so saving is one `JSON.stringify`.
@@ -198,6 +199,5 @@ Things the design asks for that Night 1 does not have yet, and where they would 
 
 | Feature | Where |
 | --- | --- |
-| Mimics that learn which check you rely on | `NightState.uses` already counts checks per night; a mimic's `tells` could be chosen from it in `beginVisit` |
 | More returning visitors | a visitor file plus a conditional timeline entry (`"if": { "flag": "kid:serve" }`) |
 | Saving mid-night | serialise `NightState` as well as the campaign |

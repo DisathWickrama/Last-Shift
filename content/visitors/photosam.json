@@ -16,7 +16,8 @@
           "smileHold",
           "tooSymmetric"
         ]
-      }
+      },
+      "learns": true
     }
   ],
   "patience": 6,
@@ -40,9 +41,9 @@
   ],
   "annoyed": "You keep looking at me like I'm a mirror.",
   "notes": {
-    "wrist": "It holds out a staff card with your name on it. The wrists are bright, and busy.",
-    "reflection": "You, Wren, the counter. Nobody standing in front of it.",
-    "shadow": "New work shoes. Clean floor. Nothing between them."
+    "wrist": "It holds out a staff card with your name on it. Look at the wrists.",
+    "reflection": "You, Wren, the counter. Look for whoever is standing in front of it.",
+    "shadow": "New work shoes. Clean floor. Look between them."
   },
   "topics": [
     {

@@ -33,7 +33,8 @@
           "tooSymmetric",
           "noBlink"
         ]
-      }
+      },
+      "learns": true
     }
   ],
   "patience": 8,

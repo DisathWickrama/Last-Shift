@@ -24,7 +24,11 @@ export const newCampaign = (): CampaignData => ({ night: 0, stats: zeroStats(), 
 
 /** Fold a finished night into the campaign and move on to the next one. */
 export function absorb(campaign: CampaignData, state: NightState): CampaignData {
-  return { ...campaign, night: campaign.night + 1, stats: { ...state.stats }, flags: [...state.flags] };
+  // Note which check the player leaned on, replacing last night's note. Mimics that "learn" read it.
+  const flags = [...state.flags].filter((f) => !f.startsWith('relied:'));
+  const favourite = state.favouriteCheck();
+  if (favourite) flags.push(`relied:${favourite}`);
+  return { ...campaign, night: campaign.night + 1, stats: { ...state.stats }, flags };
 }
 
 /** The first ending whose condition holds. The last ending in the file should have no condition. */

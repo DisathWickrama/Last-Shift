@@ -243,6 +243,29 @@ describe('NightState visits', () => {
     expect(s.test({ noFlags: ['dale:serve'] })).toBe(false);
   });
 
+  it('lets a learning mimic hide the check you relied on, but only if it stays catchable', () => {
+    const learner = visitor('learner', true);
+    learner.people[0] = { ...learner.people[0], learns: true, tells: { veins: 'none', reflection: 'delayed', shadow: 'human', drift: ['eyeDrop'] } };
+    const single = visitor('single', true);
+    single.people[0] = { ...single.people[0], learns: true, tells: { veins: 'none', reflection: 'human', shadow: 'human', drift: ['eyeDrop'] } };
+    const carry = { stats: { humanity: 0, bond: 0, slip: 0 }, flags: ['relied:wrist'] };
+    const s = new NightState(night, { ...cast, learner, single }, carry);
+    expect(s.beginVisit('learner').def.people[0].tells).toMatchObject({ veins: 'human', reflection: 'delayed' });
+    s.finish('turnAway');
+    expect(s.beginVisit('single').def.people[0].tells.veins).toBe('none'); // its only tell: it keeps it
+    expect(learner.people[0].tells.veins).toBe('none'); // the content itself is untouched
+  });
+
+  it('knows which check you used most', () => {
+    const s = fresh();
+    expect(s.favouriteCheck()).toBeNull();
+    s.beginVisit('human');
+    s.inspect('shadow');
+    s.inspect('shadow');
+    s.inspect('wrist');
+    expect(s.favouriteCheck()).toBe('shadow');
+  });
+
   it('records how each visit ended as a flag', () => {
     const s = fresh();
     s.beginVisit('human');

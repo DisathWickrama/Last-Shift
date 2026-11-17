@@ -67,6 +67,11 @@ export interface PersonDef {
   face: FaceSpec | { like: 'self' | 'wren' };
   /** 1 = adult (default). A child is about 0.75. */
   size?: number;
+  /**
+   * This mimic learns. If you leaned on one check last night, and it has some
+   * other tell left to be caught by, it turns up with that check looking human.
+   */
+  learns?: boolean;
   tells: {
     veins: VeinTell;
     reflection: ReflectionTell;

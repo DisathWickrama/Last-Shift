@@ -155,9 +155,37 @@ export class NightState {
 
   // --- a visit ----------------------------------------------------------------
 
+  /** The check you used most tonight, or null if you used none. Mimics hear about it. */
+  favouriteCheck(): CheckKind | null {
+    const kinds: CheckKind[] = ['wrist', 'reflection', 'shadow'];
+    const best = kinds.reduce((a, b) => (this.uses[b] > this.uses[a] ? b : a));
+    return this.uses[best] > 0 ? best : null;
+  }
+
+  /**
+   * "They learn" (DESIGN.md): a mimic marked `learns` hides whichever check you
+   * relied on last night, as long as it still has another tell to be caught by.
+   * Returns a changed copy; the content itself is never modified.
+   */
+  private adapt(def: VisitorDef): VisitorDef {
+    const relied = (['wrist', 'reflection', 'shadow'] as CheckKind[]).find((k) => this.flags.has(`relied:${k}`));
+    if (!relied) return def;
+    const field = ({ wrist: 'veins', reflection: 'reflection', shadow: 'shadow' } as const)[relied];
+    return {
+      ...def,
+      people: def.people.map((p) => {
+        if (!p.isMimic || !p.learns || p.tells[field] === 'human') return p;
+        const wrong = (['veins', 'reflection', 'shadow'] as const).filter((k) => p.tells[k] !== 'human');
+        if (wrong.length < 2) return p; // it must stay catchable
+        return { ...p, tells: { ...p.tells, [field]: 'human' } };
+      }),
+    };
+  }
+
   beginVisit(id: string): VisitState {
-    const def = this.visitors[id];
-    if (!def) throw new Error(`Unknown visitor "${id}"`);
+    const original = this.visitors[id];
+    if (!original) throw new Error(`Unknown visitor "${id}"`);
+    const def = this.adapt(original);
     this.visit = {
       def,
       drift: 0,

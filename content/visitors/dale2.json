@@ -31,7 +31,8 @@
           "smileHold",
           "pupilGrow"
         ]
-      }
+      },
+      "learns": true
     }
   ],
   "patience": 6,
