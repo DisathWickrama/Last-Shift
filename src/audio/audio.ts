@@ -19,7 +19,7 @@
 import type { Who } from '../core/content';
 import { clamp } from '../core/rng';
 
-export type Sting = 'bell' | 'click' | 'static' | 'knock' | 'break' | 'gore' | 'thud' | 'photo' | 'tick' | 'glass' | 'tear';
+export type Sting = 'boom' | 'rise' | 'chime' | 'bell' | 'click' | 'static' | 'knock' | 'break' | 'gore' | 'thud' | 'photo' | 'tick' | 'glass' | 'tear';
 
 export interface AudioState {
   /** 0..1 drift of the visitor at the counter. Drives the drone. */
@@ -28,7 +28,37 @@ export interface AudioState {
   light: number;
   /** 'title' is wind only; 'night' is everything. */
   scene: 'title' | 'night' | 'end';
+  /** Which night's score to play (1, 2 or 3). */
+  score?: number;
+  /** 0..1: something close by is breathing. */
+  breath?: number;
 }
+
+/**
+ * The score: one recipe per night. Each night has a slow three-note pad that
+ * moves between a few chords, high bell tones at random, and (later) a
+ * heartbeat and a metallic scrape. The notes are semitones above `root`.
+ * Night 1 is open and sad; Night 2 leans on a tritone; Night 3 is a cluster
+ * of notes a semitone apart, which the ear hears as "wrong".
+ */
+interface Score {
+  root: number; // Hz
+  chords: number[][]; // three notes each
+  hold: number; // seconds per chord
+  pad: number; // pad volume
+  bells: number[]; // notes the bell may play
+  bellGap: [number, number]; // seconds between bells
+  pulse: number; // seconds between heartbeats (0 = none)
+  scrape: number; // average seconds between scrapes (0 = none)
+  songDetune: number; // cents: how flat Wren's song plays
+  songSlip: number; // chance that a note of the song comes out wrong
+}
+
+const SCORES: Record<number, Score> = {
+  1: { root: 55, chords: [[12, 19, 24], [12, 19, 22], [10, 17, 24]], hold: 14, pad: 0.014, bells: [0, 3, 7, 10, 12], bellGap: [7, 15], pulse: 0, scrape: 0, songDetune: -45, songSlip: 0 },
+  2: { root: 51.9, chords: [[12, 18, 24], [13, 18, 25], [12, 19, 23]], hold: 10, pad: 0.022, bells: [0, 1, 6, 7], bellGap: [8, 16], pulse: 8, scrape: 50, songDetune: -75, songSlip: 0.12 },
+  3: { root: 49, chords: [[12, 13, 18], [11, 13, 19], [12, 14, 18]], hold: 7, pad: 0.03, bells: [0, 1, 6, 11], bellGap: [5, 10], pulse: 3.4, scrape: 24, songDetune: -110, songSlip: 0.3 },
+};
 
 // The radio song: a slow waltz. Each bar is [bass note, two chord notes, melody note],
 // as semitones above the A below middle C. Played through a "radio" filter, a little flat.
@@ -52,6 +82,17 @@ export class AudioEngine {
   private staticBed!: GainNode;
   private songBus!: GainNode;
   private songDetune = -45; // cents: "half a turn flat"
+  private songSlip = 0;
+  // score
+  private pad: OscillatorNode[] = [];
+  private padGain!: GainNode;
+  private breathGain!: GainNode;
+  private chordIn = 0;
+  private chord = 0;
+  private bellIn = 6;
+  private pulseIn = 4;
+  private scrapeIn = 20;
+  private clock = 0;
   // state
   private muted = false;
   private songOn = false;
@@ -124,6 +165,32 @@ export class AudioEngine {
     crackle.Q.value = 0.6;
     crackle.connect(this.staticBed);
     this.noiseSource().connect(crackle);
+
+    // --- the score's pad: three sawtooth waves, heavily filtered so only a dark hum is left ---
+    this.padGain = this.bed(0);
+    const dark = ctx.createBiquadFilter();
+    dark.type = 'lowpass';
+    dark.frequency.value = 360;
+    dark.Q.value = 0.6;
+    dark.connect(this.padGain);
+    for (let i = 0; i < 3; i++) {
+      const o = ctx.createOscillator();
+      o.type = 'sawtooth';
+      o.frequency.value = 110 * (i + 1);
+      o.detune.value = (i - 1) * 7; // slightly out of tune with each other, so the pad shimmers
+      o.connect(dark);
+      o.start();
+      this.pad.push(o);
+    }
+
+    // --- breathing: band-passed noise, swelled in and out by update() ---
+    this.breathGain = this.bed(0);
+    const throat = ctx.createBiquadFilter();
+    throat.type = 'bandpass';
+    throat.frequency.value = 640;
+    throat.Q.value = 1.4;
+    throat.connect(this.breathGain);
+    this.noiseSource().connect(throat);
 
     this.songBus = ctx.createGain();
     this.songBus.gain.value = 0;
@@ -249,6 +316,49 @@ export class AudioEngine {
       if (night) this.truck();
     }
 
+    // --- the score ---
+    this.clock += dt;
+    const sc = SCORES[s.score ?? 1] ?? SCORES[1];
+    this.songDetune = sc.songDetune;
+    this.songSlip = sc.songSlip;
+    this.glide(this.padGain, night ? sc.pad : s.scene === 'end' ? 0.012 : 0, 2.5);
+    this.chordIn -= dt;
+    if (this.chordIn <= 0) {
+      // Slide the three pad notes to the next chord over a couple of seconds.
+      this.chordIn = sc.hold;
+      const notes = sc.chords[this.chord++ % sc.chords.length];
+      this.pad.forEach((o, i) => o.frequency.setTargetAtTime(sc.root * Math.pow(2, notes[i] / 12), ctx.currentTime, 1.6));
+    }
+    if (night) {
+      this.bellIn -= dt;
+      if (this.bellIn <= 0) {
+        this.bellIn = sc.bellGap[0] + Math.random() * (sc.bellGap[1] - sc.bellGap[0]);
+        const note = sc.bells[Math.floor(Math.random() * sc.bells.length)];
+        const hz = sc.root * 8 * Math.pow(2, note / 12);
+        this.ping('sine', hz, 0.028, 4);
+        this.ping('sine', hz * 2.01, 0.008, 2.5); // a faint, slightly sour overtone
+      }
+      if (sc.pulse > 0) {
+        this.pulseIn -= dt * (1 + d * 1.5); // the heartbeat quickens with drift
+        if (this.pulseIn <= 0) {
+          this.pulseIn = sc.pulse;
+          this.ping('sine', 52, 0.2, 0.22, 0, 36);
+          this.ping('sine', 46, 0.14, 0.24, 0.26, 32);
+        }
+      }
+      if (sc.scrape > 0) {
+        this.scrapeIn -= dt;
+        if (this.scrapeIn <= 0) {
+          this.scrapeIn = sc.scrape * (0.5 + Math.random());
+          this.hiss('bandpass', 420, 0.03, 2.8, 0, 2600); // something metal dragged a long way off
+        }
+      }
+    }
+    // Breathing: in for about two seconds, out for about two.
+    const breath = clamp(s.breath ?? 0, 0, 1);
+    const swell = Math.pow(Math.max(0, Math.sin(this.clock * 1.5)), 2);
+    this.glide(this.breathGain, night ? 0.07 * breath * swell : 0, 0.12);
+
     // The song: schedule notes a little ahead of time so the rhythm stays even.
     if (this.songOn) {
       while (this.nextBeat < ctx.currentTime + 0.25) {
@@ -283,7 +393,9 @@ export class AudioEngine {
   private songBeat(at: number): void {
     const bar = SONG[Math.floor(this.beat / 3) % SONG.length];
     const inBar = this.beat % 3;
-    const hz = (semi: number) => 220 * Math.pow(2, (semi + this.songDetune / 100) / 12);
+    // On later nights the song plays flatter, and now and then a note comes out a semitone wrong.
+    const slip = () => (Math.random() < this.songSlip ? (Math.random() < 0.5 ? -1 : 1) : 0);
+    const hz = (semi: number) => 220 * Math.pow(2, (semi + slip() + this.songDetune / 100) / 12);
     // "Wow": old tape drags and recovers, so every note is bent a little differently.
     const wow = 1 + 0.012 * Math.sin(this.beat * 0.9);
     if (inBar === 0) {
@@ -313,6 +425,19 @@ export class AudioEngine {
     this.glide(this.staticBed, on ? 0.02 : this.songOn ? 0.006 : 0, 0.2);
   }
 
+  /**
+   * Footsteps crossing the shop floor: towards the counter (getting louder) or
+   * away from it (getting quieter).
+   */
+  steps(approaching: boolean, count = 5, gap = 0.44): void {
+    if (!this.ctx) return;
+    for (let i = 0; i < count; i++) {
+      const near = approaching ? (i + 1) / count : 1 - i / count;
+      this.ping('sine', 96 + (i % 2) * 9, 0.05 + 0.11 * near, 0.09, i * gap, 58);
+      this.hiss('lowpass', 900, 0.02 + 0.05 * near, 0.05, i * gap);
+    }
+  }
+
   /** One blip of "speech". Each speaker has their own pitch; the radio hisses instead. */
   voice(who: Who, pitch = 0): void {
     if (!this.ctx) return;
@@ -337,6 +462,19 @@ export class AudioEngine {
   sting(name: Sting): void {
     if (!this.ctx) return;
     switch (name) {
+      case 'boom': // a revelation: one low hit with a long tail
+        this.ping('sine', 58, 0.5, 2.6, 0, 27);
+        this.hiss('lowpass', 240, 0.25, 1.2);
+        break;
+      case 'rise': // dread arriving: a cluster of notes sliding upwards
+        this.ping('sawtooth', 98, 0.05, 3, 0, 196);
+        this.ping('sawtooth', 104, 0.05, 3, 0, 220);
+        this.ping('sine', 1244, 0.02, 3, 0, 1480);
+        break;
+      case 'chime': // the electronic door chime: two falling notes
+        this.ping('triangle', 1319, 0.07, 0.5);
+        this.ping('triangle', 1047, 0.07, 0.8, 0.28);
+        break;
       case 'bell': // the bell over the door
         this.ping('sine', 1568, 0.11, 1.4);
         this.ping('sine', 2349, 0.06, 0.9);

@@ -218,6 +218,9 @@ export class NightScene implements Scene {
       drift: visit && visit.def.people.some((p) => p.isMimic) ? visit.drift : 0,
       light: this.room.light,
       scene: 'night',
+      score: this.state.def.score ?? this.state.def.number,
+      // Something breathes when the figure is close, in the dark, or when a mask is nearly off.
+      breath: Math.max(this.room.figure * this.room.figureNear, this.blackoutT > 0 ? 1 : 0, visit && visit.drift > 0.7 ? 0.5 : 0),
     });
   }
 
@@ -261,6 +264,7 @@ export class NightScene implements Scene {
           audio.sting('tear');
           break;
         case 'figure':
+          if (dread >= 0.4) audio.sting('rise');
           this.figureT = 7 + Math.random() * 5;
           // It starts out by the pumps. Each time it is a little nearer, as far as tonight's dread allows.
           this.room.figureNear = Math.min(dread, 0.12 + this.haunt.figureVisits * 0.22 * dread);
@@ -445,9 +449,16 @@ export class NightScene implements Scene {
       case 'showSelfMirror':
         this.inset = 'selfMirror';
         break;
+      case 'boom':
+        audio.sting('boom');
+        break;
+      case 'rise':
+        audio.sting('rise');
+        break;
       case 'showSelfMirrorWrong':
         this.inset = 'selfMirrorWrong';
         audio.sting('break');
+        audio.sting('boom');
         break;
       case 'hideCloseup':
         this.inset = null;
@@ -552,6 +563,7 @@ export class NightScene implements Scene {
   private ending(): void {
     const ending = pickEnding(ENDINGS, (cond) => this.state.test(cond));
     this.dialogue.clear();
+    this.game.audio.sting('boom');
     this.enqueue({ kind: 'wait', time: 0.8 }, ...this.scriptSteps(ending.script));
     this.enqueue({
       kind: 'call',
@@ -619,6 +631,8 @@ export class NightScene implements Scene {
     this.walk = 0;
     this.walkTo = 1;
     this.game.audio.sting('bell');
+    this.game.audio.sting('chime');
+    this.game.audio.steps(true);
     this.enqueue({ kind: 'until', done: () => this.walk >= 1 });
     this.lines(visit.def.greeting);
     if (visit.def.wren.arrive) this.say('wren', visit.def.wren.arrive);
@@ -843,6 +857,7 @@ export class NightScene implements Scene {
         fn: () => {
           this.walkers = who;
           this.exitBack = back;
+          this.game.audio.steps(false, 4);
           this.walk = 1;
           this.walkTo = 0;
         },

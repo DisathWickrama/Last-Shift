@@ -101,6 +101,9 @@ None of it touches the rules. The mirror close-up also takes the dread value: on
 - **Stings** are built on demand and discarded: the door bell, knocks, the mask-slip, and a "voice" blip for every third letter of dialogue, with a pitch per speaker.
 - The **radio song** is a short waltz stored as numbers and scheduled a quarter of a second ahead so the rhythm stays even, played flat and through a small-speaker filter.
 
+- The **score** is one recipe per night (`SCORES` in `audio.ts`, chosen by `score` in the night file): a dark three-note pad that slides between chords, bell tones at random, and on later nights a heartbeat that quickens with drift and a far-off metallic scrape. Night 1 is open and sad, Night 2 leans on a tritone, Night 3 is a cluster of semitones. Wren's song gets flatter each night and starts dropping wrong notes.
+- **Footsteps** follow visitors in and out, a **breathing** bed rises when the figure is near, in a blackout, or when a mask is close to slipping, and there are stings for revelations (`boom`, `rise`).
+
 Browsers block sound until the player interacts, so `start()` is called from the title screen's click. `NightScene.animate()` calls `audio.update()` every step with the current drift and light.
 
 ## The loop

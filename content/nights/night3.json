@@ -209,7 +209,8 @@
             "then": [
               {
                 "who": "wren",
-                "text": "...Yes. All right. You've earned it. I'm sorry it's like this."
+                "text": "...Yes. All right. You've earned it. I'm sorry it's like this.",
+                "fx": "rise"
               },
               {
                 "who": "narration",
