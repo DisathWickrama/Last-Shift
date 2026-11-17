@@ -25,6 +25,8 @@ export interface Btn {
   left?: boolean;
   /** Text colour override. */
   color?: string;
+  /** Draw the keyboard shortcut in the corner of the button. */
+  showKey?: boolean;
   /** A sentence of help shown while the pointer is over the button. */
   tip?: string;
   onClick: () => void;
@@ -90,7 +92,10 @@ export function drawButtons(r: Renderer, buttons: readonly Btn[], input: Input):
       if (b.key) r.text(b.key.toUpperCase(), b.x + 4, ty + 0.5, { size: 6, color: PAL.sodiumDim });
       r.text(b.label, b.x + (b.key ? 12 : 5), ty, { size: 7, color });
     }
-    else r.text(b.label, b.x + b.w / 2, ty, { size: 7, color, align: 'center' });
+    else {
+      r.text(b.label, b.x + b.w / 2, ty, { size: 7, color, align: 'center' });
+      if (b.showKey && b.key) r.text(b.key.toUpperCase(), b.x + 4, ty + 0.5, { size: 6, color: PAL.sodiumDim });
+    }
     if (b.hint) r.text(b.hint, b.x + b.w - 4, ty + 0.5, { size: 6, color: PAL.inkDim, align: 'right' });
   }
   // Tooltip: one line of help above the interface band for whichever button is under the pointer.
