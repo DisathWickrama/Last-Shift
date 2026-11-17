@@ -17,7 +17,9 @@
 //   empty, nobody present  -> nextEvent()  (bring on the next thing)
 
 import type { Scene } from '../core/scene';
-import type { Game } from '../core/game';
+import { type Game, TEXT_SPEEDS } from '../core/game';
+import { TIPS } from '../ui/help';
+import { saveSettings } from '../core/save';
 import { type Renderer, W } from '../render/renderer';
 import { drawRoomBack, drawRoomFront, defaultRoom, VISITOR_SPOT, WREN_SPOT, COUNTER_Y, type RoomState } from '../render/room';
 import { generateFace } from '../render/face';
@@ -38,7 +40,7 @@ import { NIGHT_ORDER, VISITORS, WREN, SELF, ENDINGS, resolveFace, type Beat, typ
 import { buildReport } from '../systems/report';
 import { WrenVoice, reactionKey } from '../systems/wren';
 import { lerp, smooth } from '../core/rng';
-import { type Btn, DialogueBox, handleButtons, drawButtons, drawPanel, DIALOGUE, COL_A, COL_B } from '../ui/widgets';
+import { type Btn, DialogueBox, handleButtons, drawButtons, drawPanel, drawTip, DIALOGUE, COL_A, COL_B } from '../ui/widgets';
 
 /** What the player is looking at while they are in control. */
 type Mode = 'counter' | 'talk' | CheckKind;
@@ -135,6 +137,12 @@ export class NightScene implements Scene {
   /** You. The face you have not been allowed to look at. */
   private self: FaceView;
   private inset: Inset = null;
+  /** Seconds left of the "NIGHT 2 · 10:00 PM" card that opens the night. */
+  private cardT = 3.6;
+  /** Seconds of screen shake left. */
+  private shakeT = 0;
+  /** Timer for fast-forward: how long until the next automatic "next". */
+  private skipT = 0;
   /** Seconds left of Wren's mask slipping (fired by the "wrenSlip" effect). */
   private wrenSlipT = 0;
   /** The visitor Wren has already refused to comment on. */
@@ -151,8 +159,14 @@ export class NightScene implements Scene {
     if (game.debug) (window as unknown as { __ls: Record<string, unknown> }).__ls.scene = this;
   }
 
+  /** While a night is running, Esc (or the corner button) opens the pause menu. */
+  enter(): void {
+    this.game.menu.pausable = true;
+  }
+
   /** Leaving the scene: make sure nothing is left playing. */
   exit(): void {
+    this.game.menu.pausable = false;
     this.game.audio.song(false);
     this.game.audio.radio(false);
   }
@@ -165,6 +179,14 @@ export class NightScene implements Scene {
     this.time += dt;
     this.room.time = this.time;
     this.animate(dt);
+
+    // The night opens on a title card; nothing happens underneath until it starts to lift.
+    this.cardT = Math.max(0, this.cardT - dt);
+    this.shakeT = Math.max(0, this.shakeT - dt);
+    if (this.cardT > 1) {
+      if (this.game.input.advance) this.cardT = 1; // a click skips the card
+      return;
+    }
 
     if (this.step || this.queue.length > 0) this.runQueue(dt);
     else if (this.state.visit) this.interact(dt);
@@ -365,7 +387,8 @@ export class NightScene implements Scene {
    */
   private saySteps(line: Line & { bond?: number; slip?: number; humanity?: number }, when?: () => boolean): Step[] {
     const text = this.state.fill(line.text);
-    const maxLines = line.who === 'narration' ? 5 : 4;
+    // One row of the box is kept free for the "SPACE next" reminder.
+    const maxLines = line.who === 'narration' ? 4 : 3;
     const fits = (t: string) => this.game.r.wrap(t, DIALOGUE.w - 14, 8).length <= maxLines;
     const pages: string[] = [];
     let page = '';
@@ -431,6 +454,7 @@ export class NightScene implements Scene {
         audio.radio(false);
         break;
       case 'knock':
+        this.shakeT = 0.35;
         audio.sting('knock');
         break;
       case 'bell':
@@ -450,6 +474,7 @@ export class NightScene implements Scene {
         audio.sting('static');
         break;
       case 'gore':
+        this.shakeT = 0.5;
         this.glitchT = 0.7;
         this.goreT = 0.7;
         audio.sting('gore');
@@ -477,6 +502,7 @@ export class NightScene implements Scene {
         break;
       case 'glass':
         audio.sting('glass');
+        this.shakeT = 0.25;
         this.glitchT = 0.08;
         break;
       case 'blackout':
@@ -500,6 +526,7 @@ export class NightScene implements Scene {
         this.inset = null;
         break;
       case 'dark':
+        this.shakeT = 0.25;
         this.lightsOut = true;
         audio.sting('thud');
         break;
@@ -528,13 +555,17 @@ export class NightScene implements Scene {
     this.buttons = [];
     switch (s.kind) {
       case 'say':
-        if (this.dialogue.update(dt) && this.letters++ % 3 === 0) {
+        if (this.dialogue.update(dt, TEXT_SPEEDS[this.game.settings.textSpeed] ?? 48) && this.letters++ % 3 === 0) {
           const speaker = s.who === 'companion' ? this.people[1] : this.people[0];
           // Each visitor's voice has its own pitch, taken from their name.
           const pitch = speaker ? (hashString(speaker.def.name) % 100) / 100 : 0.5;
           this.game.audio.voice(s.who, pitch);
         }
-        if (input.advance) {
+        // Fast-forward: holding Shift (or Ctrl) presses "next" several times a second.
+        this.skipT -= dt;
+        const skipping = (input.held('shift') || input.held('control')) && this.skipT <= 0;
+        if (skipping) this.skipT = 0.07;
+        if (input.advance || skipping) {
           input.consume();
           // First press finishes the line; the next one moves on.
           if (this.dialogue.typing) this.dialogue.finish();
@@ -554,7 +585,7 @@ export class NightScene implements Scene {
         break;
       case 'choice':
         this.buttons = this.optionButtons(s.options.filter((o) => !o.when || o.when()));
-        if (handleButtons(this.buttons, input)) this.game.audio.sting('click');
+        handleButtons(this.buttons, input);
         break;
     }
   }
@@ -701,10 +732,7 @@ export class NightScene implements Scene {
       return;
     }
     this.buttons = this.buildButtons();
-    if (handleButtons(this.buttons, input)) {
-      this.game.audio.sting('click');
-      return;
-    }
+    if (handleButtons(this.buttons, input)) return;
 
     // Clicking Wren: they tell you what they want done (or, if they already have, that they are still here).
     const z = this.wrenZone;
@@ -724,12 +752,13 @@ export class NightScene implements Scene {
         out.push({
           x: COL_A.x, y: 207 + i * 15, w: COL_A.w, h: 13,
           label: CHECKS[kind].label, hint: `${CHECKS[kind].minutes}m`, key: String(i + 1),
+          tip: TIPS[CHECKS[kind].label],
           onClick: () => this.check(kind),
         });
       });
       out.push({
         x: COL_A.x, y: 252, w: COL_A.w, h: 13,
-        label: 'Small talk', hint: `${TONES.neutral.minutes}m`, key: '4',
+        label: 'Small talk', hint: `${TONES.neutral.minutes}m`, key: '4', tip: TIPS['Small talk'],
         disabled: this.state.topics().length === 0,
         onClick: () => (this.mode = 'talk'),
       });
@@ -739,7 +768,7 @@ export class NightScene implements Scene {
       options.push({ text: '(say nothing more)', pick: () => (this.mode = 'counter') });
       return this.optionButtons(options);
     } else {
-      out.push({ x: COL_B.x, y: 207, w: COL_B.w, h: 20, label: 'Step back', key: 'b', onClick: () => this.stepBack() });
+      out.push({ x: COL_B.x, y: 207, w: COL_B.w, h: 20, label: 'Step back', key: 'b', showKey: true, onClick: () => this.stepBack() });
     }
     void visit;
     return out;
@@ -748,14 +777,14 @@ export class NightScene implements Scene {
   /** The right-hand column: the three things you can do with a visitor. */
   private decisionButtons(): Btn[] {
     const make = (i: number, label: string, key: string, decision: Decision): Btn => ({
-      x: COL_B.x, y: 207 + i * 20, w: COL_B.w, h: 18, label, key,
+      x: COL_B.x, y: 207 + i * 20, w: COL_B.w, h: 18, label, key, showKey: true, tip: TIPS[label],
       onClick: () => this.decide(decision),
     });
     // Some visits are settled by a scripted choice instead of the three buttons.
     const script = this.state.visit?.def.decide;
     if (script) {
       return [{
-        x: COL_B.x, y: 207, w: COL_B.w, h: 58, label: 'Decide', key: 'q',
+        x: COL_B.x, y: 207, w: COL_B.w, h: 58, label: 'Decide', key: 'q', showKey: true, tip: TIPS.Decide,
         onClick: () => this.enqueue(...this.scriptSteps(this.state.script(script))),
       }];
     }
@@ -811,6 +840,11 @@ export class NightScene implements Scene {
 
   private check(kind: CheckKind): void {
     const visit = this.state.visit!;
+    // The first check ever made retires the first-time hint.
+    if (!this.game.settings.tipsSeen) {
+      this.game.settings.tipsSeen = true;
+      saveSettings(this.game.settings);
+    }
     this.pending = this.state.inspect(kind);
     this.mode = kind;
     this.stareT = 0;
@@ -881,6 +915,7 @@ export class NightScene implements Scene {
         kind: 'call',
         fn: () => {
           this.breakT = 0;
+          this.shakeT = 0.6;
           this.game.audio.sting('break');
         },
       },
@@ -976,6 +1011,8 @@ export class NightScene implements Scene {
       if (!this.lightsOut) this.drawWren(r);
     }
 
+    // Knocks and hits jolt the picture, unless the player has turned shake off.
+    r.fx.shake = this.game.settings.shake && !this.game.settings.reducedFlicker ? Math.min(1, this.shakeT * 2.5) : 0;
     // High Slip makes the interface itself unreliable.
     r.fx.textGlitch = Math.min(1, Math.max(0, stats.slip - 3) / 8);
     const tearing = (this.breakT >= 0 && this.breakT < 1.8) || this.glitchT > 0;
@@ -984,6 +1021,7 @@ export class NightScene implements Scene {
 
     this.drawBand(r);
     this.drawHud(r);
+    this.drawCard(r);
   }
 
   private drawPeople(g: CanvasRenderingContext2D): void {
@@ -1035,6 +1073,30 @@ export class NightScene implements Scene {
       }
     }
     drawButtons(r, this.buttons, input);
+
+    // First time at the counter: say that the tray explains itself. Gone after the first check.
+    const idle = !this.step && this.queue.length === 0 && this.state.visit && this.mode === 'counter';
+    const hovering = this.buttons.some((b) => b.tip && input.over(b.x, b.y, b.w, b.h));
+    if (idle && !hovering && !this.game.settings.tipsSeen) {
+      drawTip(r, 'New here? Point at a tool to see what it does. Keys 1 to 4 check, Q W E decide, Esc is the menu.');
+    }
+    // While a line is on screen, a reminder of the two keys that matter.
+    if (this.step?.kind === 'say') {
+      r.text('SPACE next   ·   hold SHIFT to skip', DIALOGUE.x + 7, DIALOGUE.y + DIALOGUE.h - 9, { size: 5, color: PAL.panelEdge });
+    }
+  }
+
+  /** The card that opens each night: black, the night's name, the hour. It lifts after a few seconds. */
+  private drawCard(r: Renderer): void {
+    if (this.cardT <= 0) return;
+    const a = Math.min(1, this.cardT);
+    if (a >= 1) r.clearText(); // nothing from the shop shows through
+    r.g.fillStyle = `rgba(5,7,6,${a})`;
+    r.g.fillRect(0, 0, W, 270);
+    const def = this.state.def;
+    r.text(`NIGHT ${def.number}`, W / 2, 96, { size: 26, bold: true, align: 'center', color: PAL.fluoro, alpha: a });
+    r.text(def.title.toUpperCase(), W / 2, 130, { size: 10, align: 'center', color: PAL.sodium, alpha: a });
+    r.text(this.state.clock.label, W / 2, 150, { size: 9, align: 'center', color: PAL.inkDim, alpha: a });
   }
 
   private drawHud(r: Renderer): void {

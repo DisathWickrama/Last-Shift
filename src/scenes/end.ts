@@ -30,6 +30,10 @@ export class EndScene implements Scene {
             }
             this.game.go(this.data.onward === 'newGame' ? 'title' : 'night');
           },
+        }, {
+          // A way back on every screen.
+          x: W / 2 - 40, y: 245, w: 80, h: 10, label: 'Title', color: PAL.inkDim,
+          onClick: () => this.game.go('title'),
         }]
       : [];
     if (!this.game.scenes.busy) handleButtons(this.buttons, this.game.input);

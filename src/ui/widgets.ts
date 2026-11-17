@@ -25,6 +25,10 @@ export interface Btn {
   left?: boolean;
   /** Text colour override. */
   color?: string;
+  /** Draw the keyboard shortcut in the corner of the button. */
+  showKey?: boolean;
+  /** A sentence of help shown while the pointer is over the button. */
+  tip?: string;
   onClick: () => void;
 }
 
@@ -34,13 +38,29 @@ export const DIALOGUE = { x: 6, y: 207, w: 294, h: 58 };
 export const COL_A = { x: 304, w: 84 }; // inspections
 export const COL_B = { x: 392, w: 82 }; // decisions
 
+// Sounds for every button in the game, set once from main.ts (so this file need not know about audio).
+let onHover: () => void = () => {};
+let onClick: () => void = () => {};
+let hovered = '';
+export function setUiSounds(hover: () => void, click: () => void): void {
+  onHover = hover;
+  onClick = click;
+}
+
 /** Run the first button that was clicked (or whose key was pressed). Returns it, or null. */
 export function handleButtons(buttons: readonly Btn[], input: Input): Btn | null {
+  // A soft tick when the pointer moves onto a different button.
+  const over = buttons.find((b) => !b.disabled && input.over(b.x, b.y, b.w, b.h));
+  const id = over ? `${over.label}@${over.x},${over.y}` : '';
+  if (id && id !== hovered) onHover();
+  hovered = id;
+
   for (const b of buttons) {
     if (b.disabled) continue;
     const hit = input.clicked && input.over(b.x, b.y, b.w, b.h);
     if (hit || (b.key && input.pressed(b.key))) {
       input.consume();
+      onClick();
       b.onClick();
       return b;
     }
@@ -67,10 +87,26 @@ export function drawButtons(r: Renderer, buttons: readonly Btn[], input: Input):
     const color = b.disabled ? PAL.panelEdge : (b.color ?? (hover ? PAL.fluoro : PAL.ink));
     const ty = b.y + (b.h - 7) / 2 - 0.5;
     if (b.left) r.text(b.label, b.x + 5, ty, { size: 7, color });
-    else if (b.hint) r.text(b.label, b.x + 5, ty, { size: 7, color });
-    else r.text(b.label, b.x + b.w / 2, ty, { size: 7, color, align: 'center' });
+    else if (b.hint) {
+      // Tool-tray buttons show their keyboard shortcut in front of the name.
+      if (b.key) r.text(b.key.toUpperCase(), b.x + 4, ty + 0.5, { size: 6, color: PAL.sodiumDim });
+      r.text(b.label, b.x + (b.key ? 12 : 5), ty, { size: 7, color });
+    }
+    else {
+      r.text(b.label, b.x + b.w / 2, ty, { size: 7, color, align: 'center' });
+      if (b.showKey && b.key) r.text(b.key.toUpperCase(), b.x + 4, ty + 0.5, { size: 6, color: PAL.sodiumDim });
+    }
     if (b.hint) r.text(b.hint, b.x + b.w - 4, ty + 0.5, { size: 6, color: PAL.inkDim, align: 'right' });
   }
+  // Tooltip: one line of help above the interface band for whichever button is under the pointer.
+  const tipped = buttons.find((b) => b.tip && !b.disabled && input.over(b.x, b.y, b.w, b.h));
+  if (tipped?.tip) drawTip(r, tipped.tip);
+}
+
+/** A one-line help strip just above the interface band. */
+export function drawTip(r: Renderer, text: string): void {
+  drawPanel(r.g, 6, 192, 468, 12, PAL.sodiumDim);
+  r.text(text, 11, 195, { size: 6, color: PAL.ink });
 }
 
 /**

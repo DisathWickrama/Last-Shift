@@ -81,6 +81,11 @@ export class Renderer {
     this.g.fillRect(0, 0, W, H);
   }
 
+  /** Drop any text queued so far this frame (a menu covering the scene uses this). */
+  clearText(): void {
+    this.texts.length = 0;
+  }
+
   /** Queue a line of text. x, y are virtual pixels; y is the top of the letters. */
   text(str: string, x: number, y: number, opts: TextOpts = {}): void {
     this.texts.push({
@@ -135,7 +140,15 @@ export class Renderer {
     s.setTransform(1, 0, 0, 1, 0, 0);
     s.globalAlpha = 1;
     s.imageSmoothingEnabled = false;
-    s.drawImage(this.low, 0, 0, dw, dh);
+    // Screen shake: draw the whole picture a few pixels off, a different way each frame.
+    const jolt = this.fx.shake * 3 * this.scale;
+    const sx = jolt ? Math.round((Math.random() - 0.5) * 2 * jolt) : 0;
+    const sy = jolt ? Math.round((Math.random() - 0.5) * 2 * jolt) : 0;
+    if (jolt) {
+      s.fillStyle = '#050706';
+      s.fillRect(0, 0, dw, dh);
+    }
+    s.drawImage(this.low, sx, sy, dw, dh);
 
     s.textBaseline = 'top';
     for (const t of this.texts) {

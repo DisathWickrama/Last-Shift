@@ -20,9 +20,11 @@ export interface PostFx {
   textGlitch: number;
   /** 0..1 deep red flash. Gore only. */
   gore: number;
+  /** 0..1 how hard the whole picture is jolting (knocks, hits). */
+  shake: number;
 }
 
-export const defaultFx: PostFx = { fade: 0, glitch: 0, textGlitch: 0, gore: 0 };
+export const defaultFx: PostFx = { fade: 0, glitch: 0, textGlitch: 0, gore: 0, shake: 0 };
 
 // --- ordered dithering ---------------------------------------------------------
 //

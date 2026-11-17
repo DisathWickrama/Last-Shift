@@ -78,6 +78,17 @@ One player action, traced end to end (clicking **Wrists**):
 
 `render/flicker.ts` decides how bright the tubes are each moment. Bursts of stutter get more frequent and deeper as the clock runs. With **F** (or the OS "reduce motion" setting) a burst becomes one slow shallow dip instead. Room colours go through a helper that darkens them by the current light level; things that make their own light (the fridge, the pumps) skip it, so when the tubes cut out the shop is lit by the fridge and the sodium lamps.
 
+## Menus and settings
+
+`ui/menu.ts` is one overlay that sits on top of any scene. It has pages (`warning`, `pause`, `settings`, `howto`, `endings`, `credits`, and two confirms), each built every step as a heading, some lines and a list of buttons. While a page is open, `main.ts` simply stops calling the scene's `update()`: that is all pausing is. Opening Settings from the pause menu remembers where Back returns to.
+
+- **Esc** (or the `II` in the corner, for touch) pauses a night. The title screen is a list of buttons that open the same pages.
+- **Settings** live in `game.settings`, are saved to `localStorage` (`core/save.ts`), and are pushed into the engine by `game.applySettings()`. The audio engine has two sub-mixes under the master (`music`: the score and the radio song; `sfx`: everything else) so each has its own volume.
+- `ui/help.ts` holds the wording of the controls, shared by the tooltips and the How to Play page. It is interface text, not story, so it is not in `content/`.
+
+- **Tooltips**: a button may carry a `tip`; `drawButtons` shows it in a strip above the interface band while the pointer is over the button. A first-time hint shows until the player's first check (`settings.tipsSeen`).
+- **Feel**: every button ticks on hover and clicks on press through one hook (`setUiSounds` in `ui/widgets.ts`), so no scene has to remember. Each night opens on a title card (`NightScene.drawCard`). Holding Shift fast-forwards dialogue by pressing "next" several times a second. Knocks and hits set a short timer that the renderer turns into screen shake (`fx.shake`), unless shake or flicker is turned down in Settings.
+
 ## The haunting
 
 `scenes/haunt.ts` decides *when* the shop does something by itself; the night scene shows it. Each night file has a `dread` value (0.15, 0.5, 1). Dread and the hour set a level; the level sets how often an event fires and which are allowed:

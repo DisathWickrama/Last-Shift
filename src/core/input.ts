@@ -19,6 +19,8 @@ export class Input {
   clicked = false;
   /** Keys pressed since the last update step (lower-case, e.g. "m", "enter", " "). */
   private keys = new Set<string>();
+  /** Keys that are being held down right now. */
+  private down = new Set<string>();
 
   constructor(private canvas: HTMLCanvasElement) {
     canvas.addEventListener('pointermove', (e) => this.track(e));
@@ -26,9 +28,13 @@ export class Input {
       this.track(e);
       this.clicked = true;
     });
+    window.addEventListener('keyup', (e) => this.down.delete(e.key.toLowerCase()));
+    window.addEventListener('blur', () => this.down.clear());
     window.addEventListener('keydown', (e) => {
       if (e.repeat) return;
+      if (e.key === 'Escape') e.preventDefault(); // Esc opens our menu; do not let it drop fullscreen first
       this.keys.add(e.key.toLowerCase());
+      this.down.add(e.key.toLowerCase());
       if (e.key === ' ') e.preventDefault(); // stop the page scrolling
     });
   }
@@ -37,6 +43,11 @@ export class Input {
     const box = this.canvas.getBoundingClientRect();
     this.x = ((e.clientX - box.left) / box.width) * W;
     this.y = ((e.clientY - box.top) / box.height) * H;
+  }
+
+  /** Is this key being held down? (Used for fast-forward.) */
+  held(key: string): boolean {
+    return this.down.has(key);
   }
 
   /** Was this key pressed since the last step? */
