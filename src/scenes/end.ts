@@ -8,6 +8,7 @@ import type { Game, EndData } from '../core/game';
 import { type Renderer, W, H } from '../render/renderer';
 import { PAL } from '../render/palette';
 import { type Btn, handleButtons, drawButtons } from '../ui/widgets';
+import { newCampaign } from '../systems/campaign';
 
 export class EndScene implements Scene {
   private time = 0;
@@ -19,7 +20,13 @@ export class EndScene implements Scene {
     this.time += dt;
     this.game.audio.update(dt, { drift: 0, light: 1, scene: 'end' });
     this.buttons = this.time > 1.5
-      ? [{ x: W / 2 - 60, y: 226, w: 120, h: 16, label: 'Work the shift again', onClick: () => this.game.go('night') }]
+      ? [{
+          x: W / 2 - 70, y: 226, w: 140, h: 16, label: this.data.button,
+          onClick: () => {
+            if (this.data.onward === 'newGame') this.game.campaign = newCampaign();
+            this.game.go(this.data.onward === 'newGame' ? 'title' : 'night');
+          },
+        }]
       : [];
     if (!this.game.scenes.busy) handleButtons(this.buttons, this.game.input);
   }

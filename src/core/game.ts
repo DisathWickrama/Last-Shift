@@ -9,6 +9,7 @@ import type { Renderer } from '../render/renderer';
 import type { Input } from './input';
 import type { SceneManager } from './scene';
 import type { AudioEngine } from '../audio/audio';
+import type { CampaignData } from '../systems/campaign';
 
 export interface Settings {
   /** Softer, slower light flicker. Toggled with F; on by default if the OS asks for reduced motion. */
@@ -23,6 +24,9 @@ export interface EndData {
   next: string;
   /** Only shown with ?debug. */
   debug?: string;
+  /** Label on the button, and where it goes: the next night, or a fresh game. */
+  button: string;
+  onward: 'next' | 'newGame';
 }
 
 export interface Game {
@@ -30,6 +34,8 @@ export interface Game {
   input: Input;
   scenes: SceneManager;
   audio: AudioEngine;
+  /** Progress through the nights: stats and flags carried forward. */
+  campaign: CampaignData;
   settings: Settings;
   /** True when the URL has ?debug: shows the hidden numbers. */
   debug: boolean;

@@ -25,13 +25,14 @@ import { FaceView } from '../render/faceview';
 import { drawTinted } from '../render/layer';
 import { Flicker } from '../render/flicker';
 import { hashString } from '../core/rng';
-import { drawWristCloseup, drawMirrorCloseup, drawFloorCloseup } from '../render/closeups';
+import { drawWristCloseup, drawMirrorCloseup, drawFloorCloseup, drawSelfMirror } from '../render/closeups';
+import { absorb, pickEnding } from '../systems/campaign';
 import { PAL } from '../render/palette';
 import { applyDrift } from '../systems/drift';
 import { NightState, type VisitStatus } from '../systems/night';
 import { CHECKS, TONES, STARE_SECONDS, type CheckKind } from '../systems/inspections';
 import type { Decision, Outcome } from '../systems/stats';
-import { NIGHTS, VISITORS, WREN, type Beat, type Line, type PersonDef, type TopicDef, type Who } from '../core/content';
+import { NIGHT_ORDER, VISITORS, WREN, SELF, ENDINGS, resolveFace, type Beat, type Line, type PersonDef, type TopicDef, type Who } from '../core/content';
 import { buildReport } from '../systems/report';
 import { WrenVoice, reactionKey } from '../systems/wren';
 import { lerp, smooth } from '../core/rng';
@@ -51,7 +52,12 @@ type Step =
 interface Option {
   text: string;
   pick: () => void;
+  /** Only offered while this returns true. */
+  when?: () => boolean;
 }
+
+/** A close-up shown by a script rather than by an inspection: Wren's wrist, your own, your reflection. */
+type Inset = 'wrenWrist' | 'selfWrist' | 'selfMirror' | 'selfMirrorWrong' | null;
 
 /** A person standing in the shop: their data, their live face, and where they stand. */
 interface PersonView {
@@ -117,10 +123,18 @@ export class NightScene implements Scene {
   /** Where Wren's portrait can be clicked, in virtual pixels. */
   private readonly wrenZone = { x: 382, y: 98, w: 94, h: 104 };
 
-  constructor(private game: Game, nightId = 'night1') {
-    this.state = new NightState(NIGHTS[nightId], VISITORS);
+  /** You. The face you have not been allowed to look at. */
+  private self: FaceView;
+  private inset: Inset = null;
+
+  constructor(private game: Game) {
+    // Which night this is, and everything carried into it, comes from the campaign.
+    const def = NIGHT_ORDER[Math.min(game.campaign.night, NIGHT_ORDER.length - 1)];
+    this.state = new NightState(def, VISITORS, game.campaign);
     const { seed, ...pinned } = WREN.face;
     this.wren = new FaceView(generateFace(seed, pinned), seed);
+    const { seed: selfSeed, ...selfPinned } = SELF.face;
+    this.self = new FaceView(generateFace(selfSeed, selfPinned), selfSeed);
     if (game.debug) (window as unknown as { __ls: Record<string, unknown> }).__ls.scene = this;
   }
 
@@ -188,6 +202,7 @@ export class NightScene implements Scene {
       });
     });
     this.animateWren(dt);
+    this.self.update(dt, this.self.base, { restless: true, lookX: 0, lookY: 0 });
 
     this.game.audio.update(dt, {
       drift: visit && visit.def.people.some((p) => p.isMimic) ? visit.drift : 0,
@@ -284,10 +299,14 @@ export class NightScene implements Scene {
           when,
           options: beat.choice.map((c) => ({
             text: c.text,
+            when: c.if ? () => this.state.test(c.if) : undefined,
             pick: () => {
               this.state.apply(c);
               // The chosen branch plays next, ahead of whatever else is queued.
-              this.queue.unshift(...this.scriptSteps(c.then ?? []));
+              const after: Step[] = this.scriptSteps(c.then ?? []);
+              // A choice can also settle what happens to the visitor at the counter.
+              if (c.outcome) after.push({ kind: 'call', fn: () => this.endVisit(c.outcome!) });
+              this.queue.unshift(...after);
             },
           })),
         });
@@ -333,6 +352,22 @@ export class NightScene implements Scene {
         this.glitchT = 0.7;
         this.goreT = 0.7;
         audio.sting('gore');
+        break;
+      case 'showWrenWrist':
+        this.inset = 'wrenWrist';
+        break;
+      case 'showSelfWrist':
+        this.inset = 'selfWrist';
+        break;
+      case 'showSelfMirror':
+        this.inset = 'selfMirror';
+        break;
+      case 'showSelfMirrorWrong':
+        this.inset = 'selfMirrorWrong';
+        audio.sting('break');
+        break;
+      case 'hideCloseup':
+        this.inset = null;
         break;
       case 'dark':
         this.lightsOut = true;
@@ -388,7 +423,7 @@ export class NightScene implements Scene {
         if (s.done()) this.step = null;
         break;
       case 'choice':
-        this.buttons = this.optionButtons(s.options);
+        this.buttons = this.optionButtons(s.options.filter((o) => !o.when || o.when()));
         if (handleButtons(this.buttons, input)) this.game.audio.sting('click');
         break;
     }
@@ -423,9 +458,33 @@ export class NightScene implements Scene {
     } else if (ev.type === 'script') {
       this.dialogue.clear();
       this.enqueue({ kind: 'wait', time: 0.5 }, ...this.scriptSteps(this.state.script(ev.script)));
+    } else if (ev.type === 'ending') {
+      this.ending();
     } else {
       this.dawn();
     }
+  }
+
+  /** The game is over: play whichever ending the stats and flags have earned, then its card. */
+  private ending(): void {
+    const ending = pickEnding(ENDINGS, (cond) => this.state.test(cond));
+    this.dialogue.clear();
+    this.enqueue({ kind: 'wait', time: 0.8 }, ...this.scriptSteps(ending.script));
+    this.enqueue({
+      kind: 'call',
+      fn: () => {
+        this.over = true;
+        this.game.campaign = { ...absorb(this.game.campaign, this.state), ending: ending.id };
+        this.game.go('end', {
+          heading: ending.title.toUpperCase(),
+          lines: ending.card,
+          next: 'THE END',
+          debug: this.statsLine(),
+          button: 'Start again',
+          onward: 'newGame',
+        });
+      },
+    });
   }
 
   /** 6 am: the light changes, the radio reads its report, the epilogue plays, then the end card. */
@@ -443,11 +502,16 @@ export class NightScene implements Scene {
       kind: 'call',
       fn: () => {
         this.over = true;
+        const lines = def.summary.filter((line) => this.state.test(line.if)).map((line) => line.text);
+        this.game.campaign = absorb(this.game.campaign, this.state);
+        const more = this.game.campaign.night < NIGHT_ORDER.length;
         this.game.go('end', {
           heading: `NIGHT ${def.number}  ·  ${def.title.toUpperCase()}`,
-          lines: def.summary.filter((line) => this.state.test(line.if)).map((line) => line.text),
+          lines,
           next: def.next,
           debug: this.statsLine(),
+          button: more ? 'Clock on again' : 'Start again',
+          onward: more ? 'next' : 'newGame',
         });
       },
     });
@@ -458,7 +522,7 @@ export class NightScene implements Scene {
     const n = visit.def.people.length;
     this.people = visit.def.people.map((def, i) => {
       const size = def.size ?? 1;
-      const { seed, ...pinned } = def.face;
+      const { seed, ...pinned } = resolveFace(def.face);
       return {
         def,
         view: new FaceView(generateFace(seed, pinned), seed),
@@ -548,6 +612,14 @@ export class NightScene implements Scene {
       x: COL_B.x, y: 207 + i * 20, w: COL_B.w, h: 18, label, key,
       onClick: () => this.decide(decision),
     });
+    // Some visits are settled by a scripted choice instead of the three buttons.
+    const script = this.state.visit?.def.decide;
+    if (script) {
+      return [{
+        x: COL_B.x, y: 207, w: COL_B.w, h: 58, label: 'Decide', key: 'q',
+        onClick: () => this.enqueue(...this.scriptSteps(this.state.script(script))),
+      }];
+    }
     return [make(0, 'Serve', 'q', 'serve'), make(1, 'Turn away', 'w', 'turnAway'), make(2, 'Shelter', 'e', 'shelter')];
   }
 
@@ -735,7 +807,15 @@ export class NightScene implements Scene {
     const stats = this.state.stats;
     const light = this.room.light;
 
-    if (this.mode === 'wrist' && this.people[0]) {
+    if (this.inset === 'wrenWrist') {
+      const wren = { def: { name: 'Wren', isMimic: true, face: WREN.face, tells: { veins: 'silver', reflection: 'human', shadow: 'human' } } as PersonDef, view: this.wren };
+      drawWristCloseup(g, this.time, wren, stats.slip, light, true);
+    } else if (this.inset === 'selfWrist') {
+      const you = { def: { name: 'You', isMimic: true, face: SELF.face, tells: { veins: 'none', reflection: 'human', shadow: 'human' } } as PersonDef, view: this.self };
+      drawWristCloseup(g, this.time, you, stats.slip, light, true);
+    } else if (this.inset === 'selfMirror' || this.inset === 'selfMirrorWrong') {
+      drawSelfMirror(g, this.time, this.self, light, 0.9, this.inset === 'selfMirrorWrong' ? 1 : 0);
+    } else if (this.mode === 'wrist' && this.people[0]) {
       drawWristCloseup(g, this.time, this.people[0], stats.slip, light);
     } else if (this.mode === 'reflection') {
       drawMirrorCloseup(g, this.time, this.people, this.wren, light);
@@ -750,7 +830,7 @@ export class NightScene implements Scene {
     }
 
     // High Slip makes the interface itself unreliable.
-    r.fx.textGlitch = Math.max(0, stats.slip - 2) / 3;
+    r.fx.textGlitch = Math.min(1, Math.max(0, stats.slip - 3) / 8);
     r.fx.glitch = (this.breakT >= 0 && this.breakT < 1.8) || this.glitchT > 0 ? 0.8 : 0;
     r.fx.gore = this.slackNow() > 0 ? 0.22 : this.goreT > 0 ? 0.5 : 0;
 

@@ -68,8 +68,20 @@ export class NightState {
 
   private cursor = 0;
 
-  constructor(readonly def: NightDef, private visitors: Record<string, VisitorDef>) {
+  /**
+   * @param carry stats and flags brought forward from earlier nights (see systems/campaign.ts)
+   */
+  constructor(
+    readonly def: NightDef,
+    private visitors: Record<string, VisitorDef>,
+    carry?: { stats: Stats; flags: readonly string[] },
+  ) {
     this.clock = new Clock(def.start, def.end);
+    if (carry) {
+      this.stats = { ...carry.stats };
+      const drop = new Set(def.clearFlags ?? []);
+      for (const flag of carry.flags) if (!drop.has(flag)) this.flags.add(flag);
+    }
   }
 
   // --- the timeline -----------------------------------------------------------
@@ -87,9 +99,16 @@ export class NightState {
         this.clock.minutes = Math.max(this.clock.minutes, this.clock.length);
         return ev;
       }
+      if (ev.type === 'ending') {
+        if (!this.test(ev.if)) continue;
+        return ev;
+      }
+      if (ev.type === 'visitor' && !this.test(ev.if)) continue;
       if (this.clock.done) {
         if (ev.type === 'visitor') {
+          if (!this.test(ev.if)) continue;
           this.log.push({ visitor: ev.visitor, outcome: 'missed', sided: null, delta: zeroStats() });
+          this.flags.add(`${ev.visitor}:missed`);
         }
         continue;
       }
@@ -106,6 +125,8 @@ export class NightState {
     const s = this.stats;
     if (cond.flag !== undefined && !this.flags.has(cond.flag)) return false;
     if (cond.notFlag !== undefined && this.flags.has(cond.notFlag)) return false;
+    if (cond.anyFlag && !cond.anyFlag.some((f) => this.flags.has(f))) return false;
+    if (cond.noFlags && cond.noFlags.some((f) => this.flags.has(f))) return false;
     if (cond.minBond !== undefined && s.bond < cond.minBond) return false;
     if (cond.maxBond !== undefined && s.bond > cond.maxBond) return false;
     if (cond.minSlip !== undefined && s.slip < cond.minSlip) return false;
@@ -284,6 +305,8 @@ export class NightState {
 
     this.stats = addStats(this.stats, delta);
     for (const flag of def.flags?.[outcome] ?? []) this.flags.add(flag);
+    // Remember how every visit ended, e.g. "dale:serve". Later nights branch on these.
+    this.flags.add(`${def.id}:${outcome}`);
     if (outcome === 'shelter') this.flags.add(this.hasMimic ? 'mimicInBack' : 'humanInBack');
 
     const record: VisitRecord = { visitor: def.id, outcome, sided, delta };

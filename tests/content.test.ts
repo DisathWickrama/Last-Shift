@@ -39,11 +39,14 @@ describe('visitors', () => {
     const outcomes: Outcome[] = [...DECISIONS];
     if (hasHuman) outcomes.push('walkout');
     if (hasMimic) outcomes.push('break');
+    // (The dawn report only matters for visitors on a night that has a dawn.)
+    const reported = nights.some((n) => n.timeline.some((e) => e.type === 'dawn') && n.timeline.some((e) => e.type === 'visitor' && e.visitor === v.id));
     for (const outcome of outcomes) {
       expect(v.leave[outcome]?.length, `leave.${outcome}`).toBeGreaterThan(0);
-      expect(v.report[outcome], `report.${outcome}`).toBeTruthy();
+      if (reported) expect(v.report[outcome], `report.${outcome}`).toBeTruthy();
     }
-    expect(v.report.missed, 'report.missed').toBeTruthy();
+    if (reported) expect(v.report.missed, 'report.missed').toBeTruthy();
+    if (v.decide) expect(nights.some((n) => n.scripts[v.decide!]), `decide script ${v.decide}`).toBe(true);
 
     for (const person of v.people) {
       const drift = person.tells.drift ?? [];
@@ -74,7 +77,7 @@ describe('visitors', () => {
 
 describe('nights', () => {
   it.each(nights.map((n) => [n.id, n] as const))('%s refers only to things that exist', (_id, night) => {
-    expect(night.timeline[night.timeline.length - 1]).toEqual({ type: 'dawn' });
+    expect(['dawn', 'ending']).toContain(night.timeline[night.timeline.length - 1].type);
     for (const ev of night.timeline) {
       if (ev.type === 'visitor') expect(VISITORS[ev.visitor], `visitor ${ev.visitor}`).toBeDefined();
       if (ev.type === 'script') expect(night.scripts[ev.script], `script ${ev.script}`).toBeDefined();
@@ -142,7 +145,7 @@ describe('Night 1, played without a screen', () => {
         state.inspect('wrist');
         state.inspect('reflection');
         state.finish(decision);
-      } else {
+      } else if (ev.type === 'script') {
         // A script: apply every unconditional effect, taking the first option of each choice.
         for (const beat of state.script(ev.script)) {
           if ('choice' in beat) state.apply(beat.choice[0]);

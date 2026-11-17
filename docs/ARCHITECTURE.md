@@ -125,6 +125,14 @@ A beat is either a line or a choice. A line can carry:
 
 **The timeline** in the night file orders everything: scripts and visitors with clock times, ending in `dawn`. At dawn, `systems/report.ts` builds the radio report by picking, for each visitor, the sentence in their JSON that matches how their visit ended. Then the `epilogue` script plays, and the end card shows the `summary` sentences whose conditions match your hidden stats.
 
+## Three nights: the campaign and the endings
+
+- `systems/campaign.ts` holds what carries between nights: a `CampaignData` of the three stats and the set of flags. When a night ends the scene calls `absorb()`, and the next `NightState` is built from it. Each night file lists `clearFlags` for things that should not carry (last night's scone).
+- Every visit leaves a flag such as `dale:serve`. Timeline events can carry an `if`, so Night 2 brings Maureen back if you saved her (`maureen2`) and something wearing her if you did not (`maureen2x`). Conditions can test `flag`, `notFlag`, `anyFlag`, `noFlags` and stat ranges.
+- A timeline event of type `ending` stops the game. `content/endings.json` is an ordered list; `pickEnding()` takes the first whose condition holds. The final visitor uses `"decide": "finale"`: instead of the three buttons, a script offers choices (some only when a stat is high enough) and each choice's `outcome` ends the visit.
+- Script effects `showWrenWrist`, `showSelfWrist`, `showSelfMirror` put a close-up on screen during a script: this is how you finally inspect Wren, and yourself (`content/self.json` is your face).
+- `tests/campaign.test.ts` plays all three nights with no screen and checks each ending is reachable.
+
 ## Wren
 
 Wren is three small pieces:

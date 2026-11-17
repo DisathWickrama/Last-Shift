@@ -9,7 +9,7 @@
 // None of them decide anything: the same function draws Dale's honest wrists and
 // a mimic's empty ones, depending only on the data passed in.
 
-import type { PersonDef, VeinTell } from '../core/content';
+import { resolveFace, type PersonDef, type VeinTell } from '../core/content';
 import type { FaceView } from './faceview';
 import { drawFace } from './face';
 import { Rng, clamp } from '../core/rng';
@@ -215,7 +215,7 @@ function drawArm(g: G, a: ArmSpec): void {
  * bottom of the view is YOUR hand on the card reader, and as you slip, it
  * stops looking quite right.
  */
-export function drawWristCloseup(g: G, time: number, payer: Subject, slip: number, light: number): void {
+export function drawWristCloseup(g: G, time: number, payer: Subject, slip: number, light: number, own = false): void {
   const bg = g.createLinearGradient(0, 0, 0, VIEW_H);
   bg.addColorStop(0, '#1b201e');
   bg.addColorStop(1, '#343c37');
@@ -228,7 +228,7 @@ export function drawWristCloseup(g: G, time: number, payer: Subject, slip: numbe
   const size = payer.def.size ?? 1;
   const p = payer.view.shown;
   const tell = payer.def.tells.veins;
-  const seed = payer.def.face.seed;
+  const seed = resolveFace(payer.def.face).seed;
   const adult = size > 0.9;
   const base = {
     scale: adult ? 1.22 : 0.92,
@@ -241,11 +241,12 @@ export function drawWristCloseup(g: G, time: number, payer: Subject, slip: numbe
   // wrists the same pattern, flipped: too neat to be grown.
   drawArm(g, { ...base, x: 140, y: adult ? 78 : 62, angle: 0.16, thumb: -1, card: false, veinSeed: seed + '-L', mirrorVeins: false });
   drawArm(g, {
-    ...base, x: 326, y: adult ? 70 : 62, angle: -0.2, thumb: 1, card: adult,
+    ...base, x: 326, y: adult ? 70 : 62, angle: -0.2, thumb: 1, card: adult && !own,
     veinSeed: tell === 'mirrored' ? seed + '-L' : seed + '-R', mirrorVeins: tell === 'mirrored',
   });
 
-  // the card reader, and your own hand holding it steady
+  // the card reader, and your own hand holding it steady (not when the wrists are your own, or Wren's)
+  if (!own) {
   g.fillStyle = '#141817';
   g.beginPath();
   g.roundRect(206, 134, 62, 84, 5);
@@ -272,6 +273,7 @@ export function drawWristCloseup(g: G, time: number, payer: Subject, slip: numbe
     g.beginPath();
     g.roundRect(292 - fw, 146 + i * 11.5, fw, 9, 4.5);
     g.fill();
+  }
   }
 
   if (light < 1) {
@@ -532,4 +534,56 @@ export function drawFloorCloseup(g: G, time: number, subjects: Subject[], light:
     g.fillStyle = alpha(PAL.black, (1 - light) * 0.5);
     g.fillRect(0, 0, W, VIEW_H);
   }
+}
+
+// ---------------------------------------------------------------------------
+// Yourself
+// ---------------------------------------------------------------------------
+
+/**
+ * The mirror, with nobody in front of it but you. `lag` is how many seconds the
+ * reflection runs behind; `wrong` (0..1) is how far it has stopped pretending to be a reflection.
+ */
+export function drawSelfMirror(g: G, time: number, self: FaceView, light: number, lag: number, wrong: number): void {
+  g.fillStyle = shade(PAL.wall, 0.7);
+  g.fillRect(0, 0, W, VIEW_H);
+  const mx = 240;
+  const my = 102;
+  const r = 94;
+  g.save();
+  g.beginPath();
+  g.arc(mx, my, r, 0, Math.PI * 2);
+  g.clip();
+  g.fillStyle = shade(PAL.ceiling, 0.9);
+  g.fillRect(mx - r, my - r, r * 2, r * 2);
+  g.fillStyle = shade(PAL.wall, 0.85);
+  g.fillRect(mx - r, my - 40, r * 2, r * 2);
+  g.strokeStyle = alpha(PAL.fluoro, 0.2 + 0.6 * light);
+  g.lineWidth = 3;
+  g.beginPath();
+  g.ellipse(mx, my + 24, 76, 92, 0, 1.3 * Math.PI, 1.7 * Math.PI);
+  g.stroke();
+  // You lean; a moment later, it leans. Then it smiles, and you had not.
+  const lean = -self.leanAgo(lag);
+  const face = wrong > 0 ? { ...self.shown, smile: self.shown.smile + 0.85 * wrong, pupil: self.shown.pupil + 0.5 * wrong } : self.shown;
+  drawFace(g, face, mx + lean * 1.25, my + 22, 1.25, {
+    ...self.anim, blink: wrong > 0.5 ? 0 : self.anim.blink, gazeX: 0, gazeY: 0, talk: 0, tilt: lean * 0.012,
+  });
+  const dome = g.createRadialGradient(mx - 20, my - 26, r * 0.2, mx, my, r);
+  dome.addColorStop(0, 'rgba(228,245,220,0.06)');
+  dome.addColorStop(0.65, 'rgba(5,7,6,0.1)');
+  dome.addColorStop(1, 'rgba(5,7,6,0.75)');
+  g.fillStyle = dome;
+  g.fillRect(mx - r, my - r, r * 2, r * 2);
+  if (light < 1) {
+    g.fillStyle = alpha(PAL.black, (1 - light) * 0.5);
+    g.fillRect(mx - r, my - r, r * 2, r * 2);
+  }
+  g.restore();
+  g.strokeStyle = shade(PAL.metal, 0.9);
+  g.lineWidth = 2.5;
+  g.beginPath();
+  g.arc(mx, my, r, 0, Math.PI * 2);
+  g.stroke();
+  void time;
 }

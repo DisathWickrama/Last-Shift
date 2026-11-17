@@ -11,6 +11,7 @@ import { SceneManager } from './core/scene';
 import { Input } from './core/input';
 import { Renderer } from './render/renderer';
 import { AudioEngine } from './audio/audio';
+import { newCampaign } from './systems/campaign';
 import type { Game, EndData } from './core/game';
 import { TitleScene } from './scenes/title';
 import { NightScene } from './scenes/night';
@@ -24,6 +25,7 @@ const game: Game = {
   input: new Input(canvas),
   scenes: new SceneManager(),
   audio: new AudioEngine(),
+  campaign: newCampaign(),
   settings: {
     reducedFlicker: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
     muted: false,

@@ -41,6 +41,10 @@ export interface Line {
 export interface Cond {
   flag?: string;
   notFlag?: string;
+  /** True if at least one of these flags is set. */
+  anyFlag?: string[];
+  /** True only if none of these flags is set. */
+  noFlags?: string[];
   minBond?: number;
   maxBond?: number;
   minSlip?: number;
@@ -51,11 +55,16 @@ export interface Cond {
 
 // --- visitors -----------------------------------------------------------------
 
+export type FaceSpec = { seed: string } & Partial<FaceParams>;
+
 export interface PersonDef {
   name: string;
   isMimic: boolean;
-  /** A seed plus any sliders this person must always have. */
-  face: { seed: string } & Partial<FaceParams>;
+  /**
+   * A seed plus any sliders this person must always have. Or `{ "like": "self" }`
+   * / `{ "like": "wren" }` to wear a face defined elsewhere (content/self.json, content/wren.json).
+   */
+  face: FaceSpec | { like: 'self' | 'wren' };
   /** 1 = adult (default). A child is about 0.75. */
   size?: number;
   tells: {
@@ -124,12 +133,21 @@ export interface VisitorDef {
   effects?: Partial<Record<Outcome, Partial<Stats>>>;
   /** Flags to set when the visit ends a certain way (the room and scripts read these). */
   flags?: Partial<Record<Outcome, string[]>>;
+  /**
+   * Name of a script in the night file to run instead of the three decision
+   * buttons. Its choices end the visit through their `outcome` field.
+   */
+  decide?: string;
 }
 
 // --- nights -------------------------------------------------------------------
 
 export interface ChoiceDef {
   text: string;
+  /** Only offer this option when the condition holds. */
+  if?: Cond;
+  /** End the current visit this way once the option's beats have played. */
+  outcome?: Outcome;
   bond?: number;
   slip?: number;
   humanity?: number;
@@ -151,8 +169,10 @@ export type Beat =
 
 export type TimelineEvent =
   | { type: 'script'; script: string; at?: string; if?: Cond }
-  | { type: 'visitor'; visitor: string; at: string }
-  | { type: 'dawn' };
+  | { type: 'visitor'; visitor: string; at: string; if?: Cond }
+  | { type: 'dawn' }
+  /** Stop the night here and play whichever ending matches (see content/endings.json). */
+  | { type: 'ending'; if?: Cond };
 
 export interface NightDef {
   id: string;
@@ -160,7 +180,13 @@ export interface NightDef {
   title: string;
   start: string;
   end: string;
-  /** What happens, in order. Must end with a "dawn" event. */
+  /** Flags from earlier nights that should not carry into this one (last night's scone, and so on). */
+  clearFlags?: string[];
+  /** 0..1: how hard the building leans on you tonight (flicker, figures, knocking). */
+  dread?: number;
+  /** Which generated score plays tonight. */
+  score?: number;
+  /** What happens, in order. Must end with a "dawn" or "ending" event. */
   timeline: TimelineEvent[];
   /** Named scripts that timeline events refer to. */
   scripts: Record<string, Beat[]>;
@@ -183,9 +209,22 @@ export interface WrenLine {
 }
 
 export interface WrenDef {
-  face: { seed: string } & Partial<FaceParams>;
+  face: FaceSpec;
   /** Pools of lines, keyed by what just happened (see systems/wren.ts for the keys). */
   lines: Record<string, WrenLine[]>;
+}
+
+// --- endings ------------------------------------------------------------------
+
+export interface EndingDef {
+  id: string;
+  title: string;
+  /** The first ending in the file whose condition holds is the one you get. */
+  if?: Cond;
+  /** Played in the shop before the card. */
+  script: Beat[];
+  /** The sentences on the final card. */
+  card: string[];
 }
 
 // --- loading ------------------------------------------------------------------
@@ -203,3 +242,18 @@ function byId<T extends { id: string }>(files: Record<string, T>): Record<string
 export const VISITORS: Record<string, VisitorDef> = byId(visitorFiles);
 export const NIGHTS: Record<string, NightDef> = byId(nightFiles);
 export const WREN: WrenDef = Object.values(wrenFiles)[0];
+
+const endingFiles = import.meta.glob<{ endings: EndingDef[] }>('../../content/endings.json', { eager: true, import: 'default' });
+const selfFiles = import.meta.glob<{ face: FaceSpec }>('../../content/self.json', { eager: true, import: 'default' });
+export const ENDINGS: EndingDef[] = Object.values(endingFiles)[0]?.endings ?? [];
+/** Your own face. You do not get to see it until late. */
+export const SELF: { face: FaceSpec } = Object.values(selfFiles)[0] ?? { face: { seed: 'sam' } };
+
+/** Nights in playing order. */
+export const NIGHT_ORDER: NightDef[] = Object.values(NIGHTS).sort((a, b) => a.number - b.number);
+
+/** Turn a person's `face` field into a concrete face spec. */
+export function resolveFace(face: PersonDef['face']): FaceSpec {
+  if ('like' in face) return face.like === 'wren' ? WREN.face : SELF.face;
+  return face;
+}
