@@ -78,6 +78,21 @@ One player action, traced end to end (clicking **Wrists**):
 
 `render/flicker.ts` decides how bright the tubes are each moment. Bursts of stutter get more frequent and deeper as the clock runs. With **F** (or the OS "reduce motion" setting) a burst becomes one slow shallow dip instead. Room colours go through a helper that darkens them by the current light level; things that make their own light (the fridge, the pumps) skip it, so when the tubes cut out the shop is lit by the fridge and the sodium lamps.
 
+## The haunting
+
+`scenes/haunt.ts` decides *when* the shop does something by itself; the night scene shows it. Each night file has a `dread` value (0.15, 0.5, 1). Dread and the hour set a level; the level sets how often an event fires and which are allowed:
+
+| Event | What you get |
+| --- | --- |
+| `tear` | a split-second tear across the picture (more often with high Slip) |
+| `figure` | somebody standing by the pumps; each visit a little nearer, as far as tonight's dread allows |
+| `glass` | knocking on the shop window |
+| `whisper` | the CB replays a line you actually said tonight (from `NightState.said`) |
+| `blackout` | the tubes go out for a couple of seconds; on the last night the figure is at the glass when they do |
+| `flash` | a drifting mimic's face slips for a single frame |
+
+None of it touches the rules. The mirror close-up also takes the dread value: on later nights Wren's reflection turns to watch you, and on the last night the blank where you should be has a face.
+
 ## Sound
 
 `audio/audio.ts` builds everything from Web Audio nodes; there are no sound files.

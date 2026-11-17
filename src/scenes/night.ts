@@ -24,6 +24,7 @@ import { generateFace } from '../render/face';
 import { FaceView } from '../render/faceview';
 import { drawTinted } from '../render/layer';
 import { Flicker } from '../render/flicker';
+import { Haunt } from './haunt';
 import { hashString } from '../core/rng';
 import { drawWristCloseup, drawMirrorCloseup, drawFloorCloseup, drawSelfMirror } from '../render/closeups';
 import { absorb, pickEnding } from '../systems/campaign';
@@ -115,6 +116,13 @@ export class NightScene implements Scene {
   private lightsOut = false;
   private dawnTo = 0;
   private flicker = new Flicker();
+  /** Decides when the shop does something unsettling by itself. See haunt.ts. */
+  private haunt = new Haunt();
+  private figureT = 0; // seconds the figure outside has left to stand there
+  private blackoutT = 0; // seconds of darkness left
+  private flashT = 0; // seconds a mimic's face stays slipped
+  /** What the CB radio is muttering, and for how much longer. */
+  private whisper = { text: '', time: 0 };
   /** Counts letters as they are typed, so only every third one makes a voice blip. */
   private letters = 0;
   /** Wren: always at your right shoulder, always looking at you. */
@@ -175,8 +183,10 @@ export class NightScene implements Scene {
     const flags = this.state.flags;
     this.room.dawn = lerp(this.room.dawn, this.dawnTo, 1 - Math.exp(-dt * 0.8));
     // The tubes get worse as the night goes on. A script can also put them out completely.
-    const flick = this.flicker.update(dt, this.state.clock.progress, this.game.settings.reducedFlicker);
-    this.room.light = this.lightsOut ? 0.04 : flick;
+    const dread = this.state.def.dread ?? 0;
+    const flick = this.flicker.update(dt, Math.min(1, this.state.clock.progress * (0.5 + dread)), this.game.settings.reducedFlicker);
+    this.haunting(dt, dread);
+    this.room.light = this.lightsOut || this.blackoutT > 0 ? 0.04 : flick;
     this.room.scone = flags.has('scone');
     this.room.lingerer = flags.has('lingerer');
     this.room.photoFlipped = flags.has('photoFlipped');
@@ -232,7 +242,80 @@ export class NightScene implements Scene {
    * flashes, not long gore scenes": so the true face flickers in and out for a
    * second, holds for half a second, and is gone.
    */
+  /** Run the haunt scheduler and play out whatever it has started. */
+  private haunting(dt: number, dread: number): void {
+    const { audio } = this.game;
+    const visit = this.state.visit;
+    const closeup = this.mode !== 'counter' && this.mode !== 'talk';
+    // Nothing new starts during a close-up, a scripted blackout or the dawn.
+    if (!closeup && !this.lightsOut && this.dawnTo === 0 && !this.inset) {
+      const event = this.haunt.update(dt, {
+        dread,
+        progress: this.state.clock.progress,
+        slip: this.state.stats.slip,
+        mimicSlipping: !!visit && visit.drift > 0.5 && visit.def.people.some((p) => p.isMimic),
+      });
+      switch (event) {
+        case 'tear':
+          this.glitchT = 0.12;
+          audio.sting('tear');
+          break;
+        case 'figure':
+          this.figureT = 7 + Math.random() * 5;
+          // It starts out by the pumps. Each time it is a little nearer, as far as tonight's dread allows.
+          this.room.figureNear = Math.min(dread, 0.12 + this.haunt.figureVisits * 0.22 * dread);
+          break;
+        case 'glass':
+          audio.sting('glass');
+          this.glitchT = 0.08;
+          break;
+        case 'whisper': {
+          // The CB replays something you really said tonight, if you have said anything.
+          const said = this.state.said;
+          if (said.length > 0) {
+            this.whisper = { text: said[Math.floor(Math.random() * said.length)].text, time: 5 };
+            this.room.radioLive = true;
+            audio.radio(true);
+          }
+          break;
+        }
+        case 'blackout':
+          this.blackoutT = 1.4 + Math.random() * 1.6;
+          audio.sting('thud');
+          // On the worst night, the dark is when it comes right up to the glass.
+          if (dread >= 0.9) {
+            this.figureT = this.blackoutT + 0.4;
+            this.room.figureNear = 1;
+          }
+          break;
+        case 'flash':
+          this.flashT = 0.1;
+          this.goreT = 0.1;
+          audio.sting('tear');
+          break;
+      }
+    }
+
+    // Play out whatever is in progress.
+    if (this.blackoutT > 0) {
+      this.blackoutT -= dt;
+      if (this.blackoutT <= 0) audio.sting('tick');
+    }
+    this.flashT = Math.max(0, this.flashT - dt);
+    this.figureT = Math.max(0, this.figureT - dt);
+    // The figure fades in slowly and is simply gone when its time is up.
+    this.room.figure = this.figureT > 0 ? Math.min(1, this.room.figure + dt * 0.5) : 0;
+    if (this.whisper.time > 0) {
+      this.whisper.time -= dt;
+      if (this.whisper.time <= 0 && !(this.step?.kind === 'say' && this.step.who === 'radio')) {
+        this.room.radioLive = false;
+        audio.radio(false);
+      }
+    }
+  }
+
   private slackNow(): number {
+    if (this.flashT > 0) return 0.7; // a single-frame slip, there and gone
     const t = this.breakT;
     if (t < 0) return 0;
     if (t < 1.3) {
@@ -818,7 +901,7 @@ export class NightScene implements Scene {
     } else if (this.mode === 'wrist' && this.people[0]) {
       drawWristCloseup(g, this.time, this.people[0], stats.slip, light);
     } else if (this.mode === 'reflection') {
-      drawMirrorCloseup(g, this.time, this.people, this.wren, light);
+      drawMirrorCloseup(g, this.time, this.people, this.wren, light, this.state.def.dread ?? 0, this.self);
     } else if (this.mode === 'shadow') {
       drawFloorCloseup(g, this.time, this.people, light);
     } else {
@@ -894,6 +977,12 @@ export class NightScene implements Scene {
     r.text(this.state.clock.label, 37, 8, { size: 8, bold: true, align: 'center', color: PAL.sodium });
     const def = this.state.def;
     r.text(`NIGHT ${def.number}  ·  ${def.title.toUpperCase()}`, 8, 23, { size: 6, color: PAL.inkDim });
+    // The CB, muttering your own words back, just above the set on the counter.
+    const closeup = this.inset || (this.mode !== 'counter' && this.mode !== 'talk');
+    if (this.whisper.time > 0 && !closeup) {
+      const fade = Math.min(1, this.whisper.time, 5 - this.whisper.time) * 0.8;
+      r.text(`"...${this.whisper.text}..."`, 14, 160, { size: 6, color: PAL.radio, alpha: Math.max(0, fade) });
+    }
     if (this.game.settings.muted) r.text('SOUND OFF  (M)', 8, 31, { size: 6, color: PAL.inkDim });
     if (this.game.debug) this.drawDebug(r);
   }

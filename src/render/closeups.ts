@@ -294,7 +294,13 @@ const MIRROR_LAG = 0.8;
  * Left: the visitor as they stand in front of you. Right: the convex mirror in
  * the corner, which sees them from behind, and sees you and Wren at the counter.
  */
-export function drawMirrorCloseup(g: G, time: number, subjects: Subject[], wren: FaceView | null, light: number): void {
+export function drawMirrorCloseup(
+  g: G, time: number, subjects: Subject[], wren: FaceView | null, light: number,
+  /** 0..1 from the night file: how wrong the things behind the counter look in the glass. */
+  dread = 0,
+  /** Your own face, once the mirror is prepared to show it. */
+  self: FaceView | null = null,
+): void {
   g.fillStyle = shade(PAL.wall, 0.75);
   g.fillRect(0, 0, W, VIEW_H);
 
@@ -362,11 +368,21 @@ export function drawMirrorCloseup(g: G, time: number, subjects: Subject[], wren:
   g.beginPath();
   g.roundRect(mx - 40, my - 30, 24, 40, 6);
   g.fill();
-  g.fillStyle = '#87928a';
-  g.beginPath();
-  g.ellipse(mx - 28, my - 38, 7, 9, 0, 0, Math.PI * 2);
-  g.fill();
-  if (wren) drawFace(g, wren.shown, mx + 22, my - 36, 0.24, { ...wren.anim, gazeX: -0.6, gazeY: 0 });
+  if (self && dread >= 1) {
+    // Last night: the blank has a face now, and it runs a beat behind you.
+    drawFace(g, self.shown, mx - 28 - self.leanAgo(0.9) * 0.24, my - 36, 0.24, { ...self.anim, gazeX: 0, gazeY: 0, talk: 0 });
+  } else {
+    g.fillStyle = '#87928a';
+    g.beginPath();
+    g.ellipse(mx - 28, my - 38, 7, 9, 0, 0, Math.PI * 2);
+    g.fill();
+  }
+  if (wren) {
+    // On later nights Wren's reflection stops watching you and watches the mirror instead: that is, you, looking.
+    const watching = dread >= 0.5 && time % 9 > 6;
+    const face = watching ? { ...wren.shown, smile: wren.shown.smile + 0.55 } : wren.shown;
+    drawFace(g, face, mx + 22, my - 36, 0.24, { ...wren.anim, gazeX: watching ? 0 : -0.6, gazeY: 0, blink: watching ? 0 : wren.anim.blink });
+  }
   // the counter
   g.fillStyle = shade(PAL.counterTop, 0.8);
   g.beginPath();

@@ -35,11 +35,15 @@ export interface RoomState {
   marks: boolean;
   /** The CB radio's light: on while a broadcast is coming through. */
   radioLive: boolean;
+  /** 0..1: how visible the figure outside is. */
+  figure: number;
+  /** 0 = out by the pumps, 1 = right at the glass. */
+  figureNear: number;
 }
 
 export const defaultRoom: RoomState = {
   time: 0, light: 1, doorOpen: 0, dawn: 0, photoFlipped: false, scone: false,
-  lingerer: false, car: false, marks: false, radioLive: false,
+  lingerer: false, car: false, marks: false, radioLive: false, figure: 0, figureNear: 0,
 };
 
 type G = CanvasRenderingContext2D;
@@ -147,6 +151,23 @@ export function drawOutside(g: G, s: RoomState, x = 0, y = 24, w = W, h = 126): 
     g.translate(-fx, -fy);
     g.fillRect(fx - 140, fy - 140, 280, 280);
     g.restore();
+  }
+
+  // Somebody standing out there. Too tall, arms a little too long, perfectly still.
+  // Drawn into the fog so that it is never quite sharp.
+  if (s.figure > 0.01) {
+    const n = s.figureNear;
+    const fx = 150 + (236 - 150) * n; // from beside the pumps to the door glass
+    const base = 141 + 9 * n;
+    const tall = 30 + 52 * n;
+    const wide = 5 + 8 * n;
+    g.fillStyle = alpha(PAL.black, s.figure * (0.55 + 0.35 * n));
+    g.beginPath();
+    g.ellipse(fx, base - tall, wide * 0.55, wide * 0.7, 0, 0, Math.PI * 2);
+    g.fill();
+    g.fillRect(fx - wide / 2, base - tall + wide * 0.5, wide, tall - wide * 0.5);
+    g.fillRect(fx - wide / 2 - wide * 0.3, base - tall + wide * 0.8, wide * 0.3, tall * 0.62); // arms hang past the knee
+    g.fillRect(fx + wide / 2, base - tall + wide * 0.8, wide * 0.3, tall * 0.62);
   }
 
   // whoever is still waiting at the glass

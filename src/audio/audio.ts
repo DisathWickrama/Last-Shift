@@ -19,7 +19,7 @@
 import type { Who } from '../core/content';
 import { clamp } from '../core/rng';
 
-export type Sting = 'bell' | 'click' | 'static' | 'knock' | 'break' | 'gore' | 'thud' | 'photo' | 'tick';
+export type Sting = 'bell' | 'click' | 'static' | 'knock' | 'break' | 'gore' | 'thud' | 'photo' | 'tick' | 'glass' | 'tear';
 
 export interface AudioState {
   /** 0..1 drift of the visitor at the counter. Drives the drone. */
@@ -344,6 +344,15 @@ export class AudioEngine {
         break;
       case 'click':
         this.ping('square', 520, 0.02, 0.035);
+        break;
+      case 'glass': // knuckles on the shop window: sharper than the storeroom door
+        for (let i = 0; i < 3; i++) {
+          this.ping('sine', 410, 0.16, 0.09, i * 0.5, 300);
+          this.hiss('highpass', 1800, 0.07, 0.04, i * 0.5);
+        }
+        break;
+      case 'tear': // the picture tearing
+        this.hiss('bandpass', 3200, 0.05, 0.12, 0, 900);
         break;
       case 'tick': // a tube cutting out
         this.hiss('highpass', 5000, 0.03, 0.03);
