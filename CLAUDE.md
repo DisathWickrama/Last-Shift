@@ -45,14 +45,16 @@ Add `?debug` to the URL to show the hidden stats, drift and patience.
 index.html
 src/
   main.ts        boot: build the Game object, start the loop
-  core/          game loop, scene manager, input, seeded RNG, content types + loader
+  core/          game loop, scene manager, input, seeded RNG, content types + loader, save
   render/        renderer (low-res canvas + text), face generator, room, close-ups, filters
-  systems/       drift, inspections, clock, stats, night state machine, Wren, dawn report
+  systems/       drift, inspections, clock, stats, night state machine, campaign, Wren, dawn report
   ui/            buttons, dialogue box, choice list
   audio/         Web Audio ambience, stings, radio song
-  scenes/        title, night, end card
+  scenes/        title, night, end card, haunt (when the shop misbehaves)
 content/
   nights/        one JSON file per night (timeline + scripts + dawn report)
+  endings.json   the endings, in priority order
+  self.json      the player's own face
   visitors/      one JSON file per visitor
   wren.json      Wren's face and reactive lines
 tests/           Vitest unit tests for systems/ and content validation

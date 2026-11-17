@@ -28,6 +28,7 @@ import { Haunt } from './haunt';
 import { hashString } from '../core/rng';
 import { drawWristCloseup, drawMirrorCloseup, drawFloorCloseup, drawSelfMirror } from '../render/closeups';
 import { absorb, pickEnding } from '../systems/campaign';
+import { saveCampaign, clearCampaign, recordEnding } from '../core/save';
 import { PAL } from '../render/palette';
 import { applyDrift } from '../systems/drift';
 import { NightState, type VisitStatus } from '../systems/night';
@@ -570,9 +571,14 @@ export class NightScene implements Scene {
       fn: () => {
         this.over = true;
         this.game.campaign = { ...absorb(this.game.campaign, this.state), ending: ending.id };
+        // The run is over: forget the save, but remember that this ending has been seen.
+        clearCampaign();
+        const found = recordEnding(ending.id);
+        const titles = ENDINGS.map((e) => (found.includes(e.id) ? e.title : '? ? ?')).join('   ·   ');
         this.game.go('end', {
           heading: ending.title.toUpperCase(),
           lines: ending.card,
+          footer: [`ENDINGS FOUND  ${found.length} OF ${ENDINGS.length}`, titles],
           next: 'THE END',
           debug: this.statsLine(),
           button: 'Start again',
@@ -599,6 +605,7 @@ export class NightScene implements Scene {
         this.over = true;
         const lines = def.summary.filter((line) => this.state.test(line.if)).map((line) => line.text);
         this.game.campaign = absorb(this.game.campaign, this.state);
+        saveCampaign(this.game.campaign); // "continue" resumes from the start of the next night
         const more = this.game.campaign.night < NIGHT_ORDER.length;
         this.game.go('end', {
           heading: `NIGHT ${def.number}  ·  ${def.title.toUpperCase()}`,

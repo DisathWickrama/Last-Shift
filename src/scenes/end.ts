@@ -9,6 +9,7 @@ import { type Renderer, W, H } from '../render/renderer';
 import { PAL } from '../render/palette';
 import { type Btn, handleButtons, drawButtons } from '../ui/widgets';
 import { newCampaign } from '../systems/campaign';
+import { clearCampaign } from '../core/save';
 
 export class EndScene implements Scene {
   private time = 0;
@@ -23,7 +24,10 @@ export class EndScene implements Scene {
       ? [{
           x: W / 2 - 70, y: 226, w: 140, h: 16, label: this.data.button,
           onClick: () => {
-            if (this.data.onward === 'newGame') this.game.campaign = newCampaign();
+            if (this.data.onward === 'newGame') {
+              this.game.campaign = newCampaign();
+              clearCampaign();
+            }
             this.game.go(this.data.onward === 'newGame' ? 'title' : 'night');
           },
         }]
@@ -43,6 +47,9 @@ export class EndScene implements Scene {
       }
       y += 6;
     }
+    (this.data.footer ?? []).forEach((line, i) => {
+      r.text(line, W / 2, 176 + i * 9, { size: 6, align: 'center', color: PAL.inkDim });
+    });
     r.text(this.data.next, W / 2, 206, { size: 7, align: 'center', color: PAL.sodium });
     drawButtons(r, this.buttons, this.game.input);
     if (this.game.debug && this.data.debug) {

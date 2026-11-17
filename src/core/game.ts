@@ -24,6 +24,8 @@ export interface EndData {
   next: string;
   /** Only shown with ?debug. */
   debug?: string;
+  /** Small print under the card, e.g. which endings have been found. */
+  footer?: string[];
   /** Label on the button, and where it goes: the next night, or a fresh game. */
   button: string;
   onward: 'next' | 'newGame';

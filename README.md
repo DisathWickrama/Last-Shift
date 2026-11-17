@@ -4,7 +4,13 @@ A slow-burn psychological horror game about the night shift at an isolated mount
 
 **Play it:** https://disathwickrama.github.io/Last-Shift/
 
-Night 1 of 5 is playable from start to finish: about 10 to 15 minutes. Headphones help.
+The full game is three nights and five endings: about 30 to 40 minutes a run. Headphones help. The game saves at each dawn, so you can stop between nights and continue later.
+
+- **Night 1, Last Fuel:** wrists and reflections.
+- **Night 2, Familiar Faces:** shadows, small talk, and people you have met before.
+- **Night 3, Last Shift:** the last human on the mountain, and what you do with them.
+
+Who comes back, what Wren says and which ending you get all depend on what you did on earlier nights. One ending is hidden on Night 2.
 
 Built with Vite + TypeScript + HTML Canvas. No game engine and no asset files: every picture is drawn in code and every sound is synthesised.
 
@@ -34,7 +40,7 @@ Open the address Vite prints (usually http://localhost:5173).
 npm test
 ```
 
-runs the unit tests, including one that plays the whole of Night 1 with no screen.
+runs the unit tests, including one that plays all three nights with no screen and checks every ending can be reached.
 
 ```bash
 npm run build
@@ -61,6 +67,7 @@ Start with `docs/ARCHITECTURE.md`: it walks through the code in reading order. E
 
 ## Add to the story without writing code
 
+- An ending: add an entry to `content/endings.json` (the first whose `if` holds wins).
 - A new visitor: copy a file in `content/visitors/`, change the `id`, and add `{ "type": "visitor", "visitor": "<id>", "at": "03:20" }` to a night's `timeline`.
 - A new quiet moment: add a script to `scripts` in the night file and a `{ "type": "script", "script": "<name>" }` entry to the timeline.
 - `npm test` checks the JSON for missing lines and broken references.
