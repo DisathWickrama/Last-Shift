@@ -1,0 +1,131 @@
+{
+  "id": "cal",
+  "title": "Cal, hitchhiker",
+  "people": [
+    {
+      "name": "Cal",
+      "isMimic": true,
+      "face": {
+        "seed": "cal",
+        "hair": "messy",
+        "hairColor": "#85683e",
+        "skin": "#e6c7a6",
+        "glasses": false,
+        "beard": 0.3,
+        "wrinkles": 0.1,
+        "smile": 0.3,
+        "shirt": "#5a5040",
+        "shoulders": 47
+      },
+      "tells": {
+        "veins": "human",
+        "reflection": "smiling",
+        "shadow": "human",
+        "drift": [
+          "noBlink",
+          "eyeSpread",
+          "mouthSkew"
+        ]
+      }
+    }
+  ],
+  "patience": 6,
+  "greeting": [
+    {
+      "who": "narration",
+      "text": "The bell. A hitchhiker with a pack and no coat, dry as a bone after all that fog."
+    },
+    {
+      "who": "visitor",
+      "text": "Evening. Don't get up. I'm not buying. I only came to see how you two were getting on."
+    }
+  ],
+  "annoyed": "You don't need to check me. You know what I am. That's the joke.",
+  "notes": {
+    "wrist": "He offers them before you ask. Veins, blue, unhurried.",
+    "reflection": "His back, in the mirror. Keep watching. Give it a few seconds.",
+    "shadow": "One shadow. He has had practice."
+  },
+  "topics": [
+    {
+      "id": "know",
+      "tone": "neutral",
+      "ask": "Do I know you?",
+      "answer": "No. But I know the work. Three weeks, and nobody down the hill has noticed. That's craft, that is."
+    },
+    {
+      "id": "what",
+      "tone": "cold",
+      "requires": "know",
+      "ask": "Noticed what?",
+      "answer": "Oh. Oh, you've done the forgetting as well. They said one of you had. That is commitment.",
+      "note": "Wren has stopped polishing the glass they were polishing."
+    },
+    {
+      "id": "smile",
+      "tone": "strange",
+      "requiresCheck": "reflection",
+      "triggers": "break",
+      "ask": "Your reflection just smiled at me.",
+      "answer": "Did it? It likes you. So do I."
+    }
+  ],
+  "wren": {
+    "arrive": "Not this one. Sam. Don't talk to this one.",
+    "advice": "turnAway",
+    "adviceLine": "He's nobody. A drifter. He'll say strange things to get a rise out of you. Door, Sam. Now.",
+    "key": "refuse",
+    "after": {
+      "serve": "You gave it coffee. You listened to it. What did it tell you?",
+      "turnAway": "Good. Good. Whatever he said, he says it to everyone.",
+      "break": "Don't go near the mirror tonight. Promise me."
+    }
+  },
+  "leave": {
+    "serve": [
+      {
+        "who": "you",
+        "text": "Coffee. Then go."
+      },
+      {
+        "who": "visitor",
+        "text": "Professional courtesy. I appreciate it. Ask her what's in the storeroom.",
+        "set": "calSpoke"
+      }
+    ],
+    "turnAway": [
+      {
+        "who": "you",
+        "text": "Out."
+      },
+      {
+        "who": "visitor",
+        "text": "Of course. But ask her what's in the storeroom. Ask her who.",
+        "set": "calSpoke"
+      }
+    ],
+    "shelter": [
+      {
+        "who": "you",
+        "text": "In the back."
+      },
+      {
+        "who": "visitor",
+        "text": "In with them? Ha. No. But thank you for the offer of a tour.",
+        "set": "calSpoke"
+      }
+    ],
+    "break": [
+      {
+        "who": "visitor",
+        "text": "You get it. You're doing so well. Go and look in a mirror, Sam. A proper look.",
+        "set": "calSpoke"
+      },
+      {
+        "who": "narration",
+        "text": "He leaves without using the door."
+      }
+    ]
+  },
+  "report": {}
+}

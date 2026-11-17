@@ -1,0 +1,130 @@
+{
+  "id": "backpackers",
+  "title": "Jess and Tom, backpackers",
+  "people": [
+    {
+      "name": "Jess",
+      "isMimic": false,
+      "face": {
+        "seed": "jess", "hair": "long", "hairColor": "#85683e", "skin": "#ecd2ba", "iris": "#3c4a3a",
+        "glasses": false, "wrinkles": 0, "beard": 0, "browTilt": -0.4, "smile": -0.18, "lid": 0.1,
+        "jaw": 0.3, "shoulders": 43, "shirt": "#4a4452", "headW": 28.5, "headH": 37
+      },
+      "tells": { "veins": "human", "reflection": "human", "shadow": "human" }
+    },
+    {
+      "name": "Tom",
+      "isMimic": true,
+      "face": {
+        "seed": "tom", "hair": "beanie", "hat": "#3d4a5a", "hairColor": "#3a2b1e", "skin": "#d8b08a", "iris": "#4a3b2a",
+        "glasses": false, "wrinkles": 0, "beard": 0.4, "browTilt": -0.05, "smile": 0.34, "lid": 0.15,
+        "jaw": 0.7, "shoulders": 50, "shirt": "#48584a"
+      },
+      "tells": {
+        "veins": "human", "reflection": "wrongWay", "shadow": "none",
+        "drift": ["smileHold", "noBlink", "eyeDrop", "pupilGrow"]
+      }
+    }
+  ],
+  "patience": 6,
+  "greeting": [
+    { "who": "narration", "text": "The bell, twice. Two backpackers, wet to the knees. She comes straight to the counter. He stops a step behind her and smiles at the room." },
+    { "who": "visitor", "text": "Hi. Sorry. Two coffees, and can we fill a water bladder? We've been walking since the car died. Tom's wrecked. He's not really talking." },
+    { "who": "companion", "text": "Not really talking." }
+  ],
+  "annoyed": "Look, is there a problem? We only want a coffee and somewhere to sit. He's fine. He's just tired.",
+  "notes": {
+    "wrist": "She pays. He keeps his hands in his jacket pockets. You only get to see one pair of wrists.",
+    "reflection": "Two people at your counter. Count what the mirror has.",
+    "shadow": "Two pairs of boots, mud to the ankle on both. Look underneath them."
+  },
+  "topics": [
+    {
+      "id": "car", "tone": "neutral",
+      "ask": "Where did the car die?",
+      "answer": "About six k back towards Tarrow. Tom went off the track for a minute, you know, to pee, and when he came back it wouldn't turn over. So we walked."
+    },
+    {
+      "id": "gone", "tone": "neutral", "requires": "car",
+      "ask": "How long was he gone?",
+      "answer": "I don't... a minute. Ten. It was foggy. He came back, that's the main thing. He came back."
+    },
+    {
+      "id": "sit", "tone": "warm",
+      "ask": "Sit down. You're both done in.",
+      "answer": "Thank you. God. Thank you.",
+      "note": "She sits. He stays standing, exactly where she left him."
+    },
+    {
+      "id": "from", "tone": "neutral",
+      "ask": "Tom. Where are you from?",
+      "answer": "He's from Wagga. We both are. Sorry, he's...",
+      "note": "You asked him. She answered. He smiled."
+    },
+    {
+      "id": "him", "tone": "cold", "requires": "from", "who": "companion",
+      "ask": "I asked him.",
+      "answer": "Wendouree Gap. It's lovely this time of year. Everyone is from there.",
+      "note": "There is no Wendouree Gap on the map taped to the till. Jess laughs, a small wrong laugh, and looks at the floor."
+    },
+    {
+      "id": "away", "tone": "strange", "requiresCheck": "reflection", "triggers": "break",
+      "ask": "Jess. Step away from him. Come round the counter.",
+      "answer": "What? Why would I... Tom?"
+    }
+  ],
+  "wren": {
+    "arrive": "Two of them. Sweet. Look how close he's standing to her.",
+    "advice": "turnAway",
+    "adviceLine": "Not our problem, Sam. Whatever is going on between those two, it walked in together and it can walk out together. Lock the door behind them.",
+    "key": "give",
+    "after": {
+      "serve": "They looked happy, didn't they? He did, anyway.",
+      "turnAway": "Together, at least. That's more than most people get.",
+      "shelter": "Both of them. In the back. Together. Sam... no. No, it's fine. I'll deal with it.",
+      "break": "You took it off her. Hm. ...That was well done. Don't make a habit of it."
+    }
+  },
+  "leave": {
+    "serve": [
+      { "who": "you", "text": "Coffee's hot. The ranger station is at the bottom, eighty k. Stay on the road." },
+      { "who": "visitor", "text": "Thank you. Come on, Tom." },
+      { "who": "companion", "text": "Come on, Tom." },
+      { "who": "narration", "text": "He holds the door for her. He holds it a little while after she is through." }
+    ],
+    "turnAway": [
+      { "who": "you", "text": "Sorry. We can't help you. You need to keep moving." },
+      { "who": "visitor", "text": "You're joking. It's freezing. Tom, say something." },
+      { "who": "companion", "text": "Something." },
+      { "who": "narration", "text": "She laughs, because the alternative is not laughing. They go." }
+    ],
+    "shelter": [
+      { "who": "you", "text": "You can both wait out the back until it lifts." },
+      { "who": "visitor", "text": "Seriously? Oh my God. Thank you." },
+      { "who": "companion", "text": "Thank you." },
+      { "who": "narration", "text": "It is the first thing he has said that she did not say first." }
+    ],
+    "walkout": [
+      { "who": "visitor", "text": "Forget it. We'll find somewhere that doesn't stare. Come on." },
+      { "who": "companion", "text": "Come on." },
+      { "who": "narration", "text": "He turns to follow her. His reflection in the door glass is already facing the road." }
+    ],
+    "break": [
+      { "who": "companion", "text": "She came back for me. I only want to go where she goes." },
+      { "who": "narration", "text": "He goes out the way he came in, still smiling, and the fog closes behind him like a door." },
+      { "who": "visitor", "text": "That wasn't... he had Tom's ring on. He had his ring on." },
+      { "who": "narration", "text": "Wren fetches a blanket without being asked and, for once, says nothing at all." }
+    ]
+  },
+  "report": {
+    "serve": "Two walkers were collected at the Tarrow roadblock at about four. The woman is being treated for exposure. The man would not give his name and walked back up the road. Rangers describe him as cheerful.",
+    "turnAway": "A hire car has been found six kilometres east of Corrigan's with both doors open. Two sets of footprints leave it. One set comes back.",
+    "walkout": "Two walkers were seen heading west from Corrigan's on foot, into the closed section. The witness says only one of them had a shadow. The witness had been driving for nineteen hours.",
+    "shelter": "A woman left Corrigan's Roadhouse on foot at first light. She would not say what became of the man she arrived with.",
+    "break": "A woman is sheltering at Corrigan's Roadhouse and has given rangers a description of a missing man. She asked us to add: if you see him, he is not missing.",
+    "missed": "Two walkers were seen sitting on the kerb at Corrigan's pumps before dawn. One of them was waving at passing traffic. There was no passing traffic."
+  },
+  "effects": {
+    "break": { "humanity": 1, "slip": 1 }
+  }
+}

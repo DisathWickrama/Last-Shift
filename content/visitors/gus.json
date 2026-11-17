@@ -1,0 +1,93 @@
+{
+  "id": "gus",
+  "title": "Gus, council contractor",
+  "people": [
+    {
+      "name": "Gus",
+      "isMimic": false,
+      "face": {
+        "seed": "gus", "hair": "short", "hairColor": "#1d1b19", "skin": "#c79a76", "iris": "#2c2620",
+        "eyeDropL": 1.7, "browSkew": 0.9, "mouthSkew": 0.8, "lid": 0.08, "pupil": 1.1,
+        "wrinkles": 0.45, "beard": 0.35, "browTilt": -0.35, "smile": -0.22, "glasses": false,
+        "jaw": 0.55, "shoulders": 47, "shirt": "#2f3a44", "blinkEvery": 1.6
+      },
+      "tells": { "veins": "human", "reflection": "human", "shadow": "human" }
+    }
+  ],
+  "patience": 4,
+  "greeting": [
+    { "who": "narration", "text": "The bell, hard. A wiry man comes in sideways, watching the car park over his shoulder. One of his eyes sits lower than the other. It stays where it is while you look at it." },
+    { "who": "visitor", "text": "Forty on pump one and a pack of the blue ones. Quick as you like. I'm not stopping." }
+  ],
+  "annoyed": "What are you looking at me like that for? I haven't done nothing. Just ring it up.",
+  "notes": {
+    "wrist": "His hand shakes as he holds the card out. Scabbed knuckles. The veins stand up like cord.",
+    "reflection": "In the mirror he keeps turning towards the door. So does the back of his head.",
+    "shadow": "He can't keep his feet still. The shadow keeps up."
+  },
+  "topics": [
+    {
+      "id": "seen", "tone": "neutral",
+      "ask": "You right? You look like you've seen something.",
+      "answer": "Hit a roo coming up. Thought it was a roo. Got out to drag it off the road and it stood up, mate. Stood up on two legs. It had a hi-vis vest on."
+    },
+    {
+      "id": "drink", "tone": "cold", "requires": "seen",
+      "ask": "Have you been drinking?",
+      "answer": "Two. Three. Hours ago. That's not why. Don't you write that down."
+    },
+    {
+      "id": "local", "tone": "neutral",
+      "ask": "You local?",
+      "answer": "Mullane Flat, born and bred. I do the bins up here Thursdays. ...Hang on. Where's the other one? Kid who's usually on nights. Same name tag as you.",
+      "note": "He looks at your tag. Then at your face. Then he decides not to finish the thought."
+    },
+    {
+      "id": "other", "tone": "strange", "requires": "local",
+      "ask": "What did the other one look like?",
+      "answer": "Like... I dunno. Like you, I s'pose. Bit more in the face. Forget it. It's the light in here."
+    },
+    {
+      "id": "breathe", "tone": "warm",
+      "ask": "Take a breath. You're safe in here.",
+      "answer": "Am I. ...Yeah. Yeah, righto. Sorry. Long night."
+    }
+  ],
+  "wren": {
+    "arrive": "Ooh. I don't like this one.",
+    "advice": "turnAway",
+    "adviceLine": "Look at that eye. Look at him twitch. That's one of them, Sam, I'd put money on it. Get him out.",
+    "key": "refuse",
+    "after": {
+      "serve": "...He knew the place. Did you hear him? He knew who was on nights. I don't want him back here.",
+      "turnAway": "Good. Good. He was looking at you far too hard.",
+      "walkout": "Gone. And he never finished his sentence. Best thing for everyone."
+    }
+  },
+  "leave": {
+    "serve": [
+      { "who": "visitor", "text": "Ta. ...Tell the other kid Gus said g'day. If you see 'em." },
+      { "who": "narration", "text": "He is gone before the receipt has finished printing." }
+    ],
+    "turnAway": [
+      { "who": "you", "text": "Pumps are off. You'll have to keep going." },
+      { "who": "visitor", "text": "They're not bloody off, I can see the lights. ...Fine. Fine! Whole mountain's gone mad." },
+      { "who": "narration", "text": "His ute fishtails out of the car park and the fog shuts over it." }
+    ],
+    "shelter": [
+      { "who": "you", "text": "Leave the ute. Sit out the back until it's light." },
+      { "who": "visitor", "text": "...With a door that locks? Yeah. Yeah, I'll take that." }
+    ],
+    "walkout": [
+      { "who": "visitor", "text": "Nah. Nah, I'm not doing this. You're as bad as that thing on the road." },
+      { "who": "narration", "text": "He backs out of the door without taking his eyes off you." }
+    ]
+  },
+  "report": {
+    "serve": "A council contractor has arrived home in Mullane Flat and reported striking a pedestrian on the pass. Rangers attended the spot. They found a high-visibility vest, and nothing in it.",
+    "turnAway": "A utility has left the road at the second hairpin below Corrigan's. The driver is stable. He keeps asking who is working nights at the roadhouse.",
+    "walkout": "A utility has been found in the trees below the second hairpin. Rangers are searching the slope. The radio in the cab was on, and tuned to this channel.",
+    "shelter": "A man who sheltered at Corrigan's overnight has gone home. He asked that someone check on the usual night attendant. We are not sure what he means by usual.",
+    "missed": "A utility idled at Corrigan's pumps for some minutes at about three, and left without fuel."
+  }
+}

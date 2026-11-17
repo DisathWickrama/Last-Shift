@@ -1,0 +1,22 @@
+{
+  "face": {
+    "seed": "sam",
+    "hair": "short",
+    "hairColor": "#1d1b19",
+    "skin": "#e6c7a6",
+    "iris": "#4a3b2a",
+    "glasses": false,
+    "beard": 0,
+    "wrinkles": 0.05,
+    "smile": 0.05,
+    "browTilt": -0.15,
+    "jaw": 0.45,
+    "shoulders": 46,
+    "shirt": "#48584a",
+    "eyeDropL": 0,
+    "eyeDropR": 0,
+    "browSkew": 0,
+    "mouthSkew": 0,
+    "blinkEvery": 6
+  }
+}

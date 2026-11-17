@@ -1,0 +1,140 @@
+{
+  "id": "holt",
+  "title": "Ranger Holt",
+  "people": [
+    {
+      "name": "Ranger Holt",
+      "isMimic": false,
+      "face": {
+        "seed": "holt",
+        "hair": "short",
+        "hairColor": "#5a4029",
+        "skin": "#c79a76",
+        "glasses": false,
+        "beard": 0,
+        "wrinkles": 0.35,
+        "smile": 0.15,
+        "browTilt": 0.05,
+        "shirt": "#48584a",
+        "jaw": 0.6,
+        "shoulders": 49
+      },
+      "tells": {
+        "veins": "human",
+        "reflection": "human",
+        "shadow": "human"
+      }
+    }
+  ],
+  "patience": 7,
+  "decide": "finale",
+  "greeting": [
+    {
+      "who": "narration",
+      "text": "The bell. A ranger in a wet coat, a torch in one hand and a folded flyer in the other. Real boots. Real breath, fogging."
+    },
+    {
+      "who": "visitor",
+      "text": "Corrigan's? Thank Christ, somebody's here. Ranger Holt, Tarrow. I'm looking for two missing staff. Sam, and..."
+    },
+    {
+      "who": "narration",
+      "text": "She has unfolded the flyer. Two photographs. She looks at it, and at you, and at Wren, and her whole face lets go with relief."
+    },
+    {
+      "who": "visitor",
+      "text": "...and here you both are. Look at you. Not a scratch. Where have you been for three weeks?"
+    }
+  ],
+  "annoyed": "Sam? You're staring. Are you all right?",
+  "notes": {
+    "wrist": "She buys a coffee she doesn't want, to be polite. Veins. Blue. Hers.",
+    "reflection": "Her back in the mirror, keeping time. And behind the counter, two shapes that are not quite.",
+    "shadow": "One shadow. Soft. Under her, where it should be."
+  },
+  "topics": [
+    {
+      "id": "sent",
+      "tone": "neutral",
+      "ask": "Who sent you?",
+      "answer": "Nobody. I came on my own time. Your mum rings the station every morning, Sam. Every single morning."
+    },
+    {
+      "id": "cold",
+      "tone": "warm",
+      "ask": "You must be freezing.",
+      "answer": "I've been colder. Not often."
+    },
+    {
+      "id": "not",
+      "tone": "strange",
+      "ask": "What if we're not them?",
+      "answer": "...Then who would you be?"
+    }
+  ],
+  "wren": {
+    "arrive": "She's real, Sam. She's the last real one coming.",
+    "advice": "shelter",
+    "adviceLine": "She'll bring more. She'll look in the storeroom. Give her to me, Sam, and it's over, and it's just us. Please.",
+    "key": "give"
+  },
+  "leave": {
+    "serve": [
+      {
+        "who": "you",
+        "text": "We're fine. We lost track of time. Coffee?"
+      },
+      {
+        "who": "visitor",
+        "text": "Lost track of... ha! Three weeks! Your mum'll skin you."
+      },
+      {
+        "who": "narration",
+        "text": "She drinks it standing up, and takes a photo of the two of you to send down the hill. You both smile for it, perfectly."
+      }
+    ],
+    "turnAway": [
+      {
+        "who": "visitor",
+        "text": "...Sam? What do you mean, run?"
+      },
+      {
+        "who": "narration",
+        "text": "She looks at your face a second longer, and sees something in it, and goes. She leaves the torch."
+      }
+    ],
+    "shelter": [
+      {
+        "who": "you",
+        "text": "Come out the back. There's something you should see."
+      },
+      {
+        "who": "visitor",
+        "text": "Lead on."
+      },
+      {
+        "who": "narration",
+        "text": "Wren already has the key in their hand."
+      }
+    ],
+    "walkout": [
+      {
+        "who": "visitor",
+        "text": "Sam, you're frightening me. I'm going to radio this in from the truck."
+      },
+      {
+        "who": "narration",
+        "text": "She backs out, one hand on her belt radio. Wren watches her all the way to the door."
+      }
+    ]
+  },
+  "report": {},
+  "effects": {
+    "turnAway": {
+      "humanity": 1
+    },
+    "shelter": {
+      "humanity": -2
+    }
+  }
+}

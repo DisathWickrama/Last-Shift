@@ -1,0 +1,127 @@
+{
+  "id": "photosam",
+  "title": "The face from the photo",
+  "people": [
+    {
+      "name": "\"Sam\"",
+      "isMimic": true,
+      "face": {
+        "like": "self"
+      },
+      "tells": {
+        "veins": "silver",
+        "reflection": "missing",
+        "shadow": "none",
+        "drift": [
+          "smileHold",
+          "tooSymmetric"
+        ]
+      },
+      "learns": true
+    }
+  ],
+  "patience": 6,
+  "greeting": [
+    {
+      "who": "narration",
+      "text": "The bell. Someone your height, your build, in a Corrigan's shirt that still has the fold lines in it."
+    },
+    {
+      "who": "narration",
+      "text": "You know the face. It is squinting into the sun on the noticeboard, under a pin, turned to the wall."
+    },
+    {
+      "who": "visitor",
+      "text": "Hello. I'm Sam. I work nights here. I think I'm late."
+    },
+    {
+      "who": "wren",
+      "text": "...No."
+    }
+  ],
+  "annoyed": "You keep looking at me like I'm a mirror.",
+  "notes": {
+    "wrist": "It holds out a staff card with your name on it. Look at the wrists.",
+    "reflection": "You, Wren, the counter. Look for whoever is standing in front of it.",
+    "shadow": "New work shoes. Clean floor. Look between them."
+  },
+  "topics": [
+    {
+      "id": "where",
+      "tone": "neutral",
+      "ask": "Where did you get that face?",
+      "answer": "From the poster in the window of the ranger station. MISSING. It's a good face. I didn't know it was taken."
+    },
+    {
+      "id": "iam",
+      "tone": "cold",
+      "ask": "I'm Sam.",
+      "answer": "Are you? Then we got it from the same place."
+    },
+    {
+      "id": "store",
+      "tone": "strange",
+      "requires": "where",
+      "ask": "What's in the storeroom?",
+      "answer": "The ones we're both wearing. Ask Wren. Wren carried them."
+    }
+  ],
+  "wren": {
+    "advice": "turnAway",
+    "adviceLine": "Get it out. Get it out, get it out. It doesn't get to be you. Only you get to be you.",
+    "key": "refuse",
+    "after": {
+      "serve": "You let it stay. With your face on. Sam, what is wrong with you tonight?",
+      "turnAway": "Thank you. Thank you. There's only one of you. I'd know.",
+      "break": "...You were always the better one. I want you to know that."
+    }
+  },
+  "leave": {
+    "serve": [
+      {
+        "who": "you",
+        "text": "...Clock on, then."
+      },
+      {
+        "who": "visitor",
+        "text": "Thank you. I'll take the pumps. You look tired."
+      },
+      {
+        "who": "narration",
+        "text": "It goes out and stands under the canopy in your shirt, waiting for a shift.",
+        "set": "twoSams"
+      }
+    ],
+    "turnAway": [
+      {
+        "who": "you",
+        "text": "The job's taken."
+      },
+      {
+        "who": "visitor",
+        "text": "Yes. I can see that. You wear it better."
+      }
+    ],
+    "shelter": [
+      {
+        "who": "you",
+        "text": "Wait in the back."
+      },
+      {
+        "who": "visitor",
+        "text": "With him? With me? ...All right."
+      }
+    ],
+    "break": [
+      {
+        "who": "visitor",
+        "text": "There's room for two of us. There was room for two of you."
+      },
+      {
+        "who": "narration",
+        "text": "It leaves the name tag on the counter. It is the same as yours, down to the scratch."
+      }
+    ]
+  },
+  "report": {}
+}

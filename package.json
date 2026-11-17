@@ -1,0 +1,19 @@
+{
+  "name": "last-shift",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Slow-burn psychological horror browser game. Vite + TypeScript + Canvas, no engine.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "playtest": "node scripts/playtest.cjs"
+  },
+  "devDependencies": {
+    "typescript": "^7.0.2",
+    "vite": "^8.3.8",
+    "vitest": "^5.1.0"
+  }
+}

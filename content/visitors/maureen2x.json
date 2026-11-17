@@ -1,0 +1,144 @@
+{
+  "id": "maureen2x",
+  "title": "Something wearing Maureen",
+  "people": [
+    {
+      "name": "Maureen",
+      "isMimic": true,
+      "face": {
+        "seed": "maureen",
+        "hair": "bun",
+        "hairColor": "#a9a296",
+        "skin": "#e6c7a6",
+        "iris": "#46566a",
+        "glasses": true,
+        "wrinkles": 0.8,
+        "smile": 0.38,
+        "browTilt": -0.2,
+        "browThick": 1.7,
+        "lid": 0.22,
+        "jaw": 0.4,
+        "beard": 0,
+        "shoulders": 44,
+        "shirt": "#70685a",
+        "headW": 29,
+        "headH": 37
+      },
+      "tells": {
+        "veins": "mirrored",
+        "reflection": "human",
+        "shadow": "wrongDir",
+        "drift": [
+          "smileHold",
+          "tooSymmetric",
+          "noBlink"
+        ]
+      },
+      "learns": true
+    }
+  ],
+  "patience": 8,
+  "greeting": [
+    {
+      "who": "narration",
+      "text": "The bell. A quilted vest. A paper plate under cling wrap. You heard on the radio what became of her van."
+    },
+    {
+      "who": "visitor",
+      "text": "Oh, thank goodness, a light on. I'm Maureen. I baked these this morning and I've nobody left to give them to. Go on, love."
+    },
+    {
+      "who": "narration",
+      "text": "The same words. All of them, in the same order. Whatever is on the plate is the right shape for a scone.",
+      "set": "scone"
+    }
+  ],
+  "annoyed": "Now, I don't mind a careful young person.",
+  "notes": {
+    "wrist": "Both wrists, held out together. Look at one. Now look at the other.",
+    "reflection": "A grey bun, keeping time. They have learned that one.",
+    "shadow": "The tubes are overhead. Look which way she falls."
+  },
+  "topics": [
+    {
+      "id": "ken",
+      "tone": "neutral",
+      "ask": "Where's Ken tonight?",
+      "answer": "Ken does all the reversing."
+    },
+    {
+      "id": "said",
+      "tone": "cold",
+      "requires": "ken",
+      "ask": "You said all this last night.",
+      "answer": "Did I? I say it very well, don't I. {echo|Listen:} ...there. That one was yours."
+    },
+    {
+      "id": "dead",
+      "tone": "strange",
+      "requiresCheck": "shadow",
+      "triggers": "break",
+      "ask": "Maureen is dead. Take her off.",
+      "answer": "She was kind to you. I thought you'd like to see her again."
+    }
+  ],
+  "wren": {
+    "arrive": "Oh. Oh, they've done her nicely.",
+    "advice": "serve",
+    "adviceLine": "Be gentle with it, Sam. It came all this way to bring you something. Let it have its coffee.",
+    "key": "give",
+    "after": {
+      "break": "You could have let it finish the scone.",
+      "serve": "See how easy that was? Nobody had to be anybody."
+    }
+  },
+  "leave": {
+    "serve": [
+      {
+        "who": "you",
+        "text": "...Pump two."
+      },
+      {
+        "who": "visitor",
+        "text": "You're a good one, Sam. Whoever made you did a proper job."
+      }
+    ],
+    "turnAway": [
+      {
+        "who": "you",
+        "text": "You're not her. Get out."
+      },
+      {
+        "who": "visitor",
+        "text": "No. But I remember her being fond of you. That has to count for something."
+      }
+    ],
+    "shelter": [
+      {
+        "who": "you",
+        "text": "Out the back."
+      },
+      {
+        "who": "visitor",
+        "text": "Is that where the others are? Lovely."
+      }
+    ],
+    "break": [
+      {
+        "who": "visitor",
+        "text": "You turned her out, and now you want her back. You can't have it both ways, love."
+      },
+      {
+        "who": "narration",
+        "text": "It folds the cling wrap, neatly, and goes."
+      }
+    ]
+  },
+  "report": {
+    "serve": "A woman bought fuel at Corrigan's overnight using a missing traveller's card. Her family asks us to say: she has already been found. That is not her.",
+    "turnAway": "A figure in a quilted vest was seen standing in the run-off lane below Corrigan's, beside an empty campervan, holding a plate.",
+    "shelter": "Corrigan's reports one guest sheltering. The guest's daughter says her mother's body was identified on Tuesday.",
+    "break": "A paper plate was found on the centre line. Rangers have asked that nobody eat what is on it.",
+    "missed": "A woman waited at Corrigan's door for some hours overnight. Witnesses say she did not once shift her weight."
+  }
+}

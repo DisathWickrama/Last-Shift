@@ -1,0 +1,141 @@
+{
+  "id": "aldous",
+  "title": "Mr Aldous, assessor",
+  "people": [
+    {
+      "name": "Mr Aldous",
+      "isMimic": true,
+      "face": {
+        "seed": "aldous",
+        "hair": "bald",
+        "skin": "#d8b08a",
+        "glasses": true,
+        "beard": 0,
+        "wrinkles": 0.4,
+        "smile": 0.2,
+        "browTilt": 0,
+        "shirt": "#6a6258",
+        "jaw": 0.5,
+        "shoulders": 48
+      },
+      "tells": {
+        "veins": "human",
+        "reflection": "human",
+        "shadow": "moves",
+        "drift": [
+          "tooSymmetric",
+          "browLift",
+          "smileHold",
+          "noBlink"
+        ]
+      }
+    }
+  ],
+  "patience": 7,
+  "greeting": [
+    {
+      "who": "narration",
+      "text": "The bell. A neat man in a road-authority jacket, with a clipboard. He turns his wrists up for you before you ask."
+    },
+    {
+      "who": "visitor",
+      "text": "Veins. See? And I'll stand wherever you like for the mirror. We have all heard the broadcast. May I have a tea?"
+    }
+  ],
+  "annoyed": "I have been very patient. I have shown you everything the radio asked for.",
+  "notes": {
+    "wrist": "Blue. Branching. Different on each side. Exactly what the radio asked for.",
+    "reflection": "It keeps time. It faces the right way.",
+    "shadow": "Look at the floor for a while. Longer than is polite."
+  },
+  "topics": [
+    {
+      "id": "which",
+      "tone": "neutral",
+      "ask": "Which road authority?",
+      "answer": "Tarrow and District. I'm assessing the pass for reopening. Between ourselves, it reopens when enough of us are through."
+    },
+    {
+      "id": "us",
+      "tone": "strange",
+      "requires": "which",
+      "ask": "Enough of who?",
+      "answer": "Road users."
+    },
+    {
+      "id": "stay",
+      "tone": "neutral",
+      "ask": "Where did you stay last night?",
+      "answer": "The motel at Harrow's Crossing. Very clean.",
+      "note": "The map taped to the till has two towns on it. Neither of them is Harrow's Crossing."
+    },
+    {
+      "id": "shadow",
+      "tone": "cold",
+      "requiresCheck": "shadow",
+      "triggers": "break",
+      "ask": "Your shadow just moved. You didn't.",
+      "answer": "...Yes. That part is hard. Yours is very good, by the way."
+    }
+  ],
+  "wren": {
+    "arrive": "He's done his homework.",
+    "advice": "serve",
+    "adviceLine": "Veins, mirror, manners. He's passed, hasn't he? Don't go looking for a third thing, Sam. People who keep looking find something.",
+    "key": "give",
+    "after": {
+      "turnAway": "Hm. You caught it on the floor. You're getting sharper. I'm not sure I like sharper.",
+      "break": "He complimented your shadow. Did you hear that? ...Never mind."
+    }
+  },
+  "leave": {
+    "serve": [
+      {
+        "who": "visitor",
+        "text": "Thank you. I'll note that Corrigan's is cooperative."
+      }
+    ],
+    "turnAway": [
+      {
+        "who": "you",
+        "text": "Tea's off."
+      },
+      {
+        "who": "visitor",
+        "text": "A pity. I shall put you down as hostile."
+      }
+    ],
+    "shelter": [
+      {
+        "who": "you",
+        "text": "Wait out the back."
+      },
+      {
+        "who": "visitor",
+        "text": "With the originals? How thoughtful."
+      }
+    ],
+    "break": [
+      {
+        "who": "visitor",
+        "text": "You get it. You of all people. Do tell me how you manage the shadow."
+      },
+      {
+        "who": "narration",
+        "text": "It walks out. Its shadow stays a moment longer, then hurries after."
+      }
+    ]
+  },
+  "report": {
+    "serve": "A road-authority assessor has cleared the pass for reopening. The road authority says it has sent no assessor.",
+    "turnAway": "We are told somebody calling himself an assessor was turned away at Corrigan's. No assessor was sent. Thank you.",
+    "shelter": "Corrigan's reports an assessor sheltering overnight. No assessor was sent.",
+    "break": "A clipboard has been found at the Corrigan's pumps. Every page is a drawing of the same shop counter, from the customer's side.",
+    "missed": "A man with a clipboard stood at Corrigan's pumps until first light, writing."
+  },
+  "flags": {
+    "serve": [
+      "passCleared"
+    ]
+  }
+}

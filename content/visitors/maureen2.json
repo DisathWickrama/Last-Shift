@@ -1,0 +1,152 @@
+{
+  "id": "maureen2",
+  "title": "Maureen, back again",
+  "people": [
+    {
+      "name": "Maureen",
+      "isMimic": false,
+      "face": {
+        "seed": "maureen",
+        "hair": "bun",
+        "hairColor": "#a9a296",
+        "skin": "#e6c7a6",
+        "iris": "#46566a",
+        "glasses": true,
+        "wrinkles": 0.8,
+        "smile": 0.38,
+        "browTilt": -0.2,
+        "browThick": 1.7,
+        "lid": 0.22,
+        "jaw": 0.4,
+        "beard": 0,
+        "shoulders": 44,
+        "shirt": "#70685a",
+        "headW": 29,
+        "headH": 37
+      },
+      "tells": {
+        "veins": "human",
+        "reflection": "human",
+        "shadow": "human"
+      }
+    }
+  ],
+  "patience": 8,
+  "greeting": [
+    {
+      "who": "narration",
+      "text": "The bell. The quilted vest. A thermos this time, and the paper plate again."
+    },
+    {
+      "who": "visitor",
+      "text": "Only me, love. Road's still shut, so I thought: those two up at the roadhouse. Did you eat the scone?"
+    },
+    {
+      "who": "narration",
+      "text": "A fresh one goes down where last night's was. She looks at your face while you look at it. She is counting something.",
+      "set": "scone"
+    }
+  ],
+  "annoyed": "Twice now you've looked me over like a parcel, dear.",
+  "notes": {
+    "wrist": "The kiss-clasp purse. The same thin skin, the same blue map under it.",
+    "reflection": "A small bent back and a grey bun. It moves when she moves.",
+    "shadow": "One shadow, soft, tucked under her. The radio would approve."
+  },
+  "topics": [
+    {
+      "id": "layby",
+      "tone": "neutral",
+      "minutes": 20,
+      "ask": "How was the lay-by?",
+      "answer": "Quiet. Too quiet. Something walked round the van at about three. I said 'Ken?' before I could stop myself. It stopped walking."
+    },
+    {
+      "id": "stay",
+      "tone": "warm",
+      "minutes": 15,
+      "ask": "Stay a while. It's good to see a face twice.",
+      "answer": "Now that is the nicest thing I've heard since Tarrow.",
+      "note": "Wren sets a glass down harder than a glass needs."
+    },
+    {
+      "id": "same",
+      "tone": "strange",
+      "minutes": 15,
+      "ask": "Maureen. Do I look the same as last night?",
+      "answer": "...What a question. Yes. Exactly the same. Not a hair different. Isn't that funny? Most people look worse the second night."
+    },
+    {
+      "id": "dont",
+      "tone": "cold",
+      "minutes": 10,
+      "ask": "You shouldn't keep coming up here.",
+      "answer": "No. I don't suppose I should. But somebody ought to check on you, and I don't think anybody is."
+    }
+  ],
+  "wren": {
+    "arrive": "Her again. She's brought a thermos. She's planning to stay.",
+    "advice": "turnAway",
+    "adviceLine": "She keeps looking at you, Sam. Counting things. Send her away for good this time. For me.",
+    "key": "refuse",
+    "after": {
+      "serve": "You like her more than me. Say it. ...No. Don't.",
+      "turnAway": "Thank you. That's twice you've picked me. I'm keeping count.",
+      "shelter": "She's on the cot again. She asked me how long I've known you. I said: all my life."
+    }
+  },
+  "leave": {
+    "serve": [
+      {
+        "who": "you",
+        "text": "Park under the canopy lights tonight. Lock the van."
+      },
+      {
+        "who": "visitor",
+        "text": "Bossy. Ken was bossy. ...Goodnight, Sam."
+      }
+    ],
+    "turnAway": [
+      {
+        "who": "you",
+        "text": "Don't come back up here, Maureen. Please."
+      },
+      {
+        "who": "visitor",
+        "text": "...Is that you asking, love, or the other one?"
+      },
+      {
+        "who": "narration",
+        "text": "She leaves the thermos."
+      }
+    ],
+    "shelter": [
+      {
+        "who": "you",
+        "text": "Stay in the back tonight. It isn't safe out there."
+      },
+      {
+        "who": "visitor",
+        "text": "With that one holding the key? ...Well. I've slept in worse."
+      }
+    ],
+    "walkout": [
+      {
+        "who": "visitor",
+        "text": "I'll not come a third time. I know when I'm not wanted, and I know when I'm being measured."
+      }
+    ]
+  },
+  "report": {
+    "serve": "The woman in the campervan at Corrigan's is well, and says the night attendant has not touched a thing she's baked.",
+    "turnAway": "A campervan left the Corrigan's lay-by at speed at about eleven. It has not been seen at either roadblock.",
+    "walkout": "A campervan left the Corrigan's lay-by at speed at about eleven. It has not been seen at either roadblock.",
+    "shelter": "A traveller sheltered again at Corrigan's. She tells us somebody knocked all night, from inside the walls.",
+    "missed": "The campervan in Corrigan's lay-by has its curtains drawn. Nobody has answered the door."
+  },
+  "flags": {
+    "turnAway": [
+      "car"
+    ]
+  }
+}

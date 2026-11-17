@@ -1,0 +1,137 @@
+{
+  "id": "noor",
+  "title": "Noor, hospital courier",
+  "people": [
+    {
+      "name": "Noor",
+      "isMimic": false,
+      "face": {
+        "seed": "noor",
+        "hair": "bun",
+        "hairColor": "#1d1b19",
+        "skin": "#a97a58",
+        "glasses": false,
+        "beard": 0,
+        "wrinkles": 0.15,
+        "smile": -0.2,
+        "browTilt": 0.3,
+        "shirt": "#3d4a5a",
+        "jaw": 0.4,
+        "shoulders": 44
+      },
+      "tells": {
+        "veins": "human",
+        "reflection": "human",
+        "shadow": "human"
+      }
+    }
+  ],
+  "patience": 4,
+  "greeting": [
+    {
+      "who": "narration",
+      "text": "The bell. A woman in hospital scrubs under a parka, car keys still in her fist."
+    },
+    {
+      "who": "visitor",
+      "text": "Is the road east open? Tell me it's open. I've an esky in the car that has to be in Tarrow by six."
+    }
+  ],
+  "annoyed": "Every minute you stare at me, that esky gets warmer.",
+  "notes": {
+    "wrist": "A hospital lanyard round the wrist. Under it: blue, branching, in a hurry.",
+    "reflection": "Her back in the mirror, turning to the door every time she does.",
+    "shadow": "One shadow. It fidgets when she fidgets."
+  },
+  "topics": [
+    {
+      "id": "esky",
+      "tone": "neutral",
+      "ask": "What's in the esky?",
+      "answer": "A kidney. For a nine-year-old. So you'll understand that I'm not in the mood."
+    },
+    {
+      "id": "stop",
+      "tone": "strange",
+      "ask": "Did anything try to stop you on the way up?",
+      "answer": "A kid. Standing on the centre line with its arms out. I didn't stop. I'm a nurse, and I didn't stop. Don't ask me again."
+    },
+    {
+      "id": "show",
+      "tone": "cold",
+      "ask": "Show me the esky.",
+      "answer": "No. You'll open it, and then it's medical waste, and then I'll be the one telling her mother why."
+    },
+    {
+      "id": "go",
+      "tone": "warm",
+      "ask": "Then go. Don't let me keep you.",
+      "answer": "...Thank you. You're the first thing tonight that's got out of my way."
+    }
+  ],
+  "wren": {
+    "arrive": "Scrubs. They're doing uniforms now?",
+    "advice": "shelter",
+    "adviceLine": "She can't drive in that. Put her in the back, Sam. I'll look after her, and her little box.",
+    "key": "give",
+    "after": {
+      "shelter": "She's resting. The box is in the drinks fridge. I had a look inside. I only wanted to see what one looks like.",
+      "serve": "You let her take it. All right. All right. It was only curiosity."
+    }
+  },
+  "leave": {
+    "serve": [
+      {
+        "who": "you",
+        "text": "The road's shut, but nobody is on it. Keep to the centre line and don't stop for anything."
+      },
+      {
+        "who": "visitor",
+        "text": "I know. God help me, I know."
+      }
+    ],
+    "turnAway": [
+      {
+        "who": "you",
+        "text": "Nothing's open. Turn around."
+      },
+      {
+        "who": "visitor",
+        "text": "Turn around to where?"
+      }
+    ],
+    "shelter": [
+      {
+        "who": "you",
+        "text": "You can't drive in this. Wait out the back till it's light."
+      },
+      {
+        "who": "visitor",
+        "text": "Six o'clock. Wake me at five. Promise me."
+      }
+    ],
+    "walkout": [
+      {
+        "who": "visitor",
+        "text": "I don't have time to be looked at."
+      }
+    ]
+  },
+  "report": {
+    "serve": "A transplant courier reached Tarrow Base Hospital at twenty to six. The surgery is under way. She asked us to thank whoever told her not to stop.",
+    "turnAway": "A hospital courier's car has been found on the pass with its hazard lights on. The esky on the passenger seat was still cold.",
+    "walkout": "A hospital courier's car has been found on the pass with its hazard lights on. The esky on the passenger seat was still cold.",
+    "shelter": "Tarrow Base Hospital reports a transplant has been cancelled. The organ did not arrive.",
+    "missed": "A hospital courier waited at Corrigan's for the road to open. It did not open."
+  },
+  "effects": {
+    "shelter": {
+      "humanity": -1
+    }
+  },
+  "flags": {
+    "serve": [
+      "kidneyArrived"
+    ]
+  }
+}

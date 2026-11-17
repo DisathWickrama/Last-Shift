@@ -1,0 +1,637 @@
+{
+  "id": "night2",
+  "number": 2,
+  "title": "Familiar Faces",
+  "start": "22:00",
+  "end": "06:00",
+  "clearFlags": [
+    "scone",
+    "car",
+    "marks",
+    "mimicInBack",
+    "humanInBack",
+    "storeroomDone"
+  ],
+  "dread": 0.5,
+  "score": 2,
+  "timeline": [
+    {
+      "type": "script",
+      "script": "open",
+      "at": "22:00"
+    },
+    {
+      "type": "visitor",
+      "visitor": "maureen2",
+      "at": "22:30",
+      "if": {
+        "anyFlag": [
+          "maureen:serve",
+          "maureen:shelter"
+        ]
+      }
+    },
+    {
+      "type": "visitor",
+      "visitor": "maureen2x",
+      "at": "22:30",
+      "if": {
+        "noFlags": [
+          "maureen:serve",
+          "maureen:shelter"
+        ]
+      }
+    },
+    {
+      "type": "script",
+      "script": "hand",
+      "at": "23:40"
+    },
+    {
+      "type": "ending",
+      "if": {
+        "flag": "justUs"
+      }
+    },
+    {
+      "type": "visitor",
+      "visitor": "tom2",
+      "at": "23:55",
+      "if": {
+        "flag": "backpackers:serve"
+      }
+    },
+    {
+      "type": "visitor",
+      "visitor": "aldous",
+      "at": "00:20"
+    },
+    {
+      "type": "script",
+      "script": "knock",
+      "at": "01:30"
+    },
+    {
+      "type": "visitor",
+      "visitor": "dale2",
+      "at": "02:10",
+      "if": {
+        "anyFlag": [
+          "dale:serve",
+          "dale:shelter"
+        ]
+      }
+    },
+    {
+      "type": "visitor",
+      "visitor": "gus2",
+      "at": "03:00",
+      "if": {
+        "anyFlag": [
+          "gus:serve",
+          "gus:shelter"
+        ]
+      }
+    },
+    {
+      "type": "visitor",
+      "visitor": "noor",
+      "at": "03:40"
+    },
+    {
+      "type": "script",
+      "script": "storeroom",
+      "if": {
+        "flag": "mimicInBack"
+      }
+    },
+    {
+      "type": "script",
+      "script": "dance",
+      "at": "04:40",
+      "if": {
+        "minBond": 3
+      }
+    },
+    {
+      "type": "script",
+      "script": "cold",
+      "at": "04:40",
+      "if": {
+        "maxBond": -2
+      }
+    },
+    {
+      "type": "dawn"
+    }
+  ],
+  "scripts": {
+    "open": [
+      {
+        "who": "narration",
+        "text": "Second night. The fog has not moved. Neither, you realise, have you: you don't remember going home."
+      },
+      {
+        "who": "wren",
+        "text": "Evening, you. Sleep well? ...No. Me neither."
+      },
+      {
+        "who": "narration",
+        "text": "The child is still standing at the glass. It has not shifted its feet since last night.",
+        "if": {
+          "flag": "lingerer"
+        },
+        "fx": "glass"
+      },
+      {
+        "who": "wren",
+        "text": "Don't wave at it. Don't feed it.",
+        "if": {
+          "flag": "lingerer"
+        }
+      },
+      {
+        "who": "wren",
+        "text": "No scone lady tonight. Shame. I'd got used to hating her.",
+        "if": {
+          "noFlags": [
+            "maureen:serve",
+            "maureen:shelter"
+          ]
+        }
+      },
+      {
+        "who": "wren",
+        "text": "You took one of them off a girl last night. In front of me. You've a taste for it now, haven't you.",
+        "if": {
+          "flag": "backpackers:break"
+        }
+      },
+      {
+        "who": "wren",
+        "text": "I scrubbed the storeroom floor this afternoon. Twice. Try not to give me a reason tonight.",
+        "if": {
+          "flag": "usedStoreroom"
+        }
+      },
+      {
+        "who": "wren",
+        "text": "You did everything I asked last night. Every single thing. I could get used to you.",
+        "if": {
+          "minBond": 4
+        }
+      },
+      {
+        "who": "wren",
+        "text": "You didn't listen to me much last night. I noticed. I notice everything about you.",
+        "if": {
+          "maxBond": -2
+        }
+      },
+      {
+        "who": "narration",
+        "text": "The staff photo is still turned to the wall. There is a second pin in it now.",
+        "if": {
+          "flag": "photoFlipped"
+        }
+      },
+      {
+        "who": "wren",
+        "text": "You looked at a lot of wrists last night. Word gets round out there. I'd look somewhere else tonight.",
+        "if": {
+          "flag": "relied:wrist"
+        }
+      },
+      {
+        "who": "wren",
+        "text": "You and that mirror, last night. They'll have noticed. They notice what we look at.",
+        "if": {
+          "flag": "relied:reflection"
+        }
+      },
+      {
+        "who": "wren",
+        "text": "All that staring at the floor last night. They'll have tidied their shadows up for you.",
+        "if": {
+          "flag": "relied:shadow"
+        }
+      },
+      {
+        "who": "radio",
+        "text": "...Tarrow ranger station. Thank you to the premises that stayed open. An update. They are learning. Some of them have the veins now. Some keep their reflections in time.",
+        "fx": "static"
+      },
+      {
+        "who": "radio",
+        "text": "So look at the floor. Under the tubes a person throws one soft shadow, and it stays under them. None, or several, or one that moves by itself: do not serve."
+      },
+      {
+        "who": "radio",
+        "text": "And talk to them. They borrow. If they hand your own words back to you, or name a town that is not on your map, do not serve. Tarrow out.",
+        "fx": "radioOff"
+      },
+      {
+        "who": "wren",
+        "text": "Shadows now. They'll have us checking teeth by Friday."
+      }
+    ],
+    "hand": [
+      {
+        "who": "narration",
+        "text": "Quarter to midnight. Out by the pumps, in the orange, somebody is standing with their arms by their sides. When you look properly, it is a pump.",
+        "fx": "figure"
+      },
+      {
+        "who": "narration",
+        "text": "A bottle goes over while you restock the fridge. You reach into the broken glass without thinking.",
+        "fx": "thud"
+      },
+      {
+        "who": "narration",
+        "text": "A cut across the palm, deep. You look down to see how bad."
+      },
+      {
+        "who": "wren",
+        "text": "Don't look."
+      },
+      {
+        "who": "narration",
+        "text": "Wren has your wrist before you see anything. A tea towel, then a bandage from the first-aid tin, wound tight and fast, the way you'd wrap something to post it."
+      },
+      {
+        "choice": [
+          {
+            "text": "Thank you.",
+            "bond": 1,
+            "then": [
+              {
+                "who": "wren",
+                "text": "There. Good as new. Better. Don't pick at it."
+              }
+            ]
+          },
+          {
+            "text": "Let me see it.",
+            "slip": 2,
+            "bond": -1,
+            "set": "sawHand",
+            "then": [
+              {
+                "who": "narration",
+                "text": "You pull back the edge of the bandage. The cut is clean and deep and there is nothing in it. No red. Something pale and close-grained, like the inside of a mushroom.",
+                "fx": "glitch"
+              },
+              {
+                "who": "wren",
+                "text": "I said don't. ...It'll have closed by morning. It always does."
+              }
+            ]
+          },
+          {
+            "text": "Show me your wrist, Wren.",
+            "set": "justUs",
+            "then": [
+              {
+                "who": "wren",
+                "text": "...I was wondering when you'd ask."
+              },
+              {
+                "who": "narration",
+                "text": "Wren turns a hand over on the counter, palm up, like somebody paying by card. There are veins. They are silver, and they are not still.",
+                "fx": "showWrenWrist"
+              },
+              {
+                "who": "wren",
+                "text": "Yours are the same. Under the bandage. I've known since the second night. I didn't want you to be frightened."
+              },
+              {
+                "who": "narration",
+                "text": "Wren is smiling. It is the first smile you have seen up here that is not held a moment too long. It is held exactly as long as yours.",
+                "fx": "hideCloseup"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "knock": [
+      {
+        "who": "narration",
+        "text": "Half past one. From the storeroom: three knocks. Patient. Evenly spaced.",
+        "fx": "knock"
+      },
+      {
+        "who": "wren",
+        "text": "Pipes."
+      },
+      {
+        "choice": [
+          {
+            "text": "Knock back.",
+            "slip": 1,
+            "set": "knockedBack",
+            "then": [
+              {
+                "who": "narration",
+                "text": "You rap the door three times. A pause. Then, from the other side, at the height of your own hand: three knocks back.",
+                "fx": "knock"
+              },
+              {
+                "who": "wren",
+                "text": "Don't do that again. Please. They get their hopes up."
+              }
+            ]
+          },
+          {
+            "text": "Give me the key, Wren.",
+            "bond": -1,
+            "then": [
+              {
+                "who": "wren",
+                "text": "No. Not tonight. Promise me something, Sam. It's just us. No matter what. Say it."
+              },
+              {
+                "choice": [
+                  {
+                    "text": "It's just us.",
+                    "bond": 2,
+                    "set": "promised",
+                    "then": [
+                      {
+                        "who": "wren",
+                        "text": "...Thank you. That's all I wanted."
+                      }
+                    ]
+                  },
+                  {
+                    "text": "I can't promise that.",
+                    "bond": -1,
+                    "then": [
+                      {
+                        "who": "wren",
+                        "text": "No. I didn't think you could. Not yet."
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "text": "(leave it)",
+            "bond": 1,
+            "then": [
+              {
+                "who": "wren",
+                "text": "Good. It's nothing. It's only us in here."
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "storeroom": [
+      {
+        "who": "narration",
+        "text": "The storeroom again. Faster now: knocking that wants out.",
+        "fx": "knock",
+        "set": "storeroomDone"
+      },
+      {
+        "who": "wren",
+        "text": "I'll see to it."
+      },
+      {
+        "who": "narration",
+        "text": "The door. The dark.",
+        "fx": "dark"
+      },
+      {
+        "who": "narration",
+        "text": "Something is said in a voice you served coffee to. Then nothing is said.",
+        "fx": "gore",
+        "set": "usedStoreroom"
+      },
+      {
+        "who": "narration",
+        "text": "Light. Wren, rinsing their hands in the mop sink.",
+        "fx": "lights",
+        "set": "marks",
+        "clear": "mimicInBack"
+      },
+      {
+        "who": "wren",
+        "text": "That's the last one I do for you tonight."
+      }
+    ],
+    "dance": [
+      {
+        "who": "narration",
+        "text": "Twenty to five. Nothing on the road. Wren turns the radio up and holds out a hand.",
+        "fx": "song"
+      },
+      {
+        "who": "wren",
+        "text": "Come on. Nobody's looking. Nobody's ever looking."
+      },
+      {
+        "who": "narration",
+        "text": "You dance between the counter and the fridge, slowly, badly. Wren leads. Your feet know the steps before you do, which is strange, because you have never danced."
+      },
+      {
+        "choice": [
+          {
+            "text": "Rest your head on Wren's shoulder.",
+            "bond": 2,
+            "slip": 1,
+            "then": [
+              {
+                "who": "narration",
+                "text": "There is no heartbeat under your ear. You think about that. Then you think: there isn't one over it, either."
+              },
+              {
+                "who": "wren",
+                "text": "There. That's us."
+              }
+            ]
+          },
+          {
+            "text": "Step back.",
+            "bond": -1,
+            "then": [
+              {
+                "who": "wren",
+                "text": "...Too soon. All right. I can wait. I'm very good at waiting."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "who": "narration",
+        "text": "The song runs down like a tape with a thumb on the reel.",
+        "fx": "songOff"
+      }
+    ],
+    "cold": [
+      {
+        "who": "narration",
+        "text": "Twenty to five. Wren has not spoken to you in an hour. Now they hold out a hand, palm up."
+      },
+      {
+        "who": "wren",
+        "text": "Name tag."
+      },
+      {
+        "choice": [
+          {
+            "text": "Hand it over.",
+            "bond": 1,
+            "slip": 1,
+            "then": [
+              {
+                "who": "narration",
+                "text": "Wren looks at it for a long time. SAM. Then pins it back on you, a little too hard, a little too straight."
+              },
+              {
+                "who": "wren",
+                "text": "It's still yours. For now. Earn it."
+              }
+            ]
+          },
+          {
+            "text": "No.",
+            "bond": -1,
+            "then": [
+              {
+                "who": "wren",
+                "text": "No. Fine. Keep it. But remember who gave it to you."
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "dawn": {
+    "intro": [
+      "...Tarrow ranger station, first-light report, second night. Fog unchanged. Road closed."
+    ],
+    "outro": [
+      {
+        "if": {
+          "flag": "kid:serve"
+        },
+        "text": "The family who picked up a child on the pass have been found. They are well. Rangers say all four of them are exactly, identically well."
+      },
+      {
+        "if": {
+          "flag": "passCleared"
+        },
+        "text": "A notice has gone out, in our name, that the pass is open. It is not. We did not send it. Eleven vehicles have started up from Mullane Flat."
+      },
+      {
+        "if": {
+          "flag": "gusWarned"
+        },
+        "text": "On the strength of a photograph handed in tonight, a ranger will go up to Corrigan's tomorrow, whatever the fog does."
+      },
+      "Corrigan's Roadhouse: we have had no voice contact from you in three weeks, only the call-in tone. Somebody is pressing the button. Tarrow out."
+    ]
+  },
+  "epilogue": [
+    {
+      "who": "narration",
+      "text": "Six. Grey. Two nights down. Out by the pumps, something stands very straight in the new light, and then is a pump again.",
+      "fx": "figure"
+    },
+    {
+      "who": "narration",
+      "text": "In the staff toilet you unwrap your hand. There is no cut. There is not even a line.",
+      "if": {
+        "notFlag": "sawHand"
+      }
+    },
+    {
+      "who": "narration",
+      "text": "You don't unwrap your hand. You know what is under there, and what isn't.",
+      "if": {
+        "flag": "sawHand"
+      }
+    },
+    {
+      "who": "wren",
+      "text": "Tomorrow's the last of the roster. Then it's just us. No more radio. I promise.",
+      "if": {
+        "minBond": 4
+      }
+    },
+    {
+      "who": "wren",
+      "text": "One more night on the roster. Try to stay with me for it.",
+      "if": {
+        "maxBond": 3
+      }
+    }
+  ],
+  "summary": [
+    {
+      "if": {
+        "minHumanity": 5
+      },
+      "text": "Most of the people who have come to your counter are still people."
+    },
+    {
+      "if": {
+        "minHumanity": 0,
+        "maxHumanity": 4
+      },
+      "text": "Some of them made it down the mountain. You have stopped counting."
+    },
+    {
+      "if": {
+        "maxHumanity": -1
+      },
+      "text": "The fog is taking more than its share. A good part of that is you."
+    },
+    {
+      "if": {
+        "minBond": 4
+      },
+      "text": "Wren walks you to the door at knock-off, and does not quite let you through it."
+    },
+    {
+      "if": {
+        "minBond": -1,
+        "maxBond": 3
+      },
+      "text": "Wren watches you clock off, and says nothing, and keeps watching."
+    },
+    {
+      "if": {
+        "maxBond": -2
+      },
+      "text": "Wren counts the till twice and looks at you three times."
+    },
+    {
+      "if": {
+        "maxSlip": 2
+      },
+      "text": "Your hands are steady. You check them twice anyway."
+    },
+    {
+      "if": {
+        "minSlip": 3,
+        "maxSlip": 5
+      },
+      "text": "Your reflection in the door glass takes a moment to catch you up."
+    },
+    {
+      "if": {
+        "minSlip": 6
+      },
+      "text": "You say goodnight to your reflection. It says it first."
+    }
+  ],
+  "next": "Night 3: Last Shift"
+}

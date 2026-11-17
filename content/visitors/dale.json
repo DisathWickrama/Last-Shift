@@ -1,0 +1,87 @@
+{
+  "id": "dale",
+  "title": "Dale, trucker",
+  "people": [
+    {
+      "name": "Dale",
+      "isMimic": false,
+      "face": {
+        "seed": "dale", "hair": "cap", "hat": "#4a4a3c", "hairColor": "#5a4a3a", "skin": "#d8b08a",
+        "beard": 0.45, "wrinkles": 0.6, "browTilt": 0.35, "browThick": 3, "lid": 0.32, "smile": -0.1,
+        "jaw": 0.85, "shoulders": 55, "shirt": "#5a5040", "glasses": false
+      },
+      "tells": { "veins": "human", "reflection": "human", "shadow": "human" }
+    }
+  ],
+  "patience": 5,
+  "greeting": [
+    { "who": "narration", "text": "The bell over the door. A big man in a work shirt, rubbing his eyes with the heel of his hand." },
+    { "who": "visitor", "text": "Evening. Large flat white, and whatever diesel you'll let me have. Can't see my own bonnet out there." }
+  ],
+  "annoyed": "Mate. I've shown you my hands. I've stood here like a stunned mullet. Coffee. Please.",
+  "notes": {
+    "wrist": "He taps his card and waits. Grease under the nails. The veins are where veins go.",
+    "reflection": "The mirror in the corner shows the whole shop, bent. Him from behind. You and Wren at the counter.",
+    "shadow": "You lean over the counter and look at the floor. He watches you do it."
+  },
+  "topics": [
+    {
+      "id": "haul", "tone": "neutral",
+      "ask": "Long haul tonight?",
+      "answer": "Frozen peas to Mullane Flat. Should've been there by midnight. Then that muck came down off the tops and I've done the last ten k in second gear."
+    },
+    {
+      "id": "cb", "tone": "neutral",
+      "ask": "Hear anything on the CB?",
+      "answer": "Bloke on forty kept saying he could see his wife on the roadside, waving him over. She passed six years back. I turned it off after that."
+    },
+    {
+      "id": "cb2", "tone": "neutral", "requires": "cb",
+      "ask": "Did he pull over?",
+      "answer": "...Dunno. He stopped talking."
+    },
+    {
+      "id": "house", "tone": "warm",
+      "ask": "You look wrecked. Coffee's on the house.",
+      "answer": "...Cheers. You're a good kid.",
+      "note": "He means it. Beside you, Wren has gone very quiet."
+    },
+    {
+      "id": "really", "tone": "strange",
+      "ask": "How do I know you're really Dale?",
+      "answer": "Because it says so on my licence, my truck, and every letter from my ex-wife's solicitor. What sort of a question is that?"
+    }
+  ],
+  "wren": {
+    "arrive": "First one of the night. Be nice. Not too nice.",
+    "advice": "serve",
+    "adviceLine": "He's fine. Smell that? Diesel and servo coffee. Nothing out there copies that. Serve him and send him on.",
+    "key": "give"
+  },
+  "leave": {
+    "serve": [
+      { "who": "visitor", "text": "Cheers. Keep that door locked between customers, yeah? I mean it." },
+      { "who": "narration", "text": "The bell again. His tail-lights are gone before he is out of second gear." }
+    ],
+    "turnAway": [
+      { "who": "you", "text": "Sorry. We're closed." },
+      { "who": "visitor", "text": "The sign says open. There's eighty k of nothing out there, mate." },
+      { "who": "visitor", "text": "...Right. Righto." }
+    ],
+    "shelter": [
+      { "who": "you", "text": "Road's no good tonight. There's a room out the back." },
+      { "who": "visitor", "text": "...Yeah. Yeah, alright. Wouldn't say no to four hours." }
+    ],
+    "walkout": [
+      { "who": "visitor", "text": "You know what, forget it. I'll take my chances with the fog." },
+      { "who": "narration", "text": "He leaves the receipt curling on the counter." }
+    ]
+  },
+  "report": {
+    "serve": "A B-double carrying frozen goods reached the Mullane Flat depot at ten past one. The driver told staff, quote, the kid on nights at Corrigan's looks like they haven't slept in a month. End quote.",
+    "turnAway": "A B-double has been found jackknifed across both lanes eleven kilometres west of Corrigan's Pass. Engine running. Driver's door open. The driver has not been located.",
+    "walkout": "A B-double has been found nose-down in the drain west of the pass. The cab was empty. There was a coffee cup on the dash, still full.",
+    "shelter": "A truck driver who sat out the night at Corrigan's Roadhouse has checked in with his depot and is continuing west.",
+    "missed": "A truck was seen idling at Corrigan's pumps a little before dawn. Nobody came out to it. It has since moved on."
+  }
+}
