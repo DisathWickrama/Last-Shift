@@ -151,8 +151,14 @@ export class NightScene implements Scene {
     if (game.debug) (window as unknown as { __ls: Record<string, unknown> }).__ls.scene = this;
   }
 
+  /** While a night is running, Esc (or the corner button) opens the pause menu. */
+  enter(): void {
+    this.game.menu.pausable = true;
+  }
+
   /** Leaving the scene: make sure nothing is left playing. */
   exit(): void {
+    this.game.menu.pausable = false;
     this.game.audio.song(false);
     this.game.audio.radio(false);
   }
@@ -554,7 +560,7 @@ export class NightScene implements Scene {
         break;
       case 'choice':
         this.buttons = this.optionButtons(s.options.filter((o) => !o.when || o.when()));
-        if (handleButtons(this.buttons, input)) this.game.audio.sting('click');
+        handleButtons(this.buttons, input);
         break;
     }
   }
@@ -701,10 +707,7 @@ export class NightScene implements Scene {
       return;
     }
     this.buttons = this.buildButtons();
-    if (handleButtons(this.buttons, input)) {
-      this.game.audio.sting('click');
-      return;
-    }
+    if (handleButtons(this.buttons, input)) return;
 
     // Clicking Wren: they tell you what they want done (or, if they already have, that they are still here).
     const z = this.wrenZone;

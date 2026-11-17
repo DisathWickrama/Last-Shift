@@ -19,7 +19,7 @@
 import type { Who } from '../core/content';
 import { clamp } from '../core/rng';
 
-export type Sting = 'boom' | 'rise' | 'chime' | 'bell' | 'click' | 'static' | 'knock' | 'break' | 'gore' | 'thud' | 'photo' | 'tick' | 'glass' | 'tear';
+export type Sting = 'hover' | 'boom' | 'rise' | 'chime' | 'bell' | 'click' | 'static' | 'knock' | 'break' | 'gore' | 'thud' | 'photo' | 'tick' | 'glass' | 'tear';
 
 export interface AudioState {
   /** 0..1 drift of the visitor at the counter. Drives the drone. */
@@ -71,6 +71,10 @@ const BEAT = 0.82; // seconds per beat: slow
 export class AudioEngine {
   private ctx: AudioContext | null = null;
   private master!: GainNode;
+  /** Two sub-mixes under the master, so music and effects have their own volume sliders. */
+  private music!: GainNode;
+  private sfx!: GainNode;
+  private volumes = { master: 0.9, music: 0.8, sfx: 0.9 };
   private noise!: AudioBuffer;
   // beds
   private buzz!: GainNode;
@@ -113,8 +117,14 @@ export class AudioEngine {
     const ctx = new Ctor();
     this.ctx = ctx;
     this.master = ctx.createGain();
-    this.master.gain.value = this.muted ? 0 : 0.9;
+    this.master.gain.value = this.volumes.master;
     this.master.connect(ctx.destination);
+    this.music = ctx.createGain();
+    this.music.gain.value = this.volumes.music;
+    this.music.connect(this.master);
+    this.sfx = ctx.createGain();
+    this.sfx.gain.value = this.volumes.sfx;
+    this.sfx.connect(this.master);
 
     // Two seconds of white noise, reused by everything that hisses, rumbles or blows.
     this.noise = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
@@ -173,6 +183,9 @@ export class AudioEngine {
     dark.frequency.value = 360;
     dark.Q.value = 0.6;
     dark.connect(this.padGain);
+    // The pad is music, not an effect: move it to the music sub-mix.
+    this.padGain.disconnect();
+    this.padGain.connect(this.music);
     for (let i = 0; i < 3; i++) {
       const o = ctx.createOscillator();
       o.type = 'sawtooth';
@@ -199,7 +212,7 @@ export class AudioEngine {
     speaker.frequency.value = 1100;
     speaker.Q.value = 0.8;
     this.songBus.connect(speaker);
-    speaker.connect(this.master);
+    speaker.connect(this.music);
   }
 
   // --- building blocks --------------------------------------------------------
@@ -208,7 +221,7 @@ export class AudioEngine {
   private bed(volume: number): GainNode {
     const g = this.ctx!.createGain();
     g.gain.value = volume;
-    g.connect(this.master);
+    g.connect(this.sfx);
     return g;
   }
 
@@ -239,7 +252,7 @@ export class AudioEngine {
   }
 
   /** One short tone that fades out and removes itself. The basis of most stings. */
-  private ping(type: OscillatorType, freq: number, volume: number, seconds: number, at = 0, endFreq = freq, out: AudioNode = this.master): void {
+  private ping(type: OscillatorType, freq: number, volume: number, seconds: number, at = 0, endFreq = freq, out: AudioNode = this.sfx): void {
     const ctx = this.ctx!;
     const t = ctx.currentTime + at;
     const o = ctx.createOscillator();
@@ -271,7 +284,7 @@ export class AudioEngine {
     g.gain.exponentialRampToValueAtTime(0.0001, t + seconds);
     src.connect(f);
     f.connect(g);
-    g.connect(this.master);
+    g.connect(this.sfx);
     src.start(t, Math.random());
     src.stop(t + seconds + 0.05);
   }
@@ -280,7 +293,16 @@ export class AudioEngine {
 
   setMuted(muted: boolean): void {
     this.muted = muted;
-    if (this.ctx) this.glide(this.master, muted ? 0 : 0.9, 0.1);
+    if (this.ctx) this.glide(this.master, muted ? 0 : this.volumes.master, 0.1);
+  }
+
+  /** Set the three volume sliders (each 0..1). Safe to call before start(). */
+  setVolumes(master: number, music: number, sfx: number): void {
+    this.volumes = { master, music, sfx };
+    if (!this.ctx) return;
+    this.glide(this.master, master, 0.1);
+    this.glide(this.music, music, 0.1);
+    this.glide(this.sfx, sfx, 0.1);
   }
 
   /** Called every logic step: steer the beds from the state of the game. */
@@ -335,8 +357,8 @@ export class AudioEngine {
         this.bellIn = sc.bellGap[0] + Math.random() * (sc.bellGap[1] - sc.bellGap[0]);
         const note = sc.bells[Math.floor(Math.random() * sc.bells.length)];
         const hz = sc.root * 8 * Math.pow(2, note / 12);
-        this.ping('sine', hz, 0.028, 4);
-        this.ping('sine', hz * 2.01, 0.008, 2.5); // a faint, slightly sour overtone
+        this.ping('sine', hz, 0.028, 4, 0, hz, this.music);
+        this.ping('sine', hz * 2.01, 0.008, 2.5, 0, hz * 2.01, this.music); // a faint, slightly sour overtone
       }
       if (sc.pulse > 0) {
         this.pulseIn -= dt * (1 + d * 1.5); // the heartbeat quickens with drift
@@ -385,7 +407,7 @@ export class AudioEngine {
     g.gain.exponentialRampToValueAtTime(0.0001, t + 9);
     o.connect(f);
     f.connect(g);
-    g.connect(this.master);
+    g.connect(this.sfx);
     o.start(t);
     o.stop(t + 9.2);
   }
@@ -462,6 +484,9 @@ export class AudioEngine {
   sting(name: Sting): void {
     if (!this.ctx) return;
     switch (name) {
+      case 'hover': // the pointer moving onto a button: barely there
+        this.ping('sine', 880, 0.008, 0.03);
+        break;
       case 'boom': // a revelation: one low hit with a long tail
         this.ping('sine', 58, 0.5, 2.6, 0, 27);
         this.hiss('lowpass', 240, 0.25, 1.2);

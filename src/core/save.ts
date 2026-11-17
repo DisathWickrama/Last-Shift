@@ -65,3 +65,25 @@ export function recordEnding(id: string): string[] {
   }
   return found;
 }
+
+// --- settings -------------------------------------------------------------------
+
+const SETTINGS_KEY = 'last-shift:settings:v1';
+
+/** Saved settings laid over the defaults, so a new setting added later still gets a value. */
+export function loadSettings<T extends object>(defaults: T): T {
+  try {
+    const saved = JSON.parse(localStorage.getItem(SETTINGS_KEY) ?? '{}');
+    return typeof saved === 'object' && saved ? { ...defaults, ...saved } : defaults;
+  } catch {
+    return defaults;
+  }
+}
+
+export function saveSettings(settings: object): void {
+  try {
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+  } catch {
+    // not saved: the settings still apply until the tab is closed
+  }
+}
