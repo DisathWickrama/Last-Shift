@@ -5,7 +5,7 @@
 // play the real Night 1 through NightState, with no screen, to prove it reaches dawn.
 
 import { describe, it, expect } from 'vitest';
-import { VISITORS, NIGHTS, WREN, type Beat, type VisitorDef } from '../src/core/content';
+import { VISITORS, NIGHTS, WREN, ENDINGS, type Beat, type VisitorDef } from '../src/core/content';
 import { NightState } from '../src/systems/night';
 import { buildReport } from '../src/systems/report';
 import { ALL_TELLS } from '../src/systems/drift';
@@ -173,5 +173,20 @@ describe('Night 1, played without a screen', () => {
     const state = play('shelter');
     expect(state.flags.has('marks')).toBe(true);
     expect(state.flags.has('mimicInBack')).toBe(false);
+  });
+});
+
+describe('endings', () => {
+  it('has the five endings from the design, each with a scene and a card', () => {
+    expect(ENDINGS.map((e) => e.id).sort()).toEqual(['cleanHands', 'closeEnough', 'fogLifts', 'justUs', 'wrongAnswer']);
+    for (const ending of ENDINGS) {
+      expect(ending.title).toBeTruthy();
+      expect(ending.script.length, ending.id).toBeGreaterThan(0);
+      expect(ending.card.length, ending.id).toBeGreaterThan(0);
+    }
+  });
+
+  it('ends with an ending that has no condition, so the game can never finish without one', () => {
+    expect(ENDINGS[ENDINGS.length - 1].if).toBeUndefined();
   });
 });

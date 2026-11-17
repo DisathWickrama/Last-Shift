@@ -23,6 +23,19 @@
         },
         {
           "who": "narration",
+          "text": "The bell goes. A late customer, out of the fog. Neither of you turns round.",
+          "fx": "bell"
+        },
+        {
+          "who": "wren",
+          "text": "Let it wait. Show me your smile first. No. Wider. Hold it. ...There."
+        },
+        {
+          "who": "narration",
+          "text": "You hold it. You find you can hold it for exactly as long as you like."
+        },
+        {
+          "who": "narration",
           "text": "The radio finds its song. Two attendants at a counter, practising a smile at each other until neither can tell who is leading.",
           "fx": "song"
         }
