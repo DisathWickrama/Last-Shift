@@ -81,6 +81,11 @@ export class Renderer {
     this.g.fillRect(0, 0, W, H);
   }
 
+  /** Drop any text queued so far this frame (a menu covering the scene uses this). */
+  clearText(): void {
+    this.texts.length = 0;
+  }
+
   /** Queue a line of text. x, y are virtual pixels; y is the top of the letters. */
   text(str: string, x: number, y: number, opts: TextOpts = {}): void {
     this.texts.push({

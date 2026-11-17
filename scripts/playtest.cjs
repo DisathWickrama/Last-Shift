@@ -17,7 +17,7 @@
 
 const { chromium } = require('playwright');
 
-const url = (process.argv[2] || 'http://localhost:5173/').replace(/\?.*$/, '') + '?debug';
+const url = (process.argv[2] || 'http://localhost:5173/').replace(/\?.*$/, '') + '?debug&nowarn';
 const strategy = process.argv[3] || 'wren';
 const prefer = (process.argv[4] || '').split(',').filter(Boolean);
 const LABEL = { serve: 'Serve', turnAway: 'Turn away', shelter: 'Shelter' };
@@ -72,10 +72,11 @@ const LABEL = { serve: 'Serve', turnAway: 'Turn away', shelter: 'Shelter' };
     last = s;
     if (s.ending) break;
     if (!s.live) {
-      // Title screen or a between-nights card: click the middle, then where the card's button is.
-      await clickAt(240, 135);
-      await clickAt(240, 234);
-      await page.waitForTimeout(700);
+      // Title screen: "New game" is the first button. A between-nights card: its button is lower down.
+      await clickAt(240, 206);
+      await page.waitForTimeout(500);
+      if (!(await info()).live) await clickAt(240, 234);
+      await page.waitForTimeout(600);
       continue;
     }
     if (s.log.length) visits.splice(0, visits.length, ...new Set([...visits, ...s.log.map((l) => `n${s.night + 1} ${l}`)]));
